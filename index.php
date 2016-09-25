@@ -1,48 +1,28 @@
 <?php
-	require_once "./config/app.config.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config/app.config.php";
 
-	$username = "guest";
-	$loginSuccess = false;
+$username = "guest";
+$loginSuccess = false;
 
-	session_start();
-	
-	if ( isset( $_SESSION[ "loginSuccess" ] ) && $_SESSION[ "loginSuccess" ] )
-	{
-		$username = $_SESSION[ "username" ];
-		$loginSuccess = true;
-	}
+session_start();
+
+if ( isset( $_SESSION[ "loginSuccess" ] ) && $_SESSION[ "loginSuccess" ] )
+{
+	$username = $_SESSION[ "username" ];
+	$loginSuccess = true;
+}
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+<?php
+if ( $loginSuccess == true )
+{
+	require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlist.php";
+}
+else
+{
+	require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/login/login.php";
 
-	<link rel="stylesheet" type="text/css" href="./css/main.css">
-
-	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-	<script type="text/javascript" src="./js/main.js"></script>
-
-	<title>Welcome to Vocabulary Master</title>
-</head>
-<body>
-	<header>
-		<span class="title">Vocabulary Master</span>
-		<span class="welcomeText">Welcome <?php echo $username; ?>!</span>
-	</header>
-
-	<div class="content">
-		<?php
-			if ( $loginSuccess == true )
-			{
-				include "./mods/wordlist/wordlistForm.php";
-			}
-			else
-				include "./mods/login/loginForm.php"
-		?>
-	</div>
-	<footer>
-	</footer>
-</body>
-</html>
+	if ( isset( $_SESSION[ "loginSuccess" ] ) && !( $_SESSION[ "loginSuccess" ] ) )
+		echo "<span class='loginErr'>Login failed! Invalid username or password </span><br>";
+}
+?>

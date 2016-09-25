@@ -29,6 +29,12 @@ header{
 	padding-top: 10px;
 }
 
+.loginErr {
+	position: fixed;
+	color: red;
+	margin-top: 10px;
+}
+
 ul {
     list-style-type: none;
     margin: 0;
