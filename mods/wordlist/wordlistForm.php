@@ -5,19 +5,14 @@
 </nav>
 
 <form>
-	<button type="submit" name="addNewWordlist" formmethod="post">Add new wordlist</button>
+
+	<?php		
+		require_once "./mods/wordlist/newWordlistForm.php";		
+	?>
+
 	<button type="submit" name="delNewWordlist" formmethod="post" form="wordListView">Delete selected wordlist</button>
 	<button type="submit" name="UpdateAllWordlist" formmethod="post" form="wordListView">Update selected wordlist</button>
 </form>
-
-<?php
-	require_once "./mods/wordlist/wordlistControl.php";
-	
-	if( isset($_POST[ "addNewWordlist" ]) )
-	{
-		require_once "./mods/wordlist/newWordlistForm.php";
-	}
-?>
 
 <form id="wordListView">
 <table>

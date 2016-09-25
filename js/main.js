@@ -58,7 +58,10 @@ $(document).ready(function() {
             {
                 spanTag.style = "color: red";
                 $("#chk-" + id).prop('checked', true);
-                $("#chk-" + id).prop('value', inputTag.value);
+
+                var oldWordStr = ( $("#chk-" + id).val() ).substring( 0, ( $("#chk-" + id).val() ).lastIndexOf( ":" ) + 1 )
+
+                $("#chk-" + id).prop('value', oldWordStr + inputTag.value);
             }
 
             inputTag.parentNode.replaceChild(spanTag, inputTag);

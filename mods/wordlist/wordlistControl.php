@@ -11,7 +11,12 @@
 		global $mysqli;
 
 		foreach( $_POST['words'] as $check ) {
-			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $check . '";';
+			$startIndex = strpos($check, ":") + 1;
+			$len = strpos($check, ";") - $startIndex;
+
+			$oldWord = substr($check, $startIndex, $len);
+
+			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $oldWord . '";';
 
 			$result = $mysqli->query( $query );
 
@@ -26,7 +31,13 @@
 	{
 		global $mysqli;
 
-		$query = 'UPDATE wordlist SET wordlistName = "' . $_POST['words'][0] . '" WHERE wordlistName="' . $_POST[ "UpdateWordlist" ] . '";';
+		$startIndex = strpos($_POST['words'][0], ":") + 1;
+		$len = strpos($_POST['words'][0], ";") - $startIndex;
+
+		$oldWord = substr($_POST['words'][0], $startIndex, $len);
+		$newWord = substr($_POST['words'][0], strrpos($_POST['words'][0], ":") + 1);
+
+		$query = 'UPDATE wordlist SET wordlistName = "' . $newWord . '" WHERE wordlistName="' . $oldWord . '";';
 
 		$result = $mysqli->query( $query );
 
@@ -38,19 +49,24 @@
 
 	if ( isset( $_POST[ "UpdateAllWordlist" ] ) )
 	{
-		// global $mysqli;
+		global $mysqli;
 
-		// foreach( $_POST['words'] as $check ) {
-		// 	$query = 'UPDATE wordlist SET wordlistName = "' . $check . '" WHERE wordlistName="' . $_POST[ "UpdateWordlist" ] . '";';
+		foreach( $_POST['words'] as $check ) {
+			$startIndex = strpos($check, ":") + 1;
+			$len = strpos($check, ";") - $startIndex;
 
-		// 	$result = $mysqli->query( $query );
+			$oldWord = substr($check, $startIndex, $len);
+			$newWord = substr($check, strrpos($check, ":") + 1);
 
-		// 	if( !$result )
-		// 	{
-		// 		echo "Updating wordlist failed!";
-		// 	}
-		// }
-		print_r( $_POST);
+			$query = 'UPDATE wordlist SET wordlistName = "' . $newWord . '" WHERE wordlistName="' . $oldWord . '";';
+
+			$result = $mysqli->query( $query );
+
+			if( !$result )
+			{
+				echo "Updating wordlist failed!";
+			}
+		}
 	}
 
 	function addWordList( $wordlistTitle )
@@ -87,5 +103,6 @@
 		{
 			echo "Adding wordlist failed!";
 		}
+
 	}
 ?>
