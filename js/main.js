@@ -55,11 +55,13 @@ $(document).ready(function() {
             spanTag.setAttribute('name', inputTag.value);
 
             if( id != spanTag.innerHTML )
+            {
                 spanTag.style = "color: red";
+                $("#chk-" + id).prop('checked', true);
+                $("#chk-" + id).prop('value', inputTag.value);
+            }
 
             inputTag.parentNode.replaceChild(spanTag, inputTag);
-
-            $("#words[" + id + "]").checked = true;
         }
         return this;
     };

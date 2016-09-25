@@ -12,7 +12,7 @@
 			$count++;
 
 			echo "<tr>" .
-					"<td><input type='checkbox' class='checkbox' name='words[]' value='" . $row[0] . "'/></td>
+					"<td><input type='checkbox' class='checkbox' name='words[]' value='" . $row[0] . "' id='chk-" . $row[0] . "'/></td>
 					<td><span class ='word' id='" . $row[0] . "' name='" . $row[0] . "'>" . $row[0] . "</span></td>
 					<td><button type='submit' name='UpdateWordlist' formmethod='post' value='" . $row[0] . "'>Update</button></td>
 				</tr>";

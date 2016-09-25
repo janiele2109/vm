@@ -24,17 +24,16 @@
 
 	if ( isset( $_POST[ "UpdateWordlist" ] ) )
 	{
-		// global $mysqli;
+		global $mysqli;
 
-		// $query = 'UPDATE wordlist SET wordlistName = "' .  . '" WHERE wordlistName="' . $_POST[ "UpdateWordlist" ] . '";';
+		$query = 'UPDATE wordlist SET wordlistName = "' . $_POST['words'][0] . '" WHERE wordlistName="' . $_POST[ "UpdateWordlist" ] . '";';
 
-		// $result = $mysqli->query( $query );
+		$result = $mysqli->query( $query );
 
-		// if( !$result )
-		// {
-		// 	echo "Deleting wordlist failed!";
-		// }
-		print_r($_POST);
+		if( !$result )
+		{
+			echo "Updating wordlist failed!";
+		}
 	}
 
 	if ( isset( $_POST[ "UpdateAllWordlist" ] ) )
@@ -42,16 +41,16 @@
 		// global $mysqli;
 
 		// foreach( $_POST['words'] as $check ) {
-		// 	$query = 'UPDATE wordlist SET wordlistName = "' . $_POST[ 'UpdateWordlist' ] ) . '" WHERE wordlistName="' . $_POST[ "UpdateWordlist" ] ) . '";';
+		// 	$query = 'UPDATE wordlist SET wordlistName = "' . $check . '" WHERE wordlistName="' . $_POST[ "UpdateWordlist" ] . '";';
 
 		// 	$result = $mysqli->query( $query );
 
 		// 	if( !$result )
 		// 	{
-		// 		echo "Deleting wordlist failed!";
+		// 		echo "Updating wordlist failed!";
 		// 	}
 		// }
-		print_r($_POST);
+		print_r( $_POST);
 	}
 
 	function addWordList( $wordlistTitle )
