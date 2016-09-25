@@ -24,11 +24,11 @@
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script type="text/javascript" src="./js/main.js"></script>
 
-	<title>Welcome to English Helper</title>
+	<title>Welcome to Vocabulary Master</title>
 </head>
 <body>
 	<header>
-		<span class="title">English Helper</span>
+		<span class="title">Vocabulary Master</span>
 		<span class="welcomeText">Welcome <?php echo $username; ?>!</span>
 	</header>
 
