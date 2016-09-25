@@ -1,5 +1,6 @@
 body{
 	font-family: Arial;
+	font-size: 13px;
 }
 
 header{
@@ -56,4 +57,29 @@ li a:hover:not(.active) {
 li a.active {
     color: white;
     background-color: #4CAF50;
+}
+
+nav {
+	margin-bottom: 10px;
+}
+
+button {
+	margin: 10px;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    text-align: left;
+}
+table#t01 {
+    width: 100%;    
+    background-color: #f1f1c1;
+}
+
+table {
+	margin-top: 10px;
 }

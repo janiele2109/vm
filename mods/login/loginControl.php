@@ -1,5 +1,5 @@
 <?php
-    include "./../../db/mysql.connect.php";
+    include_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
     
 	session_start();
 	
