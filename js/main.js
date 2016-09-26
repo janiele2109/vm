@@ -1,5 +1,7 @@
 $(document).ready(function() {
-	$('#select_all').change(function(){
+    // history.pushState("", document.title, window.location.pathname);
+
+    $('#select_all').change(function(){
         if($(this).prop('checked')){
             $('tbody tr td input[type="checkbox"]').each(function(){
                 $(this).prop('checked', true);
@@ -15,29 +17,37 @@ $(document).ready(function() {
         var element = event.target;
 
         if (element.tagName == 'TD' && event.type == "mouseenter") {
+            // var $focused = $(':focus');
+
+            // if( $focused.attr('class') == 'word')
+            element.focus();
+
             var tdTag = element;
-            var spanTag = tdTag.childNodes[0]; 
-            var inputTag = document.createElement('INPUT');
+            if( tdTag.childNodes[0].tagName == "SPAN" )
+            {
+                var spanTag = tdTag.childNodes[0]; 
+                var inputTag = document.createElement('INPUT');
 
-            inputTag.id = ("input-" + spanTag.id);
-            inputTag.style.width = tdTag.offsetWidth - 18 + "px";//"980px";//spanTag.innerHTML.length;
-            inputTag.value = spanTag.innerHTML;
-            inputTag.className = "word";
-            inputTag.onblur = $.fn.toggleTextArea;
-            inputTag.onkeypress = $.fn.toggleTextArea;
-            inputTag.onmouseout = $.fn.toggleTextArea;
-            inputTag.style.color = spanTag.style.color;
-            inputTag.name = spanTag.getAttribute('name');
-            inputTag.type = 'text';
+                inputTag.id = ("input-" + spanTag.id);
+                inputTag.style.width = tdTag.offsetWidth - 18 + "px";//"980px";//spanTag.innerHTML.length;
+                inputTag.value = spanTag.innerHTML;
+                inputTag.className = "word";
+                inputTag.onblur = $.fn.toggleTextArea;
+                inputTag.onkeypress = $.fn.toggleTextArea;
+                inputTag.onmouseout = $.fn.toggleTextArea;
+                inputTag.style.color = spanTag.style.color;
+                inputTag.name = spanTag.getAttribute('name');
+                inputTag.type = 'text';
 
-            spanTag.parentNode.replaceChild(inputTag, spanTag);
+                spanTag.parentNode.replaceChild(inputTag, spanTag);
 
-            $("#" + inputTag.id).focus();
+                $("#" + inputTag.id).focus();
 
-            var tmpStr = $("#" + inputTag.id).val();
-            
-            $("#" + inputTag.id).val("");
-            $("#" + inputTag.id).val(tmpStr);
+                var tmpStr = $("#" + inputTag.id).val();
+                
+                $("#" + inputTag.id).val("");
+                $("#" + inputTag.id).val(tmpStr);
+            }
 
             // var hideTag = document.createElement('SPAN');
 
@@ -102,7 +112,19 @@ $(document).ready(function() {
         });
     };
 
-    $(".word").hover(function(event) {
+    $(".word").mouseout(function(event) {
+        $(".word").toggleTextArea(event);
+    });
+
+    $(".word").mouseenter(function(event) {
+        $(".word").toggleTextArea(event);
+    });
+
+    $(".word").blur(function(event) {
+        $(".word").toggleTextArea(event);
+    });
+
+    $(".word").keypress(function(event) {
         $(".word").toggleTextArea(event);
     });
 
@@ -114,6 +136,8 @@ $(document).ready(function() {
     });
 
     $("#myWordMenuItem").click(function(event) {
+        event.preventDefault();
+
         $.post("/index.php",
         {
             menuItem: "myWord"
@@ -134,6 +158,8 @@ $(document).ready(function() {
 
 
     $("#myWordListMenuItem").click(function(event) {
+        event.preventDefault(); // not show hashtag in url
+
         $.post("/mods/wordlist/wordlist.php",
         {
             menuItem: "myWordList"
