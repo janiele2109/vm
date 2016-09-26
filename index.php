@@ -13,7 +13,7 @@ if ( isset( $_SESSION[ "loginSuccess" ] ) && $_SESSION[ "loginSuccess" ] )
 <?php
 if ( $loginSuccess == true )
 {
-	if( !isset( $_POST[ "menuItem" ] ) || $_POST[ "menuItem" ] != "myWord" )
+	if( $_SERVER["REQUEST_URI"] == "/")
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlist.php";
 	else
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/word.php";

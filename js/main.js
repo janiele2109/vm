@@ -1,6 +1,4 @@
 $(document).ready(function() {
-    // history.pushState("", document.title, window.location.pathname);
-
     $('#select_all').change(function(){
         if($(this).prop('checked')){
             $('tbody tr td input[type="checkbox"]').each(function(){
@@ -31,7 +29,12 @@ $(document).ready(function() {
                 inputTag.id = ("input-" + spanTag.id);
                 inputTag.style.width = tdTag.offsetWidth - 18 + "px";//"980px";//spanTag.innerHTML.length;
                 inputTag.value = spanTag.innerHTML;
-                inputTag.className = "word";
+
+                if( $( tdTag ).attr('class') == 'wordlist' )
+                    inputTag.className = "wordlist";
+                else if( $( tdTag ).attr('class') == 'word' )
+                    inputTag.className = "word";
+
                 inputTag.onblur = $.fn.toggleTextArea;
                 inputTag.onkeypress = $.fn.toggleTextArea;
                 inputTag.onmouseout = $.fn.toggleTextArea;
@@ -69,7 +72,12 @@ $(document).ready(function() {
 
             spanTag.id = id;
             spanTag.innerHTML = inputTag.value;
-            spanTag.className = "word";
+
+            if( $( inputTag ).attr('class') == 'wordlist' )
+                spanTag.className = "wordlist";
+            else if( $( inputTag ).attr('class') == 'word' )
+                spanTag.className = "word";
+            
             spanTag.onmouseenter = $.fn.toggleTextArea;
             spanTag.setAttribute('name', inputTag.value);
 
@@ -100,7 +108,7 @@ $(document).ready(function() {
         {
             oldVal: oldWord,
             newVal: newWord,
-            updateWorlist: true
+            requestType: "addWordList"
         },
 
         function(response,status){
@@ -111,6 +119,24 @@ $(document).ready(function() {
             }
         });
     };
+
+    $(".wordlist").mouseout(function(event) {
+        $(".wordlist").toggleTextArea(event);
+    });
+
+    $(".wordlist").mouseenter(function(event) {
+        $(".wordlist").toggleTextArea(event);
+    });
+
+    $(".wordlist").blur(function(event) {
+        $(".wordlist").toggleTextArea(event);
+    });
+
+    $(".wordlist").keypress(function(event) {
+        $(".wordlist").toggleTextArea(event);
+    });
+
+
 
     $(".word").mouseout(function(event) {
         $(".word").toggleTextArea(event);
@@ -128,6 +154,7 @@ $(document).ready(function() {
         $(".word").toggleTextArea(event);
     });
 
+
     $(".UpdateWordlistBtn").click(function(event) {
         $(".UpdateWordlistBtn").updateWordlist(this.id, this.value);
 
@@ -137,8 +164,9 @@ $(document).ready(function() {
 
     $("#myWordMenuItem").click(function(event) {
         event.preventDefault();
+        history.pushState("", document.title, "myword");
 
-        $.post("/index.php",
+        $.post("/mods/word/word.php",
         {
             menuItem: "myWord"
         },
@@ -159,6 +187,7 @@ $(document).ready(function() {
 
     $("#myWordListMenuItem").click(function(event) {
         event.preventDefault(); // not show hashtag in url
+        history.pushState("", document.title, "/mywordlist");
 
         $.post("/mods/wordlist/wordlist.php",
         {
@@ -177,4 +206,71 @@ $(document).ready(function() {
             }
         });
     });
+
+
+    $("#addNewWordBtn").click(function(event) {
+        event.preventDefault();
+
+        $.post("/mods/word/wordControl.php",
+        {
+            word: $("#addNewWordTextBox").val(),
+            wordlistId: $("#wordlistCb").val(),
+            requestType: "addWord"
+        },
+
+        function(response,status){
+            if( status != "success" )
+            {
+                alert("Request failed!");
+            }
+            else
+            {
+                alert(response);
+            }
+        });
+    });
+
+    $("#addNewWordlistBtn").click(function(event) {
+        $.post("/mods/wordlist/wordlistControl.php",
+        {
+            wordlistName: $("#addNewWordlistTextBox").val(),
+            requestType: "addWordList"
+        },
+
+        function(response,status){
+            if( status != "success" )
+            {
+                alert("Request failed!");
+            }
+            else
+            {
+                alert($("#wordListView").tagName);
+                $("#wordListView").childNodes[0].appendChild( response );
+            }
+        });        
+    });
+
+    $("#delAllWordlist").click(function(event) {
+        event.preventDefault();
+        history.pushState("", document.title, "/mywordlist");
+
+        // $.post("/mods/wordlist/wordlistControl.php",
+        // {
+        //     word: $("#addNewWordTextBox").val(),
+        //     wordlistId: $("#wordlistCb").val(),
+        //     requestType: "addWord"
+        // },
+
+        // function(response,status){
+        //     if( status != "success" )
+        //     {
+        //         alert("Request failed!");
+        //     }
+        //     else
+        //     {
+        //         alert(response);
+        //     }
+        // });
+    });
+
 });

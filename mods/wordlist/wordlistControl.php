@@ -1,17 +1,17 @@
 <?php
 	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
 
-	if ( isset($_POST[ "AddWL" ] ) ) 
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'addWordList') 
 	{
-		addWordList( $_POST[ "wordlistTitle" ] );
+		addWordList( $_POST[ "wordlistName" ] );
 	}
 
-	if ( isset( $_POST[ "delNewWordlist" ] ) && !empty( $_POST[ 'words' ] ) )
+	if ( isset( $_POST[ "delAllWordlist" ] ) && !empty( $_POST[ 'wordList' ] ) )
 	{
 		delAllWordList();
 	}
 
-	if ( isset( $_POST['updateWorlist'] ) && $_POST['updateWorlist'] == true )
+	if ( isset( $_POST['updateWordlist'] ) && $_POST['updateWordlist'] == true )
 	{
 		updateWordList( $_POST["oldVal"], $_POST["newVal"]);
 	}
@@ -41,7 +41,9 @@
 
 		if( $result )
 		{
-			echo $_POST["wordlistTitle"] . " added wordlist";
+			//echo $wordlistTitle . " added wordlist";
+
+			require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistView.php";
 		}
 		else
 		{
@@ -53,7 +55,7 @@
 	{
 		global $mysqli;
 
-		foreach( $_POST['words'] as $check ) {
+		foreach( $_POST['wordList'] as $check ) {
 			$startIndex = strpos($check, ":") + 1;
 			$len = strpos($check, ";") - $startIndex;
 
@@ -88,7 +90,7 @@
 	{
 		global $mysqli;
 
-		foreach( $_POST['words'] as $check ) {
+		foreach( $_POST['wordList'] as $check ) {
 			$startIndex = strpos($check, ":") + 1;
 			$len = strpos($check, ";") - $startIndex;
 

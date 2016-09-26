@@ -12,7 +12,7 @@ header{
 	margin-bottom: 20px;
 }
 
-.word {
+.wordlist, .word {
 	width: 300px;
 }
 

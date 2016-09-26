@@ -7,7 +7,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/config/app.config.php";
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/head.php";
 ?>
-<body OnLoad='document.getElementById("addNewWordlistTextBox").focus();'>
+<body OnLoad='document.getElementById("addNewWordlistTextBox").focus(); history.pushState("", document.title, "/mywordlist");'>
 	<?php
 	require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/header.php";
 	?>
