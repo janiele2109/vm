@@ -1,4 +1,57 @@
 $(document).ready(function() {
+
+    $("#addNewWordlistBtn").click(function(event) {
+        event.preventDefault();
+
+        $.post("/mods/wordlist/wordlistControl.php",
+        {
+            wordlistName: $("#addNewWordlistTextBox").val(),
+            requestType: "addWordList"
+        },
+
+        function(response,status){
+            if( status != "success" )
+            {
+                alert("Request failed!");
+            }
+            else
+            {
+                document.getElementById("addNewWordlistTextBox").setSelectionRange(0, $("#addNewWordlistTextBox").val().length);
+                $("#wordListView").children("table").children("tbody").html(response);
+            }
+        });        
+    });
+
+    $("#delAllWordlist").click(function(event) {
+        event.preventDefault();
+
+        var selectedWordlist = new Array();
+        $("input[name='wordList']:checked").each(function(i) {
+            selectedWordlist.push($(this).val());
+        });
+
+        alert(selectedWordlist);
+
+        $.post("/mods/wordlist/wordlistControl.php",
+        {
+            'wordlistArr[]': selectedWordlist,
+            requestType: "deleteAllWordList"
+        },
+
+        function(response,status){
+            if( status != "success" )
+            {
+                alert("Request failed!");
+            }
+            else
+            {
+                alert(response);
+                $("#wordListView").children("table").children("tbody").html(response);
+            }
+        });
+    });
+
+
     $('#select_all').change(function(){
         if($(this).prop('checked')){
             $('tbody tr td input[type="checkbox"]').each(function(){
@@ -228,49 +281,6 @@ $(document).ready(function() {
                 alert(response);
             }
         });
-    });
-
-    $("#addNewWordlistBtn").click(function(event) {
-        $.post("/mods/wordlist/wordlistControl.php",
-        {
-            wordlistName: $("#addNewWordlistTextBox").val(),
-            requestType: "addWordList"
-        },
-
-        function(response,status){
-            if( status != "success" )
-            {
-                alert("Request failed!");
-            }
-            else
-            {
-                alert($("#wordListView").tagName);
-                $("#wordListView").childNodes[0].appendChild( response );
-            }
-        });        
-    });
-
-    $("#delAllWordlist").click(function(event) {
-        event.preventDefault();
-        history.pushState("", document.title, "/mywordlist");
-
-        // $.post("/mods/wordlist/wordlistControl.php",
-        // {
-        //     word: $("#addNewWordTextBox").val(),
-        //     wordlistId: $("#wordlistCb").val(),
-        //     requestType: "addWord"
-        // },
-
-        // function(response,status){
-        //     if( status != "success" )
-        //     {
-        //         alert("Request failed!");
-        //     }
-        //     else
-        //     {
-        //         alert(response);
-        //     }
-        // });
     });
 
 });

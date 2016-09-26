@@ -6,7 +6,7 @@
 		addWordList( $_POST[ "wordlistName" ] );
 	}
 
-	if ( isset( $_POST[ "delAllWordlist" ] ) && !empty( $_POST[ 'wordList' ] ) )
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'deleteAllWordList') 
 	{
 		delAllWordList();
 	}
@@ -41,7 +41,7 @@
 
 		if( $result )
 		{
-			//echo $wordlistTitle . " added wordlist";
+			echo $wordlistTitle . " added wordlist";
 
 			require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistView.php";
 		}
@@ -53,23 +53,24 @@
 
 	function delAllWordList()
 	{
-		global $mysqli;
+		print_r($_POST);
+		// global $mysqli;
 
-		foreach( $_POST['wordList'] as $check ) {
-			$startIndex = strpos($check, ":") + 1;
-			$len = strpos($check, ";") - $startIndex;
+		// foreach( $_POST['wordlistArr'] as $check ) {
+		// 	$startIndex = strpos($check, ":") + 1;
+		// 	$len = strpos($check, ";") - $startIndex;
 
-			$oldWord = substr($check, $startIndex, $len);
+		// 	$oldWord = substr($check, $startIndex, $len);
 
-			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $oldWord . '";';
+		// 	$query = 'DELETE FROM wordlist WHERE wordlistName="' . $oldWord . '";';
 
-			$result = $mysqli->query( $query );
+		// 	$result = $mysqli->query( $query );
 
-			if( !$result )
-			{
-				echo "Deleting wordlist failed!";
-			}
-		}
+		// 	if( !$result )
+		// 	{
+		// 		echo "Deleting wordlist failed!";
+		// 	}
+		// }
 	}
 
 	function updateWordList($oldVal, $newVal)

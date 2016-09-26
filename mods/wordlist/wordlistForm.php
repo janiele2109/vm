@@ -2,7 +2,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/newWordlistForm.php";		
 ?>
 
-<button id="delAllWordlist" name="delAllWordlist">Delete selected wordlist</button>
+<button id="delAllWordlist">Delete selected wordlist</button>
 <button type="submit" id="UpdateAllWordlist" name="UpdateAllWordlist" formmethod="post" form="wordListView">Update selected wordlist</button>
 
 <form id="wordListView" action="/mods/wordlist/wordlistControl.php">
