@@ -15,7 +15,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/head.php";
 	<div class="content">
 		<?php
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/nav/nav.php";
-		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistForm.php";
+		//require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistForm.php";
 		?>
 	</div>
 	<footer>

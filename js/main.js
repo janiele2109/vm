@@ -14,12 +14,13 @@ $(document).ready(function() {
     $.fn.toggleTextArea = function(event) {
         var element = event.target;
 
-        if (element.tagName == 'SPAN' && event.type == "mouseenter") {
-            var spanTag = element; 
+        if (element.tagName == 'TD' && event.type == "mouseenter") {
+            var tdTag = element;
+            var spanTag = tdTag.childNodes[0]; 
             var inputTag = document.createElement('INPUT');
 
             inputTag.id = ("input-" + spanTag.id);
-            inputTag.size = spanTag.innerHTML.length;
+            inputTag.style.width = tdTag.offsetWidth - 18 + "px";//"980px";//spanTag.innerHTML.length;
             inputTag.value = spanTag.innerHTML;
             inputTag.className = "word";
             inputTag.onblur = $.fn.toggleTextArea;
@@ -27,8 +28,16 @@ $(document).ready(function() {
             inputTag.onmouseout = $.fn.toggleTextArea;
             inputTag.style.color = spanTag.style.color;
             inputTag.name = spanTag.getAttribute('name');
+            inputTag.type = 'text';
 
             spanTag.parentNode.replaceChild(inputTag, spanTag);
+
+            $("#" + inputTag.id).focus();
+
+            var tmpStr = $("#" + inputTag.id).val();
+            
+            $("#" + inputTag.id).val("");
+            $("#" + inputTag.id).val(tmpStr);
 
             // var hideTag = document.createElement('SPAN');
 
@@ -62,6 +71,8 @@ $(document).ready(function() {
                 var oldWordStr = ( $("#chk-" + id).val() ).substring( 0, ( $("#chk-" + id).val() ).lastIndexOf( ":" ) + 1 )
 
                 $("#chk-" + id).prop('value', oldWordStr + inputTag.value);
+
+                $("#UpdateWordlistBtn-" + id).prop('value', oldWordStr + inputTag.value);
             }
 
             inputTag.parentNode.replaceChild(spanTag, inputTag);
@@ -69,7 +80,75 @@ $(document).ready(function() {
         return this;
     };
 
+    $.fn.updateWordlist = function(id, value)
+    {
+        spanId = id.substring( id.lastIndexOf("-") + 1, id.length );
+        oldWord = value.substring( value.indexOf(":") + 1, value.lastIndexOf(";") );
+        newWord = value.substring( value.lastIndexOf(":") + 1, value.length );
+
+        $.post("/mods/wordlist/wordlistControl.php",
+        {
+            oldVal: oldWord,
+            newVal: newWord,
+            updateWorlist: true
+        },
+
+        function(response,status){
+            if( status == "success" )
+            {
+               $("#" + spanId).css('color', 'black');
+               $("#" + spanId).attr('id', newWord);
+            }
+        });
+    };
+
     $(".word").hover(function(event) {
         $(".word").toggleTextArea(event);
+    });
+
+    $(".UpdateWordlistBtn").click(function(event) {
+        $(".UpdateWordlistBtn").updateWordlist(this.id, this.value);
+
+        event.preventDefault();
+        return false;
+    });
+
+    $("#myWordMenuItem").click(function(event) {
+        $.post("/index.php",
+        {
+            menuItem: "myWord"
+        },
+
+        function(response,status){
+            if( status != "success" )
+            {
+                alert("Request failed!");
+            }
+            else
+            {
+                document.write(response);
+                document.close();
+            }
+        });
+    });
+
+
+    $("#myWordListMenuItem").click(function(event) {
+        $.post("/mods/wordlist/wordlist.php",
+        {
+            menuItem: "myWordList"
+        },
+
+        function(response,status){
+            if( status != "success" )
+            {
+                alert("Request failed!");
+            }
+            else
+            {
+                document.write(response);
+                document.close();
+            }
+        });
     });
 });
