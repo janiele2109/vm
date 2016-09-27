@@ -1,7 +1,7 @@
 <?php
 	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
 
-	$query = "SELECT word FROM word ORDER BY word";
+	$query = "SELECT wordlistName FROM wordlist ORDER BY wordlistName";
 
 	if ( $result = $mysqli->query( $query ) )
 	{

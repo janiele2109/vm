@@ -41,15 +41,10 @@
 
 		if( $result )
 		{
-			ob_start();
-			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
-			$html = ob_get_contents();
-			ob_end_clean();
-
 			$data = array("errState"=>"OK", 
 						  "errCode"=>"FFFF", 
 						  "msg"=>( $wordlistTitle + " added wordlist"), 
-						  "htmlContent"=>$html
+						  "htmlContent"=>file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php')
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
@@ -110,26 +105,14 @@
 
 			$result = $mysqli->query( $query );
 
-			if( !$result )
+			if( $result )
 			{
-				echo "Updating selected wordlist failed!";
-				return;
+				require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistView.php";
+			}
+			else
+			{
+				echo "Updating wordlist failed!";
 			}
 		}
-
-		ob_start();
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
-		$html = ob_get_contents();
-		ob_end_clean();
-
-		$data = array("errState"=>"OK", 
-					  "errCode"=>"FFFF", 
-					  "msg"=>( "Selected wordlist updated"), 
-					  "htmlContent"=>$html
-					 );
-
-		header("Content-Type: application/json");
-
-		echo json_encode($data);
 	}
 ?>
