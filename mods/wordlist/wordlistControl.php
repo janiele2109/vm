@@ -31,7 +31,14 @@
 
 		if ($result->num_rows > 0) 
 		{
-			echo "<span class='Err'>Duplicated wordlist!</span>";
+			$data = array("errState" => "NG", 
+						  "errCode" => "00001", 
+						  "msg" => "Duplicated word", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
 			return;
 		}
 
@@ -46,17 +53,25 @@
 			$html = ob_get_contents();
 			ob_end_clean();
 
-			$data = array("errState"=>"OK", 
-						  "errCode"=>"FFFF", 
-						  "msg"=>( $wordlistTitle + " added wordlist"), 
-						  "htmlContent"=>$html
+			$data = array("errState" => "OK", 
+						  "errCode" => "FFFF", 
+						  "msg" => $wordlistTitle . " added wordlist", 
+						  "htmlContent" => $html
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
 		}
 		else
 		{
-			echo "Adding wordlist failed!";
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Adding wordlist failed!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return;
 		}
 	}
 
@@ -65,20 +80,38 @@
 		global $mysqli;
 
 		foreach( $_POST['wordlistArr'] as $check ) {
-			$startIndex = strpos($check, ":") + 1;
-			$len = strpos($check, ";") - $startIndex;
+			$startIndex = strrpos($check, ":") + 1;
+			$len = strlen($check) - $startIndex;
 
-			$oldWord = substr($check, $startIndex, $len);
+			$word = substr($check, $startIndex, $len);
 
-			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $oldWord . '";';
+			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $word . '";';
 
 			$result = $mysqli->query( $query );
 
 			if( !$result )
 			{
-				echo "Deleting wordlist failed!";
+				$data = array("errState" => "NG", 
+							  "errCode" => "00002", 
+							  "msg" => "Deleting wordlist failed!", 
+							  "htmlContent" => ""
+							 );
+				header("Content-Type: application/json");
+				echo json_encode($data);
+
+				return;
 			}
 		}
+
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+				  	  "msg" => "", 
+					  "htmlContent" => ""
+					 );
+		header("Content-Type: application/json");
+		echo json_encode($data);
+
+		return;
 	}
 
 	function updateWordList($oldVal, $newVal)
@@ -91,8 +124,26 @@
 
 		if( !$result )
 		{
-			echo "Updating wordlist failed!";
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Updating wordlist failed!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return;
 		}
+
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+					  "msg" =>  $oldVal . " was updated to " . $newVal, 
+					  "htmlContent" => ""
+					 );
+
+		header("Content-Type: application/json");
+
+		echo json_encode($data);
 	}
 
 	function updateSelectedWordLists()
@@ -112,7 +163,14 @@
 
 			if( !$result )
 			{
-				echo "Updating selected wordlist failed!";
+				$data = array("errState" => "NG", 
+							  "errCode" => "00002", 
+							  "msg" => "Updating selected wordlist failed!", 
+							  "htmlContent" => ""
+							 );
+				header("Content-Type: application/json");
+				echo json_encode($data);
+
 				return;
 			}
 		}
@@ -122,10 +180,10 @@
 		$html = ob_get_contents();
 		ob_end_clean();
 
-		$data = array("errState"=>"OK", 
-					  "errCode"=>"FFFF", 
-					  "msg"=>( "Selected wordlist updated"), 
-					  "htmlContent"=>$html
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+					  "msg" => "Selected wordlist updated!", 
+					  "htmlContent" => $html
 					 );
 
 		header("Content-Type: application/json");

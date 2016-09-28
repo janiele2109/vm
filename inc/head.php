@@ -6,6 +6,8 @@
 
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script type="text/javascript" src="/js/main.js"></script>
+	<script type="text/javascript" src="/js/wordlist.js"></script>
+	<script type="text/javascript" src="/js/word.js"></script>
 
 	<title>Welcome to Vocabulary Master</title>
 </head>

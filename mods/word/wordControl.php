@@ -1,9 +1,9 @@
 <?php
 	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'addWordList') 
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'addWord') 
 	{
-		addWordList( $_POST[ "wordlistName" ] );
+		addWord( $_POST[ "wordName" ], $_POST[ "wordlistId" ] );
 	}
 
 	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'delSelectedWordLists') 
@@ -21,37 +21,57 @@
 		updateSelectedWordLists();
 	}
 
-	function addWordList( $wordlistTitle )
+	function addWord( $wordTitle, $wordListId )
 	{
 		global $mysqli;
 
-		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $wordlistTitle . '";';
+		$query = 'SELECT word FROM word WHERE word="' . $wordTitle . '" AND wordlistId="' . $wordListId . '";';
 
 		$result = $mysqli->query( $query );
 
 		if ($result->num_rows > 0) 
 		{
-			echo "<span class='Err'>Duplicated wordlist!</span>";
+			$data = array("errState"=>"NG", 
+						  "errCode"=>"00001", 
+						  "msg"=>( "Duplicated word"), 
+						  "htmlContent"=>""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
 			return;
 		}
 
-		$query = 'INSERT INTO wordlist(wordlistName) values("' . $wordlistTitle . '");';
+		$query = 'INSERT INTO word(word, wordlistId) values("' . $wordTitle . '", "' . $wordListId . '");';
 
 		$result = $mysqli->query( $query );
 
 		if( $result )
 		{
+			ob_start();
+			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/word/wordView.php';
+			$html = ob_get_contents();
+			ob_end_clean();
+
 			$data = array("errState"=>"OK", 
 						  "errCode"=>"FFFF", 
-						  "msg"=>( $wordlistTitle + " added wordlist"), 
-						  "htmlContent"=>file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php')
+						  "msg"=>( $wordTitle . " added"), 
+						  "htmlContent"=>$html
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
 		}
 		else
 		{
-			echo "Adding wordlist failed!";
+			$data = array("errState"=>"NG", 
+						  "errCode"=>"00002", 
+						  "msg"=>( "Adding word failed!"), 
+						  "htmlContent"=>""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return;
 		}
 	}
 
@@ -105,14 +125,26 @@
 
 			$result = $mysqli->query( $query );
 
-			if( $result )
+			if( !$result )
 			{
-				require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistView.php";
-			}
-			else
-			{
-				echo "Updating wordlist failed!";
+				echo "Updating selected wordlist failed!";
+				return;
 			}
 		}
+
+		ob_start();
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		$data = array("errState"=>"OK", 
+					  "errCode"=>"FFFF", 
+					  "msg"=>( "Selected wordlist updated"), 
+					  "htmlContent"=>$html
+					 );
+
+		header("Content-Type: application/json");
+
+		echo json_encode($data);
 	}
 ?>

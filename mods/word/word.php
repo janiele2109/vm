@@ -7,7 +7,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/config/app.config.php";
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/head.php";
 ?>
-<body OnLoad='document.getElementById("addNewWordlistTextBox").focus();'>
+<body OnLoad='document.getElementById("addNewWordTextBox").focus(); history.pushState("", document.title, "/word");'>
 	<?php
 	require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/header.php";
 	?>
@@ -15,7 +15,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/head.php";
 	<div class="content">
 		<?php
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/nav/nav.php";
-		//require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlistForm.php";
+		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/wordForm.php";
 		?>
 	</div>
 	<footer>
