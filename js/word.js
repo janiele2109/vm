@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
     $("#addNewWordBtn").click(function(event) {
-        event.preventDefault();
+                event.preventDefault();
 
         var sendingData = {
             wordName: $("#addNewWordTextBox").val(),
@@ -25,12 +25,17 @@ $(document).ready(function() {
                     {
                         document.getElementById("addNewWordTextBox").setSelectionRange(0, $("#addNewWordTextBox").val().length);
                         $(".dynRowWord").remove();
-                        $("#msg").html(response['msg']);
+                        
                         $("#msg").removeClass("Err");
+                        $("#msg").html(response['msg']);
                         $("#tbWordView").children().append(response['htmlContent']);
+                        $("#select_all").prop('checked', false);
+                        $("#addNewWordTextBox").focus();  
+
                         $("td[name='word']").bind('mouseenter', function (event) { $(this).toggleTextArea(event); } );
-                }
-            },
+                        $("td[name='btnUpdateWord']").bind('click', function (event) { var $btnUpdate = $(this).children(); $btnUpdate.updateWord($btnUpdate.prop('value')); } );
+                    }
+                },
             data: sendingData
         });
     });

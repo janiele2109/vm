@@ -22,5 +22,4 @@
 
 	</select>
 	<button type="submit" id="addNewWordBtn">Add</button>
-	<span id="msg" style="margin-left: 10px;"></span>
 </form>

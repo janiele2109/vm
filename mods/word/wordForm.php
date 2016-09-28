@@ -2,8 +2,10 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/newWordForm.php";		
 ?>
 
-<button id="delSelectedWord">Delete selected word</button>
-<button id="updateSelectedWord">Update selected word</button>
+<button id="delSelectedWords">Delete selected words</button>
+<button id="updateSelectedWords">Update selected words</button>
+
+<b><div id="msg" style="margin-bottom: 10px;">&nbsp;</div></b>
 
 <table id="tbWordView">
 	<tr>
