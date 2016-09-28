@@ -33,7 +33,7 @@
 		{
 			$data = array("errState" => "NG", 
 						  "errCode" => "00001", 
-						  "msg" => "Duplicated word", 
+						  "msg" => "Duplicated wordlist!", 
 						  "htmlContent" => ""
 						 );
 			header("Content-Type: application/json");
@@ -118,6 +118,23 @@
 	{
 		global $mysqli;
 
+		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newVal . '";';
+
+		$result = $mysqli->query( $query );
+
+		if ($result->num_rows > 0) 
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00001", 
+						  "msg" => "Duplicated wordlist!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return;
+		}
+
 		$query = 'UPDATE wordlist SET wordlistName = "' . $newVal . '" WHERE wordlistName="' . $oldVal . '";';
 
 		$result = $mysqli->query( $query );
@@ -150,14 +167,34 @@
 	{
 		global $mysqli;
 
+		$cntWordlistTotal = 0;
+		$cntDuplicatedWordlist = 0;
+		$duplicatedWordlist = "";
+
 		foreach( $_POST['wordlistArr'] as $check ) {
+			$cntWordlistTotal++;
 			$startIndex = strpos($check, ":") + 1;
 			$len = strpos($check, ";") - $startIndex;
 
-			$oldWord = substr($check, $startIndex, $len);
-			$newWord = substr($check, strrpos($check, ":") + 1);
+			$oldWordlist = substr($check, $startIndex, $len);
+			$newWordlist = substr($check, strrpos($check, ":") + 1);
 
-			$query = 'UPDATE wordlist SET wordlistName = "' . $newWord . '" WHERE wordlistName="' . $oldWord . '";';
+			$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newWordlist . '";';
+
+			$result = $mysqli->query( $query );
+
+			if ($result->num_rows > 0) 
+			{
+				if( empty( $duplicatedWordlist ) )
+					$duplicatedWordlist = $newWordlist;
+				else
+					$duplicatedWordlist = $duplicatedWordlist . ", " . $newWordlist;
+
+				$cntDuplicatedWordlist++;
+				continue;
+			}
+
+			$query = 'UPDATE wordlist SET wordlistName = "' . $newWordlist . '" WHERE wordlistName="' . $oldWordlist . '";';
 
 			$result = $mysqli->query( $query );
 
@@ -172,22 +209,47 @@
 				echo json_encode($data);
 
 				return;
-			}
+			}			
 		}
 
-		ob_start();
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
-		$html = ob_get_contents();
-		ob_end_clean();
+		if ( !empty($duplicatedWordlist) ) 
+		{
+			$msg = "";
+			$range = $cntWordlistTotal - $cntDuplicatedWordlist;
 
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-					  "msg" => "Selected wordlist updated!", 
-					  "htmlContent" => $html
-					 );
+			if ( $range == 1 )
+				$msg = "Duplicated wordlist: " . $duplicatedWordlist . "! Remaining wordlist is updated successfully!";
+			else if ( $range > 1 )
+				$msg = "Duplicated wordlist: " . $duplicatedWordlist . "! Remaining wordlist are updated successfully!";
+			else
+				$msg = "Duplicated wordlist: " . $duplicatedWordlist;
 
-		header("Content-Type: application/json");
+			$data = array("errState" => "NG", 
+						  "errCode" => "00001", 
+						  "msg" => $msg, 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
 
-		echo json_encode($data);
+			return;
+		}
+		else
+		{
+			ob_start();
+			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
+			$html = ob_get_contents();
+			ob_end_clean();
+
+			$data = array("errState" => "OK", 
+						  "errCode" => "FFFF", 
+						  "msg" => "Selected wordlist updated!", 
+						  "htmlContent" => $html
+						 );
+
+			header("Content-Type: application/json");
+
+			echo json_encode($data);
+		}
 	}
 ?>
