@@ -225,11 +225,12 @@ $(document).ready(function() {
 
     $("#myWordListMenuItem").click(function(event) {
         event.preventDefault(); // not show hashtag in url
-        history.pushState("", document.title, "/mywordlist");
+        history.pushState("", document.title, "/wordlist");
 
         $.post("/mods/wordlist/wordlist.php",
         {
-            menuItem: "myWordList"
+            menuItem: "myWordList",
+            userName: $("#userName").text()
         },
 
         function(response,status){

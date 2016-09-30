@@ -1,5 +1,11 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/config/app.config.php";
+
+if ( isset( $_POST[ "userName" ] ) && $_POST[ "userName" ] )
+{
+	$username = $_POST[ "userName" ];
+	$loginSuccess = true;
+}
 ?>
 
 <!DOCTYPE html>

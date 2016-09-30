@@ -24,7 +24,14 @@ $(document).ready(function() {
 
             inputTag.type = 'text';
             inputTag.value = ""; // spanTag.innerHTML;
-            inputTag.id = "input-wordlist-wordlistId-" + spanId;
+            if( manipulateObj == "wordlist" )
+            {
+                inputTag.id = "input-" + manipulateObj + "-wordlistId-" + spanId;
+            }
+            else if ( manipulateObj == "word" )
+            {
+                inputTag.id = "input-" + manipulateObj + "-wordId-" + spanId;
+            }
             // inputTag.name = spanTag.getAttribute('name');
 
             inputTag.style.width = element.offsetWidth - 18 + "px";//"980px";//spanTag.innerHTML.length;
@@ -65,7 +72,14 @@ $(document).ready(function() {
             var spanTag = document.createElement('SPAN');
             var inputId = inputTag.id.substring( inputTag.id.lastIndexOf( "-" ) + 1, inputTag.id.length );
 
-            spanTag.id = "span-wordlist-wordlistId-" + inputId;
+            if( manipulateObj == "wordlist" )
+            {
+                spanTag.id = "span-" + manipulateObj + "-wordlistId-" + inputId;
+            }
+            else if( manipulateObj == "word" )
+            {
+                spanTag.id = "span-" + manipulateObj + "-wordId-" + inputId;
+            }
             spanTag.innerHTML = inputTag.value;
             // var id = inputTag.id.replace( "input-", "" );
             // spanTag.setAttribute('name', inputTag.value);
@@ -76,8 +90,19 @@ $(document).ready(function() {
             //     spanTag.className = "word";
             if( inputId != spanTag.innerHTML ) // old id = new id
             {
-                var $checkboxObj = $("#chk-" + manipulateObj + "-wordlistId-" + inputId);
-                var $btnUpdateWordlistObj = $("#updateWordlistBtn-" + manipulateObj + "-wordlistId-" + inputId);
+                var $checkboxObj;
+                var $btnUpdateWordlistObj;
+
+                if( manipulateObj == "wordlist" )
+                {
+                    $checkboxObj = $("#chk-" + manipulateObj + "-wordlistId-" + inputId);
+                    $btnUpdateWordlistObj = $("#updateWordlistBtn-" + manipulateObj + "-wordlistId-" + inputId);
+                }
+                else if( manipulateObj == "word" )
+                {
+                    $checkboxObj = $("#chk-" + manipulateObj + "-wordId-" + inputId);
+                    $btnUpdateWordlistObj = $("#updateWordlistBtn-" + manipulateObj + "-wordId-" + inputId);
+                }
 
                 spanTag.style = "color: red";
                 $checkboxObj.prop('checked', true);

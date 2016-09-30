@@ -1,4 +1,7 @@
-<header>
+<header>	
 	<span class="title">Vocabulary Master</span>
-	<span class="welcomeText">Welcome <?php echo $username; ?>!</span>
+	<div class="welcomeText">
+		<span>Welcome </span>
+		<span id="userName"><?php echo $username;?></span>!
+	</div>	
 </header>
