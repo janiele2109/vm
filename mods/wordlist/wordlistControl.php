@@ -80,12 +80,28 @@
 		global $mysqli;
 
 		foreach( $_POST['wordlistArr'] as $check ) {
-			$startIndex = strrpos($check, ":") + 1;
-			$len = strlen($check) - $startIndex;
+			$pieces = explode( '-', $check );
 
-			$word = substr($check, $startIndex, $len);
+			$wordlist = $pieces[1];
 
-			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $word . '";';
+			$query = 'DELETE word FROM word INNER JOIN wordlist ON word.wordlistId = wordlist.wordlistId WHERE wordlistName="' . $wordlist . '";';
+
+			$result = $mysqli->query( $query );
+
+			if( !$result )
+			{
+				$data = array("errState" => "NG", 
+							  "errCode" => "00002", 
+							  "msg" => "Deleting words belong to wordlist failed!", 
+							  "htmlContent" => ""
+							 );
+				header("Content-Type: application/json");
+				echo json_encode($data);
+
+				return;
+			}
+
+			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $wordlist . '";';
 
 			$result = $mysqli->query( $query );
 
@@ -173,11 +189,11 @@
 
 		foreach( $_POST['wordlistArr'] as $check ) {
 			$cntWordlistTotal++;
-			$startIndex = strpos($check, ":") + 1;
-			$len = strpos($check, ";") - $startIndex;
+			
+			$pieces = explode( '-', $check );
 
-			$oldWordlist = substr($check, $startIndex, $len);
-			$newWordlist = substr($check, strrpos($check, ":") + 1);
+			$oldWordlist = $pieces[1];
+			$newWordlist = $pieces[3];
 
 			$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newWordlist . '";';
 

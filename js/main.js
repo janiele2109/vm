@@ -1,6 +1,54 @@
 $(document).ready(function() {
+    var defCompStyle = {
+        'color': 'black',
 
-    $('#select_all').change(function(){
+        'getColor': function() {
+            return this.color;
+        },
+
+        'setColor': function(clr) {
+            this.color = clr;
+        }
+    };
+
+    function replaceEleInDelimitedStr( orgArr, index, newEle )
+    {
+        var newStr = "";
+
+        orgArr[ index ] = newEle;
+
+        for( var i = 0; i < orgArr.length; i++ )
+            if ( i == 0 )
+                newStr += orgArr[i];
+            else
+                newStr += '-' + orgArr[i];
+
+        return newStr;
+    }
+
+    function IdCreation( initVal, elems ){
+        var id = initVal;
+
+        for( var i = 1; i < elems.length; i++ )
+            id += '-' + elems[i];
+
+        return id;
+    }
+
+    function getOriginalId( idString, fieldType = null ){
+        var elems = idString.split('-');
+        var wordIdIndex = elems.indexOf('wordId');
+        var wordlistIdIndex = elems.indexOf('wordlistId');
+
+        if( fieldType == null || ( fieldType != null && fieldType == 'wordlist' ) )
+            return elems[wordlistIdIndex + 1];
+        else if( fieldType != null && fieldType == 'word' )
+        {
+            return elems[wordIdIndex + 1];
+        }
+    }
+
+    $('#select_all').change( function() {
         if($(this).prop('checked')){
             $('tbody tr td input[type="checkbox"]').each(function(){
                 $(this).prop('checked', true);
@@ -12,109 +60,124 @@ $(document).ready(function() {
         }
     });
 
-    $.fn.toggleTextArea = function(event) {
-        var manipulateObj = (window.location.pathname.substr(1));
-        var element = event.target;
+    $.fn.span_textbox_trans = function( id, val, style ) {
+        var inputTag = document.createElement('INPUT');
 
-        if (element.tagName == 'TD' && element.childNodes[0].tagName == "SPAN" && event.type == "mouseenter") 
-        {
-            var spanTag = element.childNodes[0];
-            var inputTag = document.createElement('INPUT');
-            var spanId = spanTag.id.substring( spanTag.id.lastIndexOf( "-" ) + 1, spanTag.id.length );
+        inputTag.type = 'text';
+        inputTag.id = id;
+        inputTag.value = val;
 
-            inputTag.type = 'text';
-            inputTag.value = ""; // spanTag.innerHTML;
-            if( manipulateObj == "wordlist" )
+        inputTag.style.width = $(this).parent().width() - 11 + "px";
+        inputTag.style.color = style.getColor();
+
+        $(inputTag).bind('blur', function ( event ) { $(this).toggleControl( event, 'Span' ); } );
+        $(inputTag).bind('mouseout', function ( event ) { $(this).toggleControl( event, 'Span' ); } );
+        $(inputTag).bind('keypress', function ( event ) { $(this).toggleControl( event, 'Span' ); } );
+
+        $(this).replaceWith(inputTag);
+
+        return inputTag;
+    }
+
+    $.fn.to_span_trans = function( id, val, style, fieldTypeStr ) {
+        var spanTag = document.createElement('SPAN');
+
+        spanTag.id = id;
+        spanTag.innerHTML = val;
+
+        spanTag.style.color = style.getColor();
+
+        $(this).replaceWith(spanTag);
+
+        var $btnUpdate = $('"#' + IdCreation('updateWordlistBtn', id.split( '-' ) ) + '"');
+        var valArr = $btnUpdate.attr( 'value' ).split( '-' );
+
+        replaceEleInDelimitedStr( valArr,  );
+
+        return spanTag;
+    }
+
+    $.fn.toggleControl = function(event, controlType) {
+        var id, val;
+        var compStyle = jQuery.extend({}, defCompStyle);
+        var curEleTag = event.target;
+        var childCompTag, elems;
+
+        if ( ( curEleTag.tagName == 'TD' && event.type == 'mouseenter' ) || 
+             ( ( curEleTag.tagName == 'INPUT' ||
+                 curEleTag.tagName == 'SELECT' ||
+                 curEleTag.tagName == 'TEXTAREA' ) && ( event.type == 'blur' ||
+                                                        ( event.type == 'keypress' && event.which == 13 ) ) ) ){
+            if( curEleTag.tagName == 'TD' )
             {
-                inputTag.id = "input-" + manipulateObj + "-wordlistId-" + spanId;
-            }
-            else if ( manipulateObj == "word" )
-            {
-                inputTag.id = "input-" + manipulateObj + "-wordId-" + spanId;
-            }
-            // inputTag.name = spanTag.getAttribute('name');
+                var $focused = $('td input[type=text]:focus');
 
-            inputTag.style.width = element.offsetWidth - 18 + "px";//"980px";//spanTag.innerHTML.length;
-            inputTag.style.color = spanTag.style.color;
-            // if( $( tdTag ).attr('class') == 'wordlist' )
-            //     inputTag.className = "wordlist";
-            // else if( $( tdTag ).attr('class') == 'word' )
-            //     inputTag.className = "word";
-
-            inputTag.onblur = $.fn.toggleTextArea;
-            inputTag.onkeypress = $.fn.toggleTextArea;
-            inputTag.onmouseout = $.fn.toggleTextArea;
-
-            spanTag.parentNode.replaceChild(inputTag, spanTag);
-
-            inputTag.focus(); // $("#" + inputTag.id).focus();
-            inputTag.value = spanTag.innerHTML;
-            // var tmpStr = $("#" + inputTag.id).val();
-            // $("#" + inputTag.id).val("");
-            // $("#" + inputTag.id).val(tmpStr);
-
-            // var hideTag = document.createElement('SPAN');
-
-            // hideTag.id = "oldWord";
-            // hideTag.innerHTML = spanTag.innerHTML;
-            // hideTag.style = "display: none";
-
-            // if( $("#oldWord")[0] == null )
-            //     document.body.appendChild(hideTag);
-            // else
-            //     $("#oldWord")[0].parentNode.replaceChild(hideTag, $("#oldWord")[0]);
-        }
-        else if (element.tagName == 'INPUT' && ( event.type == "blur" || 
-                                               ( event.type == "mouseout" && !( $(element).is(":focus") ) ) || 
-                                               ( event.type == "keypress" && event.which == 13) ) ) 
-        {
-            var inputTag = element;
-            var spanTag = document.createElement('SPAN');
-            var inputId = inputTag.id.substring( inputTag.id.lastIndexOf( "-" ) + 1, inputTag.id.length );
-
-            if( manipulateObj == "wordlist" )
-            {
-                spanTag.id = "span-" + manipulateObj + "-wordlistId-" + inputId;
-            }
-            else if( manipulateObj == "word" )
-            {
-                spanTag.id = "span-" + manipulateObj + "-wordId-" + inputId;
-            }
-            spanTag.innerHTML = inputTag.value;
-            // var id = inputTag.id.replace( "input-", "" );
-            // spanTag.setAttribute('name', inputTag.value);
-
-            // if( $( inputTag ).attr('class') == 'wordlist' )
-            //     spanTag.className = "wordlist";
-            // else if( $( inputTag ).attr('class') == 'word' )
-            //     spanTag.className = "word";
-            if( inputId != spanTag.innerHTML ) // old id = new id
-            {
-                var $checkboxObj;
-                var $btnUpdateWordlistObj;
-
-                if( manipulateObj == "wordlist" )
+                if( $focused && $focused.attr('id') )
                 {
-                    $checkboxObj = $("#chk-" + manipulateObj + "-wordlistId-" + inputId);
-                    $btnUpdateWordlistObj = $("#updateWordlistBtn-" + manipulateObj + "-wordlistId-" + inputId);
-                }
-                else if( manipulateObj == "word" )
-                {
-                    $checkboxObj = $("#chk-" + manipulateObj + "-wordId-" + inputId);
-                    $btnUpdateWordlistObj = $("#updateWordlistBtn-" + manipulateObj + "-wordId-" + inputId);
+                    id = IdCreation('span', $focused.attr('id').split('-') );
+                    val = $focused.val();
+
+                    if( getOriginalId( $focused.attr('id') ) != val )
+                        compStyle.setColor('red');
+                    else
+                        compStyle.setColor('black');
+
+                    $focused.to_span_trans( id, val, compStyle,  );
                 }
 
-                spanTag.style = "color: red";
-                $checkboxObj.prop('checked', true);
-
-                var tempStr = ( $checkboxObj.val() ).substring( 0, ( $checkboxObj.val() ).lastIndexOf( ":" ) + 1 )
-                $btnUpdateWordlistObj.prop('value', tempStr + inputTag.value);
-                $checkboxObj.prop('value', tempStr + inputTag.value);               
+                childCompTag = curEleTag.childNodes[0];
+                elems = childCompTag.id.split("-");
             }
-
-            spanTag.onmouseenter = $.fn.toggleTextArea;
-
-            inputTag.parentNode.replaceChild(spanTag, inputTag);
+            else
+                elems = curEleTag.id.split("-");
         }
-    };
+        else
+            return;
+
+        switch( controlType )
+        {
+            case 'TextBox':
+                id = IdCreation('textbox', elems);
+
+                val = $(childCompTag).text();
+
+                compStyle.setColor( childCompTag.style.color );
+
+                var textbox = $(childCompTag).span_textbox_trans( id, val, compStyle );
+                $(textbox).focus();
+
+                var tmpStr = $(textbox).val();
+                $(textbox).val( "" );
+                $(textbox).val( tmpStr );
+ 
+                break;
+
+            case 'Combobox':
+                span_combobox_trans( id, val, compStyle );
+                break;
+
+            case 'RichTextBox':
+                span_richtextbox_trans( id, val, compStyle );
+                break;
+
+            case 'Span':
+                id = IdCreation('span', elems);
+
+                if ( curEleTag.tagName == 'INPUT' )
+                    val = $(curEleTag).val();
+                else if ( curEleTag.tagName == 'SELECT' )
+                    val = $("#" + curEleTag.id + " option:selected").text();
+
+                if( getOriginalId( curEleTag.id ) != val )
+                    compStyle.setColor('red');
+                else
+                    compStyle.setColor('black');
+
+                $(curEleTag).to_span_trans( id, val, compStyle );
+                break;
+
+            default:
+                break;
+        }
+    }
 });
