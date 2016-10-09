@@ -32,177 +32,171 @@ $(document).ready(function() {
                         $("#select_all").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
-                        $("td[name='word']").bind('mouseenter', function (event) { $(this).toggleTextArea(event); } );
-                        $("td[name='wordlist']").bind('mouseenter', function (event) { $(this).toggleTextArea(event); } );
-                        $("td[name='btnUpdateWord']").bind('click', function (event) { var $btnUpdate = $(this).children(); $btnUpdate.updateWordAndWordlist($btnUpdate.prop('value')); } );
+                        $("td[name='word']").bind('mouseenter', function (event) { $(this).toggleControl(event, controlType); } );
+                        $("td[name='wordlist']").bind('mouseenter', function (event) { $(this).toggleControl(event, controlType); } );
+                        $("td[name='btnUpdateWord']").bind('click', function (event) { var $btnUpdate = $(this).children(); $btnUpdate.updateWord($btnUpdate.prop('value')); } );
                     }
                 },
             data: sendingData
         });       
     });
 
-    $("#delSelectedWords").click(function(event) {
-        event.preventDefault();
-        
-        var selectedWord = new Array();
-        $("input[name='word[]']:checked").each(function() {
-            selectedWord.push($(this).val());
-        });
+    // $("#delSelectedWordLists").click(function(event) {
+    //     event.preventDefault();
+    //     var selectedWordlist = new Array();
+    //     $("input[name='wordList[]']:checked").each(function() {
+    //         selectedWordlist.push($(this).val());
+    //     });
 
-        $.post("/mods/word/wordControl.php",
-        {
-            'wordArr[]': selectedWord,
-            requestType: "delSelectedWords"
-        },
+    //     $.post("/mods/wordlist/wordlistControl.php",
+    //     {
+    //         'wordlistArr[]': selectedWordlist,
+    //         requestType: "delSelectedWordLists"
+    //     },
 
-        function(response,status){
-            if( status != "success" || response['errState'] != "OK")
-            {
-                $("#msg").html(response['msg']);
-                $("#msg").addClass("Err");
-            }
-            else
-            {
-                $(".dynRowWord").filter(function() {
-                    return ( $(this).children().children( "input[type=checkbox][class=checkbox]:checked" ).length != 0 );
-                }).remove();
+    //     function(response,status){
+    //         if( status != "success" || response['errState'] != "OK")
+    //         {
+    //             $("#msg").html(response['msg']);
+    //             $("#msg").addClass("Err");
+    //         }
+    //         else
+    //         {
+    //             $(".dynRowWordList").filter(function() {
+    //                 return ( $(this).children().children( "input[type=checkbox][class=checkbox]:checked" ).length != 0 );
+    //             }).remove();
 
-                $("#msg").removeClass("Err");
-                $("#msg").html(response['msg']);
-                $("#tbWordView").children().append(response['htmlContent']);
-                $("#select_all").prop('checked', false);
-                $("#addNewWordTextBox").focus();                
-            }
-        });
-    });
+    //             $("#msg").removeClass("Err");
+    //             $("#msg").html(response['msg']);
+    //             $("#tbWordlistView").children().append(response['htmlContent']);
+    //             $("#select_all").prop('checked', false);
+    //             $("#addNewWordlistTextBox").focus();                
+    //         }
+    //     });
+    // });
 
-    $(".updateWordBtn").click(function(event) {
-        $(this).updateWordAndWordlist(this.value);
-    });
+    // $(".updateWordlistBtn").click(function(event) {
+    //     $(this).updateWordlist(this.value);
+    // });
 
-    $("#updateSelectedWordLists").click(function(event) {
-        event.preventDefault();
+    // $("#updateSelectedWordLists").click(function(event) {
+    //     event.preventDefault();
 
-        var selectedWordlist = new Array();
-        $("input[name='wordList[]']:checked").each(function() {
-            selectedWordlist.push($(this).val());
-        });
+    //     var selectedWordlist = new Array();
+    //     $("input[name='wordList[]']:checked").each(function() {
+    //         selectedWordlist.push($(this).val());
+    //     });
 
-        var sendingData = {
-            'wordlistArr[]': selectedWordlist,
-            requestType: "updateSelectedWordLists"
-        }
+    //     var sendingData = {
+    //         'wordlistArr[]': selectedWordlist,
+    //         requestType: "updateSelectedWordLists"
+    //     }
 
-        $.ajax({
-            url: '/mods/wordlist/wordlistControl.php',
-            type: 'post',
-            dataType: 'json',
-            cache: false,
-            success: 
-                function(response,status){
-                    if( status != "success" || response['errState'] != "OK")
-                    {
-                        $("#msg").html(response['msg']);
-                        $("#msg").addClass("Err");
-                    }
-                    else
-                    {
-                        document.getElementById("addNewWordlistTextBox").setSelectionRange(0, $("#addNewWordlistTextBox").val().length);
-                        $(".dynRowWordList").remove();
+    //     $.ajax({
+    //         url: '/mods/wordlist/wordlistControl.php',
+    //         type: 'post',
+    //         dataType: 'json',
+    //         cache: false,
+    //         success: 
+    //             function(response,status){
+    //                 if( status != "success" || response['errState'] != "OK")
+    //                 {
+    //                     $("#msg").html(response['msg']);
+    //                     $("#msg").addClass("Err");
+    //                 }
+    //                 else
+    //                 {
+    //                     document.getElementById("addNewWordlistTextBox").setSelectionRange(0, $("#addNewWordlistTextBox").val().length);
+    //                     $(".dynRowWordList").remove();
 
-                        $("#msg").removeClass("Err");
-                        $("#msg").html(response['msg']);
-                        $("#tbWordlistView").children().append(response['htmlContent']);
-                        $("#select_all").prop('checked', false);
-                        $("#addNewWordlistTextBox").focus();  
+    //                     $("#msg").removeClass("Err");
+    //                     $("#msg").html(response['msg']);
+    //                     $("#tbWordlistView").children().append(response['htmlContent']);
+    //                     $("#select_all").prop('checked', false);
+    //                     $("#addNewWordlistTextBox").focus();  
 
-                        $("td[name='wordlist']").bind('mouseenter', function (event) { $(this).toggleTextArea(event); } );
-                        $("td[name='btnUpdateWordlist']").bind('click', function (event) { var $btnUpdate = $(this).children(); $btnUpdate.updateWordlist($btnUpdate.prop('value')); } );
-                    }
-                },
-            data: sendingData
-        });
+    //                     $("td[name='wordlist']").bind('mouseenter', function (event) { $(this).toggleControl(event, controlType); } );
+    //                     $("td[name='btnUpdateWordlist']").bind('click', function (event) { var $btnUpdate = $(this).children(); $btnUpdate.updateWordlist($btnUpdate.prop('value')); } );
+    //                 }
+    //             },
+    //         data: sendingData
+    //     });
 
-        // $.post(
-        //     "/mods/wordlist/wordlistControl.php",
-        //     {
-        //         'wordlistArr[]': selectedWordlist,
-        //         requestType: "updateSelectedWordLists"
-        //     },
+    //     // $.post(
+    //     //     "/mods/wordlist/wordlistControl.php",
+    //     //     {
+    //     //         'wordlistArr[]': selectedWordlist,
+    //     //         requestType: "updateSelectedWordLists"
+    //     //     },
 
-        //     function(response,status){
-        //         if( status != "success" )
-        //         {
-        //             alert("Request failed!");
-        //         }
-        //         else
-        //         {
-        //             document.getElementById("addNewWordlistTextBox").setSelectionRange(0, $("#addNewWordlistTextBox").val().length);
-        //             $(".dynRowWordList").remove();
-        //             $("#tbWordlistView").children().append(response['htmlContent']);
-        //             $("td[name='wordlist']").bind('mouseenter', function (event) { $(this).toggleTextArea(event); } );
-        //         }
-        //     }
-        // );
-    });
+    //     //     function(response,status){
+    //     //         if( status != "success" )
+    //     //         {
+    //     //             alert("Request failed!");
+    //     //         }
+    //     //         else
+    //     //         {
+    //     //             document.getElementById("addNewWordlistTextBox").setSelectionRange(0, $("#addNewWordlistTextBox").val().length);
+    //     //             $(".dynRowWordList").remove();
+    //     //             $("#tbWordlistView").children().append(response['htmlContent']);
+    //     //             $("td[name='wordlist']").bind('mouseenter', function (event) { $(this).toggleControl(event, controlType); } );
+    //     //         }
+    //     //     }
+    //     // );
+    // });
 
-    $.fn.updateWordAndWordlist = function(value)
-    {
-        var splittedVal = value.split("-");
-        oldWord = splittedVal[1];
-        newWord = splittedVal[3];
-        oldWordlistId = splittedVal[5];
-        newWordlistId = splittedVal[7];
+    // $.fn.updateWordlist = function(value)
+    // {
+    //     oldWord = value.substring( value.indexOf(":") + 1, value.lastIndexOf(";") );
+    //     newWord = value.substring( value.lastIndexOf(":") + 1, value.length );
 
-        $.post("/mods/word/wordControl.php",
-        {
-            oldWordVal: oldWord,
-            newWordVal: newWord,
-            oldWordlistIdVal: oldWordlistId,
-            newWordlistIdVal: newWordlistId,
-            requestType: "updateWordAndWordlist"
-        },
+    //     $.post("/mods/wordlist/wordlistControl.php",
+    //     {
+    //         oldVal: oldWord,
+    //         newVal: newWord,
+    //         requestType: "updateWordList"
+    //     },
 
-        function(response,status){
-            if( status != "success" || response['errState'] != "OK")
-            {
-                $("#msg").html(response['msg']);
-                $("#msg").addClass("Err");
-            }
-            else
-            {
-                $("#msg").removeClass("Err");
-                $("#msg").html(response['msg']);
-                $("#select_all").prop('checked', false);
-                $("#addNewWordTextBox").focus();  
+    //     function(response,status){
+    //         if( status != "success" || response['errState'] != "OK")
+    //         {
+    //             $("#msg").html(response['msg']);
+    //             $("#msg").addClass("Err");
+    //         }
+    //         else
+    //         {
+    //             $("#msg").removeClass("Err");
+    //             $("#msg").html(response['msg']);
+    //             $("#select_all").prop('checked', false);
+    //             $("#addNewWordlistTextBox").focus();  
 
-                newId = "-word-wordId-" + newWord;
+    //             newId = "-wordlist-wordlistId-" + newWord;
 
-                $("#chk-word-wordId-" + oldWord).attr('id', 'chk' + newId );
-                $("#span-word-wordId-" + oldWord).attr('id',  'span' + newId );
-                $("#updateWordBtn-word-wordId-" + oldWord).attr('id',  'updateWordBtn' + newId );
+    //             $("#chk-wordlist-wordlistId-" + oldWord).attr('id', 'chk' + newId );
+    //             $("#span-wordlist-wordlistId-" + oldWord).attr('id',  'span' + newId );
+    //             $("#updateWordlistBtn-wordlist-wordlistId-" + oldWord).attr('id',  'updateWordlistBtn' + newId );
 
-                $("#chk-word-wordId-" + newWord).attr('checked', false);
-                $("#span-word-wordId-" + newWord).css('color', 'black');
-            }
-        });
-    };
+    //             $("#chk-wordlist-wordlistId-" + newWord).attr('checked', false);
+    //             $("#span-wordlist-wordlistId-" + newWord).css('color', 'black');
+    //         }
+    //     });
+    // };
 
-    $("td[name='word']").mouseenter(function(event) {
-        $(this).toggleTextArea(event);
-    });
+    // $("td[name='word']").mouseenter(function(event) {
+    //     $(this).toggleControl(event, controlType);
+    // });
 
-    $("td[name='word']").blur(function(event) {
-        $(this).toggleTextArea(event);
-    });
+    // // $("td[name='word']").blur(function(event) {
+    // //     $(this).toggleControl(event, controlType);
+    // // });
 
-    $("td[name='word']").mouseout(function(event) {
-        $(this).toggleTextArea(event);
-    });
+    // // $("td[name='word']").mouseout(function(event) {
+    // //     $(this).toggleControl(event, controlType);
+    // // });
 
-    $("td[name='word']").keypress(function(event) {
-        $(this).toggleTextArea(event);
-    });
+    // // $("td[name='word']").keypress(function(event) {
+    // //     $(this).toggleControl(event, controlType);
+    // // });
 
     $("#myWordMenuItem").click(function(event) {
         event.preventDefault(); // not show hashtag in url

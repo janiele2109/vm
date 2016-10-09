@@ -32,7 +32,7 @@ $(document).ready(function() {
                         $("#select_all").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
-                        $("td[name='word']").bind('mouseenter', function (event) { $(this).toggleTextArea(event); } );
+                        $("td[name='word']").bind('mouseenter', function (event) { $(this).toggleControl(event, controlType); } );
                         $("td[name='btnUpdateWord']").bind('click', function (event) { var $btnUpdate = $(this).children(); $btnUpdate.updateWord($btnUpdate.prop('value')); } );
                     }
                 },

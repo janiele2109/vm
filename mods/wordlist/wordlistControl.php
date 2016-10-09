@@ -79,27 +79,7 @@
 	{
 		global $mysqli;
 
-		foreach( $_POST['wordlistArr'] as $check ) {
-			$pieces = explode( '-', $check );
-
-			$wordlist = $pieces[1];
-
-			$query = 'DELETE word FROM word INNER JOIN wordlist ON word.wordlistId = wordlist.wordlistId WHERE wordlistName="' . $wordlist . '";';
-
-			$result = $mysqli->query( $query );
-
-			if( !$result )
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00002", 
-							  "msg" => "Deleting words belong to wordlist failed!", 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
-
-				return;
-			}
+		foreach( $_POST['wordlistArr'] as $wordlist ) {
 
 			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $wordlist . '";';
 
@@ -182,63 +162,24 @@
 	function updateSelectedWordLists()
 	{
 		global $mysqli;
-
-		$cntWordlistTotal = 0;
-		$cntDuplicatedWordlist = 0;
-		$duplicatedWordlist = "";
-
-		foreach( $_POST['wordlistArr'] as $check ) {
-			$cntWordlistTotal++;
+		
+		$params = array('cntWordlistTotal' => 0, 
+						'cntDuplicatedWordlist' =>0,
+						'duplicatedWordlist' => '' );
 			
-			$pieces = explode( '-', $check );
+		array_walk_recursive($_POST['wordlistMap'], 'updateWordlistInDB', $params);
 
-			$oldWordlist = $pieces[1];
-			$newWordlist = $pieces[3];
-
-			$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newWordlist . '";';
-
-			$result = $mysqli->query( $query );
-
-			if ($result->num_rows > 0) 
-			{
-				if( empty( $duplicatedWordlist ) )
-					$duplicatedWordlist = $newWordlist;
-				else
-					$duplicatedWordlist = $duplicatedWordlist . ", " . $newWordlist;
-
-				$cntDuplicatedWordlist++;
-				continue;
-			}
-
-			$query = 'UPDATE wordlist SET wordlistName = "' . $newWordlist . '" WHERE wordlistName="' . $oldWordlist . '";';
-
-			$result = $mysqli->query( $query );
-
-			if( !$result )
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00002", 
-							  "msg" => "Updating selected wordlist failed!", 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
-
-				return;
-			}			
-		}
-
-		if ( !empty($duplicatedWordlist) ) 
+		if ( !empty($params['duplicatedWordlist']) ) 
 		{
 			$msg = "";
-			$range = $cntWordlistTotal - $cntDuplicatedWordlist;
+			$range = $params['cntWordlistTotal'] - $params['cntDuplicatedWordlist'];
 
 			if ( $range == 1 )
-				$msg = "Duplicated wordlist: " . $duplicatedWordlist . "! Remaining wordlist is updated successfully!";
+				$msg = "Duplicated wordlist: " . $params['duplicatedWordlist'] . "! Remaining wordlist is updated successfully!";
 			else if ( $range > 1 )
-				$msg = "Duplicated wordlist: " . $duplicatedWordlist . "! Remaining wordlist are updated successfully!";
+				$msg = "Duplicated wordlist: " . $params['duplicatedWordlist'] . "! Remaining wordlist are updated successfully!";
 			else
-				$msg = "Duplicated wordlist: " . $duplicatedWordlist;
+				$msg = "Duplicated wordlist: " . $params['duplicatedWordlist'];
 
 			$data = array("errState" => "NG", 
 						  "errCode" => "00001", 
@@ -262,10 +203,47 @@
 						  "msg" => "Selected wordlist updated!", 
 						  "htmlContent" => $html
 						 );
-
 			header("Content-Type: application/json");
-
 			echo json_encode($data);
 		}
+	}
+
+	function updateWordlistInDB($item, $key, $params)
+	{	
+		global $mysqli;		
+
+		$params['cntWordlistTotal']++;
+		
+		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $item . '";';
+
+		$result = $mysqli->query( $query );
+
+		if ($result->num_rows > 0) 
+		{
+			if( empty( $params['duplicatedWordlist'] ) )
+				$params['duplicatedWordlist'] = $item;
+			else
+				$params['duplicatedWordlist'] = $params['duplicatedWordlist'] . ", " . $item;
+
+			$params['cntDuplicatedWordlist']++;
+			continue;
+		}
+
+		$query = 'UPDATE wordlist SET wordlistName = "' . $item . '" WHERE wordlistName="' . $key . '";';
+
+		$result = $mysqli->query( $query );
+
+		if( !$result )
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Updating selected wordlist failed!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return;
+		}			
 	}
 ?>

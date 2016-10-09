@@ -11,9 +11,9 @@
 		delSelectedWords();
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWordAndWordlist' )
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWord' )
 	{
-		updateWordAndWordlist( $_POST["oldWordVal"], $_POST["newWordVal"], $_POST["oldWordlistIdVal"], $_POST["newWordlistIdVal"] );
+		updateWord( $_POST["oldWordVal"], $_POST["newWordVal"], $_POST["oldWordlistVal"], $_POST["newWordlistVal"] );
 	}
 
 	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateSelectedWords' )
@@ -75,18 +75,17 @@
 		}
 	}
 
-	function delSelectedWords()
+	function delSelectedWordLists()
 	{
 		global $mysqli;
 
-		foreach( $_POST['wordArr'] as $check ) {
-			$pieces = explode( '-', $check );
+		foreach( $_POST['wordlistArr'] as $check ) {
+			$startIndex = strrpos($check, ":") + 1;
+			$len = strlen($check) - $startIndex;
 
-			$oldWord = $pieces[1];
+			$word = substr($check, $startIndex, $len);
 
-			$oldWordlist = $pieces[5];
-
-			$query = 'DELETE word FROM word INNER JOIN wordlist ON word.wordlistId = wordlist.wordlistId WHERE word="' . $oldWord . '" AND wordlistName="' . $oldWordlist . '";';
+			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $word . '";';
 
 			$result = $mysqli->query( $query );
 
@@ -94,7 +93,7 @@
 			{
 				$data = array("errState" => "NG", 
 							  "errCode" => "00002", 
-							  "msg" => "Deleting word failed!", 
+							  "msg" => "Deleting wordlist failed!", 
 							  "htmlContent" => ""
 							 );
 				header("Content-Type: application/json");
@@ -115,11 +114,11 @@
 		return;
 	}
 
-	function updateWordAndWordlist($oldWordVal, $newWordVal, $oldWordlistIdVal, $newWordlistIdVal)
+	function updateWordList($oldVal, $newVal)
 	{
 		global $mysqli;
 
-		$query = 'SELECT * FROM word, wordlist WHERE word="' . $newWordVal . '" AND wordlistName="' . $newWordlistIdVal . '" AND word.wordlistId=wordlist.wordlistId;';
+		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newVal . '";';
 
 		$result = $mysqli->query( $query );
 
@@ -127,7 +126,7 @@
 		{
 			$data = array("errState" => "NG", 
 						  "errCode" => "00001", 
-						  "msg" => "Duplicated new word in selected wordlist!", 
+						  "msg" => "Duplicated wordlist!", 
 						  "htmlContent" => ""
 						 );
 			header("Content-Type: application/json");
@@ -136,64 +135,21 @@
 			return;
 		}
 
-		if( $oldWordVal != $newWordVal && $oldWordlistIdVal != $newWordlistIdVal )
+		$query = 'UPDATE wordlist SET wordlistName = "' . $newVal . '" WHERE wordlistName="' . $oldVal . '";';
+
+		$result = $mysqli->query( $query );
+
+		if( !$result )
 		{
-			$query = 'DELETE word FROM word INNER JOIN wordlist ON word.wordlistId = wordlist.wordlistId WHERE word="' . $oldWordVal . '" AND wordlistName="' . $oldWordlistIdVal . '";';
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Updating wordlist failed!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
 
-			$result = $mysqli->query( $query );
-
-			if( !$result )
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00002", 
-							  "msg" => "Updating word with specified wordlist failed!", 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
-
-				return;
-			}
-
-			addWord( $newWordVal, $newWordlistIdVal );
-		}
-		else if ( $oldWordVal != $newWordVal )
-		{
-			$query = 'update word w inner join wordlist wl on w.wordlistId = wl.wordlistId set w.word = "' . $newWordVal . '" where w.word="' . $oldWordVal . '";';
-
-			$result = $mysqli->query( $query );
-
-			if( !$result )
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00002", 
-							  "msg" => $query, 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
-
-				return;
-			}
-		}
-		else if ( $oldWordlistIdVal != $newWordlistIdVal )
-		{
-			$query = 'update word w inner join wordlist wl on w.wordlistId = wl.wordlistId set w.wordlistId = "' . $newWordVal . '" where w.word="' . $oldWordVal . '";';
-
-			$result = $mysqli->query( $query );
-
-			if( !$result )
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00002", 
-							  "msg" => "Updating wordlist of word failed!", 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
-
-				return;
-			}
+			return;
 		}
 
 		$data = array("errState" => "OK", 

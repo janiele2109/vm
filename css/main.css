@@ -33,7 +33,7 @@ header{
 	padding-top: 10px;
 }
 
-.Err {
+.Err .Changed {
 	color: red;
 }
 
