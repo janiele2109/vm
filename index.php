@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 // Page created by Shepard [Fabian Pijcke] <Shepard8@laposte.net>
 // Arno Esterhuizen <arno.esterhuizen@gmail.com>
@@ -591,3 +592,32 @@ EOPAGEC;
 echo $pageContents;
 
 ?>
+=======
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config/app.config.php";
+
+session_start();
+
+if ( isset( $_SESSION[ "loginSuccess" ] ) && $_SESSION[ "loginSuccess" ] )
+{
+	$username = $_SESSION[ "username" ];
+	$loginSuccess = true;
+}
+?>
+
+<?php
+if ( $loginSuccess == true )
+{
+	if( $_SERVER["REQUEST_URI"] == "/" || $_SERVER["REQUEST_URI"] == "/index.php" )
+		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlist.php";
+	else
+		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/word.php";
+}
+else
+{
+	require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/login/login.php";
+
+	if ( isset( $_SESSION[ "loginSuccess" ] ) && !( $_SESSION[ "loginSuccess" ] ) )
+		echo "<span class='Err loginErr'>Login failed! Invalid username or password </span><br>";
+}
+?>
+>>>>>>> e94e94891fae33f9c0c8495c49cde58cc82a91f6
