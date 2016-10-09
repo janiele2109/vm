@@ -12,7 +12,11 @@ header{
 	margin-bottom: 20px;
 }
 
-.wordlist, .word {
+.word, .pronunciation {
+	width: 150px;
+}
+
+.wordlist, .meaning {
 	width: 300px;
 }
 

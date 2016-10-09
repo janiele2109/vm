@@ -37,18 +37,44 @@ $(document).ready(function() {
     }
 
     $.fn.toSpanControl = function() {
+        var dataSourceName = "";
         var spanTag = document.createElement('SPAN');
-        var chkboxEle = $(this).parent().parent().find('input[name="wordList[]"][type="checkbox"]');
+        var chkboxEle = $(this).parent().parent().find('input[type="checkbox"]');
 
         $.each(this[0].attributes, function(i, attrib){
             $(spanTag).attr(attrib.name, attrib.value);
+
+            if(attrib.name == 'class')
+            {
+                switch(attrib.value)
+                {
+                    case 'wordlist':
+                        dataSourceName = "data-sourcewordlistname";
+                        break;
+
+                    case 'word':
+                        dataSourceName = "data-sourceword";
+                        break;
+
+                    case 'pronunciation':
+                        dataSourceName = "data-sourcepron";
+                        break;
+
+                    case 'meaning':
+                        dataSourceName = "data-sourcemeaning";
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         });
 
         spanTag.innerHTML = $(this).prop('value');
 
         $(spanTag).attr('data-controltranstype', 'input-text');
 
-        if( $(spanTag).attr('data-sourcewordlistname' ) != spanTag.innerHTML )
+        if( $(spanTag).attr(dataSourceName) != spanTag.innerHTML )
         {
             spanTag.style.color = 'red';
             chkboxEle.first().prop('checked', true);

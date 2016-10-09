@@ -14,9 +14,9 @@ if ( isset( $_SESSION[ "loginSuccess" ] ) && $_SESSION[ "loginSuccess" ] )
 if ( $loginSuccess == true )
 {
 	if( $_SERVER["REQUEST_URI"] == "/" || $_SERVER["REQUEST_URI"] == "/index.php" )
-		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlist.php";
-	else
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/word.php";
+	else
+		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/wordlist/wordlist.php";
 }
 else
 {

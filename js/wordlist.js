@@ -39,7 +39,7 @@ $(document).ready(function() {
                         $(".btnUpdateWordlist").bind('click', 
                                                       function (event) { 
                                                                             var oldWordlist, newWordlist;
-                                                                            var spanEle, chkBoxEle;
+                                                                            var spanEle;
                                                                             var rowEle = $(this).parent().parent();
 
                                                                             spanEle = rowEle.find('span.wordlist[data-controltranstype]');

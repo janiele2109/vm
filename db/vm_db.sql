@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS `eh_db`;
+DROP DATABASE IF EXISTS `vm_db`;
 
-CREATE DATABASE IF NOT EXISTS `eh_db`;
+CREATE DATABASE IF NOT EXISTS `vm_db`;
 
-USE `eh_db`;
+USE `vm_db`;
 
 CREATE TABLE IF NOT EXISTS `users`(
 	userId      INT NOT NULL AUTO_INCREMENT,
@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `wordlist`(
 CREATE TABLE IF NOT EXISTS `word`(
 	wordId      	INT NOT NULL AUTO_INCREMENT,
 	word 			VARCHAR(50) NOT NULL,
+	pronunciation	VARCHAR(50) NOT NULL,
 	wordlistId    	INT NOT NULL,
 	PRIMARY KEY (wordId, wordlistId)
 );
