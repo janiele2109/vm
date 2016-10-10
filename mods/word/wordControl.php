@@ -6,10 +6,10 @@
 		addWord( $_POST[ 'wordName' ], $_POST[ 'wordlistId' ], $_POST[ 'pronunciation' ], $_POST[ 'wordMeaning' ] );
 	}
 
-	// if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'delSelectedWords' ) 
-	// {
-	// 	delSelectedWords();
-	// }
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'delSelectedWords' ) 
+	{
+		delSelectedWords();
+	}
 
 	// if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWord' )
 	// {
@@ -24,7 +24,7 @@
 	function addWord( $wordTitle, $wordlistId, $pronunciation, $wordMeaning )
 	{
 		global $mysqli;
-		
+
 		$wordId = null;
 
 		if( checkDuplicateWord($wordTitle, $wordlistId) )
@@ -65,6 +65,73 @@
 					 );
 		header("Content-Type: application/json");
 		echo json_encode($data);
+	}
+
+	function delSelectedWords()
+	{
+		global $mysqli;
+
+		$temp = '';
+		$wordArr = json_decode($_POST['wordArr']);
+
+		foreach( $wordArr as $word )
+		{	
+			$query = 'SELECT w.wordId
+					  FROM word w
+					  INNER JOIN wordlist wl
+					  ON w.wordlistId = wl.wordlistId
+					  WHERE w.word = "' . $word->word . '" AND w.wordlistId = "' . $word->wordlistId . '"';
+
+			$result = $mysqli->query( $query );
+
+			if ($result->num_rows > 0) 
+			{
+				$wordId = $result->fetch_object()->wordId;
+
+				$query = 'DELETE FROM wordMeaning WHERE wordId="' . $wordId . '" AND meaning="' . $word->meaning . '";';
+
+				if( !execQuery( $query, "Delete selected words meaning failed!" ) )
+					return;
+
+				$query = 'SELECT w.wordId
+						  FROM wordMeaning wm
+						  INNER JOIN word w
+						  ON w.wordId = wm.wordId
+						  WHERE w.wordId = "' . $wordId . '"';
+
+				$result = $mysqli->query( $query );
+
+				if ($result->num_rows == 0) 
+				{
+					$query = 'DELETE FROM word WHERE wordId="' . $wordId . '";';
+
+					if( !execQuery( $query, "Delete selected words failed!" ) )
+						return;
+				}
+			}
+			else
+			{
+				$data = array("errState" => "OK", 
+							  "errCode" => "FFFF", 
+							  "msg" => "Delete selected words failed!", 
+							  "htmlContent" => ""
+							 );
+				header("Content-Type: application/json");
+				echo json_encode($data);
+
+				return;
+			}
+		}
+
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+				  	  "msg" => "", 
+					  "htmlContent" => ""
+					 );
+		header("Content-Type: application/json");
+		echo json_encode($data);
+
+		return;
 	}
 
 	function checkDuplicateWord($wordTitle, $wordlistId)
@@ -126,45 +193,6 @@
 		else
 			return 1;
 	}
-
-	// function delSelectedWordLists()
-	// {
-	// 	global $mysqli;
-
-	// 	foreach( $_POST['wordlistArr'] as $check ) {
-	// 		$startIndex = strrpos($check, ":") + 1;
-	// 		$len = strlen($check) - $startIndex;
-
-	// 		$word = substr($check, $startIndex, $len);
-
-	// 		$query = 'DELETE FROM wordlist WHERE wordlistName="' . $word . '";';
-
-	// 		$result = $mysqli->query( $query );
-
-	// 		if( !$result )
-	// 		{
-	// 			$data = array("errState" => "NG", 
-	// 						  "errCode" => "00002", 
-	// 						  "msg" => "Deleting wordlist failed!", 
-	// 						  "htmlContent" => ""
-	// 						 );
-	// 			header("Content-Type: application/json");
-	// 			echo json_encode($data);
-
-	// 			return;
-	// 		}
-	// 	}
-
-	// 	$data = array("errState" => "OK", 
-	// 				  "errCode" => "FFFF", 
-	// 			  	  "msg" => "", 
-	// 				  "htmlContent" => ""
-	// 				 );
-	// 	header("Content-Type: application/json");
-	// 	echo json_encode($data);
-
-	// 	return;
-	// }
 
 	// function updateWordList($oldVal, $newVal)
 	// {

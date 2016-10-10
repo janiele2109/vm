@@ -28,7 +28,7 @@
 					'<td class="toggleEnabled"><span class="word" data-controltranstype="input-text" data-sourceword="' . $row[0] . '">' . $row[0] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="pronunciation" data-controltranstype="input-text" data-sourcepron="' . $row[1] . '">' . $row[1] . '</span></td>' .
 					'<td class="toggleEnabled">' .
-						'<select id="wordlistCb" style="width: 200px;">';
+						'<select class="wordlist" id="wordlistCb" data-controltranstype="combobox" style="width: 200px;">';
 
 						if ( $wordlistCb )
 						{
