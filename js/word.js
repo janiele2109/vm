@@ -295,13 +295,13 @@ $(document).ready(function() {
     //     });
     // });
 
-    $("#myWordListMenuItem").click(function(event) {
+    $("#myWordMenuItem").click(function(event) {
         event.preventDefault(); // not show hashtag in url
-        history.pushState("", document.title, "/wordlist");
+        history.pushState("", document.title, "/word");
 
-        $.post("/mods/wordlist/wordlist.php",
+        $.post("/mods/word/word.php",
         {
-            menuItem: "myWordList",
+            menuItem: "myWord",
             userName: $("#userName").text()
         },
 
