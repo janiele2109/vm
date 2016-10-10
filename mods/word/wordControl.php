@@ -1,6 +1,11 @@
 <?php
 	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getOptionData' ) 
+	{
+		getOptionData();
+	}
+
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWord' ) 
 	{
 		addWord( $_POST[ 'wordName' ], $_POST[ 'wordlistId' ], $_POST[ 'pronunciation' ], $_POST[ 'wordMeaning' ] );
@@ -20,6 +25,48 @@
 	// {
 	// 	updateSelectedWords();
 	// }
+
+	function getOptionData()
+	{
+		global $mysqli;
+		$data = []; 
+
+		$query = 'SELECT * FROM wordlist';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result )
+		{
+			while ( $row = mysqli_fetch_row( $result ) )
+			{
+				$data[ $row[0] ] = $row[1];
+			}
+		}
+		// 	}
+		// 	else
+		// 	{
+		// 		$data = array("errState" => "OK", 
+		// 					  "errCode" => "FFFF", 
+		// 					  "msg" => "Delete selected words failed!", 
+		// 					  "htmlContent" => ""
+		// 					 );
+		// 		header("Content-Type: application/json");
+		// 		echo json_encode($data);
+
+		// 		return;
+		// 	}
+		// }
+
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+				  	  "msg" => "", 
+					  "data" => $data
+					 );
+		header("Content-Type: application/json");
+		echo json_encode($data);
+
+		return;
+	}
 
 	function addWord( $wordTitle, $wordlistId, $pronunciation, $wordMeaning )
 	{
@@ -71,7 +118,6 @@
 	{
 		global $mysqli;
 
-		$temp = '';
 		$wordArr = json_decode($_POST['wordArr']);
 
 		foreach( $wordArr as $word )

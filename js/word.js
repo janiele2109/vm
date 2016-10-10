@@ -176,20 +176,20 @@ $(document).ready(function() {
         // });
     });
 
-    // $('.btnUpdateWordlist').on( 'click', function( event ) {
-    //     var oldWordlist, newWordlist;
-    //     var spanEle, chkBoxEle;
-    //     var rowEle = $(this).parent().parent();
+    $('.btnUpdateWord').on( 'click', function( event ) {
+        var oldWordlist, newWordlist;
+        var spanEle, chkBoxEle;
+        var rowEle = $(this).parent().parent();
 
-    //     spanEle = rowEle.find('span.wordlist[data-controltranstype]');
+        spanEle = rowEle.find('span.wordlist[data-controltranstype]');
 
-    //     $.each(spanEle, function(){ 
-    //         oldWordlist = $(this).attr('data-sourcewordlistname');
-    //         newWordlist = $(this).text();
-    //     });
+        $.each(spanEle, function(){ 
+            oldWordlist = $(this).attr('data-sourcewordlistname');
+            newWordlist = $(this).text();
+        });
 
-    //     $(this).updateWordlist(oldWordlist, newWordlist);
-    // });
+        $(this).updateWordlist(oldWordlist, newWordlist);
+    });
 
     // $.fn.updateWordlist = function(oldWordlist, newWordlist)
     // {

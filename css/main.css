@@ -80,6 +80,11 @@ nav {
 	margin-bottom: 10px;
 }
 
+.btnUpdateWordlist, .btnUpdateWord {
+	display: block;
+	margin: auto;
+}
+
 button {
 	margin: 10px;
 }
@@ -89,7 +94,8 @@ table, th, td {
     border-collapse: collapse;
 }
 th, td {
-    padding: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
     text-align: left;
 }
 table#t01 {

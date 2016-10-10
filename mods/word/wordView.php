@@ -15,10 +15,6 @@
 
 	$result = $mysqli->query( $query );
 
-	$query = "SELECT * FROM wordlist ORDER BY wordlistName";
-
-	$wordlistCb = $mysqli->query( $query );
-
 	if ( $result )
 	{
 		while ( $row = mysqli_fetch_row( $result ) )
@@ -27,32 +23,12 @@
 					'<td><input name="word[]" type="checkbox"/></td>' .
 					'<td class="toggleEnabled"><span class="word" data-controltranstype="input-text" data-sourceword="' . $row[0] . '">' . $row[0] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="pronunciation" data-controltranstype="input-text" data-sourcepron="' . $row[1] . '">' . $row[1] . '</span></td>' .
-					'<td class="toggleEnabled">' .
-						'<select class="wordlist" id="wordlistCb" data-controltranstype="combobox" style="width: 200px;">';
-
-						if ( $wordlistCb )
-						{
-							while ( $rw = mysqli_fetch_row( $wordlistCb ) )
-							{
-								echo '<option value="' . $rw[0] . '"';
-
-								if( $rw[0] == $row[4] )
-									echo " selected";
-
-								echo '>' . $rw[1] . '</option>';
-							}
-
-							$wordlistCb->data_seek(0);							
-						}
-
-			echo		'</select>' .
-					'</td>' .
+					'<td class="toggleEnabled"><span class="wordlist" data-controltranstype="select" data-sourcewordlistname="' . $row[2] . '">' . $row[2] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="meaning" data-controltranstype="input-text" data-sourcemeaning="' . $row[3] . '">' . $row[3] . '</span></td>' .
 					'<td><button class="btnUpdateWord">Update</button></td>' .
 				 '</tr>';
 		}
 
-		mysqli_free_result($wordlistCb);
 		mysqli_free_result($result);
 	}
 ?>
