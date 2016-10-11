@@ -203,15 +203,10 @@
 
 		if( $inListFlag == false )
 		{
-			ob_start();
-			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/word/wordView.php';
-			$html = ob_get_contents();
-			ob_end_clean();
-
 			$data = array("errState" => "OK", 
 						  "errCode" => "FFFF", 
 						  "msg" => "Updated successfully", 
-						  "htmlContent" => $html
+						  "htmlContent" => ""
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);

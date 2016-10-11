@@ -144,6 +144,7 @@ $(document).ready(function() {
                 $.each(spanEle, function(){ 
                     $(this).attr('data-sourcewordlistname', newWordlist);
                     $(this).css('color', 'black');
+                    $(this).removeClass('modified');
                 });
          
                 $.each(chkBoxEle, function(){ 

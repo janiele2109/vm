@@ -194,23 +194,49 @@ $(document).ready(function() {
                     }
                     else
                     {
-                        document.getElementById("addNewWordTextBox").setSelectionRange(0, $("#addNewWordTextBox").val().length);
-                        $(".dynRowWord").remove();
-                        
                         $("#msg").removeClass("Err");
                         $("#msg").html(response['msg']);
-                        $("#tbWordView").children().append(response['htmlContent']);
                         $("#select_all").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
-                        $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
-                        $(".btnUpdateWord").bind('click', 
-                                                  function (event) { 
-                                                                        var rowEle = $(this).parent().parent();
-                                                                        var modifiedControls = rowEle.find('span.modified');
+                        chkBoxEle = rowEle.find('input[type="checkbox"][name="word"]');
 
-                                                                        $(this).updateWord( event, modifiedControls );
-                                                                    } );
+                        $.each( modifiedControls, function() { 
+                            dataSourceName = '';
+
+                            controlType = $(this).attr('class').replace('modified', '').trim();
+                            newVal = $(this).text();
+
+                            switch( controlType )
+                            {                
+                                case 'word':
+                                    dataSourceName = "data-sourceword";
+                                    break;
+
+                                case 'pronunciation':
+                                    dataSourceName = "data-sourcepron";
+                                    break;
+
+                                case 'wordlist':
+                                    dataSourceName = "data-sourcewordlistname";
+                                    break;
+
+                                case 'meaning':
+                                    dataSourceName = "data-sourcemeaning";
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            $(this).attr(dataSourceName, newVal);
+                            $(this).css('color', 'black');
+                            $(this).removeClass('modified');
+                        });
+
+                        $.each(chkBoxEle, function(){ 
+                            $(this).attr('checked', false);
+                        });
                     }
                 },
             data: sendingData
