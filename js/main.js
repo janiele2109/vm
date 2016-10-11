@@ -81,7 +81,7 @@ $(document).ready(function() {
         $(selectTag).css('display', 'block');
 
         selectTag.style.width = $(this).parent().width() + "px";
-        //selectTag.style.color = 'black';
+
         $(selectTag).find('option').css('color', 'black');
         $(selectTag).find('option:selected').css('color', $(this).css("color"));
 
@@ -146,11 +146,13 @@ $(document).ready(function() {
 
         if( $(spanTag).attr(dataSourceName) != spanTag.innerHTML )
         {
+            $(spanTag).addClass('modified');
             spanTag.style.color = 'red';
             chkboxEle.first().prop('checked', true);
         }    
         else
         {
+            $(spanTag).removeClass('modified');
             spanTag.style.color = 'black';
         }    
 

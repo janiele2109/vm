@@ -16,57 +16,15 @@
 		delSelectedWords();
 	}
 
-	// if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWord' )
-	// {
-	// 	updateWord( $_POST["oldWordVal"], $_POST["newWordVal"], $_POST["oldWordlistVal"], $_POST["newWordlistVal"] );
-	// }
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWord' )
+	{
+		updateWord( $_POST['modifiedControls'] );
+	}
 
 	// if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateSelectedWords' )
 	// {
 	// 	updateSelectedWords();
 	// }
-
-	function getOptionData()
-	{
-		global $mysqli;
-		$data = []; 
-
-		$query = 'SELECT * FROM wordlist';
-
-		$result = $mysqli->query( $query );
-
-		if ( $result )
-		{
-			while ( $row = mysqli_fetch_row( $result ) )
-			{
-				$data[ $row[0] ] = $row[1];
-			}
-		}
-		// 	}
-		// 	else
-		// 	{
-		// 		$data = array("errState" => "OK", 
-		// 					  "errCode" => "FFFF", 
-		// 					  "msg" => "Delete selected words failed!", 
-		// 					  "htmlContent" => ""
-		// 					 );
-		// 		header("Content-Type: application/json");
-		// 		echo json_encode($data);
-
-		// 		return;
-		// 	}
-		// }
-
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-				  	  "msg" => "", 
-					  "data" => $data
-					 );
-		header("Content-Type: application/json");
-		echo json_encode($data);
-
-		return;
-	}
 
 	function addWord( $wordTitle, $wordlistId, $pronunciation, $wordMeaning )
 	{
@@ -126,7 +84,7 @@
 					  FROM word w
 					  INNER JOIN wordlist wl
 					  ON w.wordlistId = wl.wordlistId
-					  WHERE w.word = "' . $word->word . '" AND w.wordlistId = "' . $word->wordlistId . '"';
+					  WHERE w.word = "' . $word->word . '" AND wl.wordlistName = "' . $word->wordlistName . '"';
 
 			$result = $mysqli->query( $query );
 
@@ -157,8 +115,8 @@
 			}
 			else
 			{
-				$data = array("errState" => "OK", 
-							  "errCode" => "FFFF", 
+				$data = array("errState" => "NG", 
+							  "errCode" => "00002", 
 							  "msg" => "Delete selected words failed!", 
 							  "htmlContent" => ""
 							 );
@@ -173,6 +131,261 @@
 					  "errCode" => "FFFF", 
 				  	  "msg" => "", 
 					  "htmlContent" => ""
+					 );
+		header("Content-Type: application/json");
+		echo json_encode($data);
+
+		return;
+	}
+
+	function updateWord( $modifiedControls )
+	{
+		global $mysqli;
+
+		$modifiedNewWordVal = '';
+
+		$modifiedCtrls = json_decode( $modifiedControls );
+
+		foreach( $modifiedCtrls as $ctrl )
+		{
+			switch( $ctrl->controlType )
+			{
+                case 'word':
+                	$modifiedNewWordVal = $ctrl->newVal;
+
+                    if( !updateWordField( $ctrl->orgVal, $ctrl->newVal ) )
+                        return;
+
+                    break;
+
+                case 'pronunciation':
+                	$result = false;
+
+                	if( $modifiedNewWordVal != '' )
+                    	$result = updatePronunciationField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
+                    else
+                    	$result = updatePronunciationField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
+
+                    if( !$result )
+                    	return;
+
+                    break;
+                    
+                case 'wordlist':
+                	$result = false;
+
+                	if( $modifiedNewWordVal != '' )
+                    	$result = updateWordlistField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
+                    else
+                    	$result = updateWordlistField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
+
+                    if( !$result )
+                    	return;
+                    
+                    break;
+                case 'meaning':
+                    $result = false;
+
+                	if( $modifiedNewWordVal != '' )
+                    	$result = updateMeaningField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
+                    else
+                    	$result = updateMeaningField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
+
+                    if( !$result )
+                    	return;
+                    
+                    break;
+                    
+                default:
+                    break;
+			}
+		}
+
+		ob_start();
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/word/wordView.php';
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+					  "msg" => "Updated successfully", 
+					  "htmlContent" => $html
+					 );
+		header("Content-Type: application/json");
+		echo json_encode($data);
+	}
+
+	function updateWordField($oldWord, $newWord)
+	{
+		global $mysqli;
+
+		$query = 'UPDATE word SET word = "' . $newWord . '" WHERE word="' . $oldWord . '";';
+
+		$result = $mysqli->query( $query );
+
+		if ($result) 
+		{
+			return 1;
+		}
+		else
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Update word field failed!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return 0;
+		}
+	}
+
+	function updatePronunciationField($word, $oldVal, $newVal)
+	{
+		global $mysqli;
+
+		$query = 'UPDATE word SET pronunciation = "' . $newVal . '" WHERE word="' . $word . '" AND pronunciation="' . $oldVal . '";';
+
+		$result = $mysqli->query( $query );
+
+		if ($result) 
+		{
+			return 1;
+		}
+		else
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Update pronunciation field failed!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return 0;
+		}
+	}
+
+	function updateWordlistField($word, $oldVal, $newVal)
+	{
+		global $mysqli;
+
+		$query = 'SELECT wl.wordlistId FROM wordlist wl WHERE wl.wordlistName="' . $newVal . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ($result->num_rows > 0) 
+		{
+			$query = 'UPDATE word as w
+					  INNER JOIN wordlist as wl
+					  ON w.wordlistId = wl.wordlistId
+					  SET w.wordlistId = ' . $result->fetch_object()->wordlistId . ' ' .
+					  'WHERE w.word="' . $word . '" AND wl.wordlistName="' . $oldVal . '"';
+
+			$result = $mysqli->query( $query );
+
+			if ($result) 
+			{
+				return 1;
+			}
+			else
+			{
+				$data = array("errState" => "NG", 
+							  "errCode" => "00002", 
+							  "msg" => "Update wordlist field failed!", 
+							  "htmlContent" => ""
+							 );
+				header("Content-Type: application/json");
+				echo json_encode($data);
+
+				return 0;
+			}
+		}
+		else
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Failed for searching wordlist!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return 0;
+		}
+	}
+
+	function updateMeaningField($word, $oldVal, $newVal)
+	{
+		global $mysqli;
+
+		$query = 'SELECT w.wordId FROM word w WHERE w.word="' . $word . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ($result->num_rows > 0) 
+		{
+			$query = 'UPDATE wordmeaning as wm
+					  INNER JOIN word as w
+					  ON wm.wordId = w.wordId
+					  SET wm.meaning = "' . $newVal . '" ' .
+					  'WHERE wm.wordId=' . $result->fetch_object()->wordId . ' AND wm.meaning="' . $oldVal . '"';
+
+			$result = $mysqli->query( $query );
+
+			if ($result) 
+			{
+				return 1;
+			}
+			else
+			{
+				$data = array("errState" => "NG", 
+							  "errCode" => "00002", 
+							  "msg" => "Update word meaning failed!", 
+							  "htmlContent" => ""
+							 );
+				header("Content-Type: application/json");
+				echo json_encode($data);
+
+				return 0;
+			}
+		}
+		else
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => "Failed for searching word!", 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return 0;
+		}
+	}
+
+	function getOptionData()
+	{
+		global $mysqli;
+		$data = []; 
+
+		$query = 'SELECT * FROM wordlist';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result )
+		{
+			while ( $row = mysqli_fetch_row( $result ) )
+			{
+				$data[ $row[0] ] = $row[1];
+			}
+		}
+
+		$data = array("errState" => "OK", 
+					  "errCode" => "FFFF", 
+				  	  "msg" => "", 
+					  "data" => $data
 					 );
 		header("Content-Type: application/json");
 		echo json_encode($data);
@@ -239,55 +452,6 @@
 		else
 			return 1;
 	}
-
-	// function updateWordList($oldVal, $newVal)
-	// {
-	// 	global $mysqli;
-
-	// 	$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newVal . '";';
-
-	// 	$result = $mysqli->query( $query );
-
-	// 	if ($result->num_rows > 0) 
-	// 	{
-	// 		$data = array("errState" => "NG", 
-	// 					  "errCode" => "00001", 
-	// 					  "msg" => "Duplicated wordlist!", 
-	// 					  "htmlContent" => ""
-	// 					 );
-	// 		header("Content-Type: application/json");
-	// 		echo json_encode($data);
-
-	// 		return;
-	// 	}
-
-	// 	$query = 'UPDATE wordlist SET wordlistName = "' . $newVal . '" WHERE wordlistName="' . $oldVal . '";';
-
-	// 	$result = $mysqli->query( $query );
-
-	// 	if( !$result )
-	// 	{
-	// 		$data = array("errState" => "NG", 
-	// 					  "errCode" => "00002", 
-	// 					  "msg" => "Updating wordlist failed!", 
-	// 					  "htmlContent" => ""
-	// 					 );
-	// 		header("Content-Type: application/json");
-	// 		echo json_encode($data);
-
-	// 		return;
-	// 	}
-
-	// 	$data = array("errState" => "OK", 
-	// 				  "errCode" => "FFFF", 
-	// 				  "msg" =>  $oldVal . " was updated to " . $newVal, 
-	// 				  "htmlContent" => ""
-	// 				 );
-
-	// 	header("Content-Type: application/json");
-
-	// 	echo json_encode($data);
-	// }
 
 	// function updateSelectedWordLists()
 	// {

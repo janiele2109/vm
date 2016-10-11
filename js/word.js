@@ -41,39 +41,10 @@ $(document).ready(function() {
                         $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
                         $(".btnUpdateWord").bind('click', 
                                                   function (event) { 
-                                                                        var oldWord, newWord, oldPron, newPron, oldWordlist, newWordlist, oldWordMeaning, newWordMeaning;
-                                                                        var spanWordEle, spanPronEle, spanWordlistEle, spanMeaningEle;
                                                                         var rowEle = $(this).parent().parent();
+                                                                        var modifiedControls = rowEle.find('span.modified');
 
-                                                                        spanWordEle = rowEle.find('span.word[data-controltranstype]');
-                                                                        spanPronEle = rowEle.find('span.pronunciation[data-controltranstype]');
-                                                                        spanWordlistEle = rowEle.find('span.wordlist[data-controltranstype]');
-                                                                        spanMeaningEle = rowEle.find('span.meaning[data-controltranstype]');
-
-                                                                        $.each(spanWordEle, function(){ 
-                                                                            oldWord = $(this).attr('data-sourceword');
-                                                                            newWord = $(this).text();
-                                                                        });
-
-                                                                        $.each(spanPronEle, function(){ 
-                                                                            oldPron = $(this).attr('data-sourcepron');
-                                                                            newPron = $(this).text();
-                                                                        });
-
-                                                                        $.each(spanWordlistEle, function(){ 
-                                                                            oldWordlist = $(this).attr('data-sourcewordlist');
-                                                                            newWordlist = $(this).text();
-                                                                        });
-
-                                                                        $.each(spanMeaningEle, function(){ 
-                                                                            oldWordMeaning = $(this).attr('data-sourcemeaning');
-                                                                            newWordMeaning = $(this).text();
-                                                                        });
-
-                                                                        $(this).updateWord(oldWord, newWord, 
-                                                                                           oldPron, newPron, 
-                                                                                           oldWordlist, newWordlist, 
-                                                                                           oldWordMeaning, newWordMeaning);         
+                                                                        $(this).updateWord( event, modifiedControls );
                                                                     } );
                     }
                 },
@@ -84,13 +55,13 @@ $(document).ready(function() {
     $("#delSelectedWords").click(function(event) {
         event.preventDefault();
 
-        var selectedWord = [];        
+        var selectedWord = [];
 
         $("input[name='word[]']:checked").each(function() {
             var rowEle = $(this).parent().parent();
-            var word, pron, wordlistId, meaning;
+            var word, pron, wordlistName, meaning;
             var curIndex = selectedWord.length;
-            var wordMap = {};    
+            var wordMap = {};
 
             rowEle.find('.word[data-controltranstype]').each(function(){ 
                 word = $(this).attr('data-sourceword');
@@ -101,7 +72,7 @@ $(document).ready(function() {
             });
 
             rowEle.find('.wordlist[data-controltranstype]').each(function(){ 
-                wordlistId = $(this).find('option:selected').val();
+                wordlistName = $(this).attr('data-sourcewordlistname');
             });
 
             rowEle.find('.meaning[data-controltranstype]').each(function(){ 
@@ -110,7 +81,7 @@ $(document).ready(function() {
 
             wordMap[ "word" ] = word;
             wordMap[ "pron" ] = pron;
-            wordMap[ "wordlistId" ] = wordlistId;
+            wordMap[ "wordlistName" ] = wordlistName;
             wordMap[ "meaning" ] = meaning;
 
             selectedWord.push(wordMap);
@@ -148,89 +119,103 @@ $(document).ready(function() {
                 },
             data: sendingData
         });
-
-        // $.post("/mods/word/wordControl.php",
-        // {
-        //     'wordArr[]': selectedWord,
-        //     requestType: "delSelectedWords"
-        // },
-
-        // function(response,status){
-        //     if( status != "success" || response['errState'] != "OK")
-        //     {
-        //         $("#msg").html(response['msg']);
-        //         $("#msg").addClass("Err");
-        //     }
-        //     else
-        //     {
-        //         $(".dynRowWord").filter(function() {
-        //             return ( $(this).children().children( "input[type=checkbox]:checked" ).length != 0 );
-        //         }).remove();
-
-        //         $("#msg").removeClass("Err");
-        //         $("#msg").html(response['msg']);
-        //         $("#tbWordView").children().append(response['htmlContent']);
-        //         $("#select_all").prop('checked', false);
-        //         $("#addNewWordTextBox").focus();                
-        //     }
-        // });
     });
 
     $('.btnUpdateWord').on( 'click', function( event ) {
-        var oldWordlist, newWordlist;
-        var spanEle, chkBoxEle;
         var rowEle = $(this).parent().parent();
+        var modifiedControls = rowEle.find('span.modified');
 
-        spanEle = rowEle.find('span.wordlist[data-controltranstype]');
-
-        $.each(spanEle, function(){ 
-            oldWordlist = $(this).attr('data-sourcewordlistname');
-            newWordlist = $(this).text();
-        });
-
-        $(this).updateWordlist(oldWordlist, newWordlist);
+        $(this).updateWord( event, modifiedControls );
     });
 
-    // $.fn.updateWordlist = function(oldWordlist, newWordlist)
-    // {
-    //     var spanEle, chkBoxEle;
-    //     var rowEle = $(this).parent().parent();
+    $.fn.updateWord = function(event, modifiedControls)
+    {
+        event.preventDefault();
 
-    //     spanEle = rowEle.find('span.wordlist[data-controltranstype]');
+        var rowEle = $(this).parent().parent();
+        var modifiedEle = [];
 
-    //     $.post("/mods/wordlist/wordlistControl.php",
-    //     {
-    //         oldVal: oldWordlist,
-    //         newVal: newWordlist,
-    //         requestType: "updateWordList"
-    //     },
+        $.each( modifiedControls, function() { 
+            var data = {};
+            var dataSourceName = '';
 
-    //     function(response,status){
-    //         if( status != "success" || response['errState'] != "OK")
-    //         {
-    //             $("#msg").html(response['msg']);
-    //             $("#msg").addClass("Err");
-    //         }
-    //         else
-    //         {
-    //             $("#msg").removeClass("Err");
-    //             $("#msg").html(response['msg']);
-    //             $("#select_all").prop('checked', false);
-    //             $("#addNewWordlistTextBox").focus();  
+            var controlType = $(this).attr('class').replace('modified', '').trim();
+            var orgVal = '';
+            var newVal = $(this).text();
 
-    //             chkBoxEle = rowEle.find('input[type="checkbox"][name="wordList"]');
+            switch( controlType )
+            {                
+                case 'word':
+                    dataSourceName = "data-sourceword";
+                    break;
 
-    //             $.each(spanEle, function(){ 
-    //                 $(this).attr('data-sourcewordlistname', newWordlist);
-    //                 $(this).css('color', 'black');
-    //             });
-         
-    //             $.each(chkBoxEle, function(){ 
-    //                 $(this).attr('checked', false);
-    //             });
-    //         }
-    //     });
-    // };
+                case 'pronunciation':
+                    dataSourceName = "data-sourcepron";
+                    break;
+
+                case 'wordlist':
+                    dataSourceName = "data-sourcewordlistname";
+                    break;
+
+                case 'meaning':
+                    dataSourceName = "data-sourcemeaning";
+                    break;
+
+                default:
+                    break;
+            }
+
+            orgVal = $(this).attr(dataSourceName);
+
+            data[ "word" ] = rowEle.find('span.word').attr('data-sourceword');
+            data[ "controlType" ] = controlType;
+            data[ "orgVal" ] = orgVal;
+            data[ "newVal" ] = newVal;
+
+            modifiedEle.push( data );
+        });
+
+        var sendingData = {
+            'modifiedControls': JSON.stringify( modifiedEle ),
+            requestType: "updateWord"
+        }
+
+        $.ajax({
+            url: '/mods/word/wordControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            success: 
+                function(response,status){
+                    if( status != "success" || response['errState'] != "OK")
+                    {
+                        $("#msg").html(response['msg']);
+                        $("#msg").addClass("Err");
+                    }
+                    else
+                    {
+                        document.getElementById("addNewWordTextBox").setSelectionRange(0, $("#addNewWordTextBox").val().length);
+                        $(".dynRowWord").remove();
+                        
+                        $("#msg").removeClass("Err");
+                        $("#msg").html(response['msg']);
+                        $("#tbWordView").children().append(response['htmlContent']);
+                        $("#select_all").prop('checked', false);
+                        $("#addNewWordTextBox").focus();  
+
+                        $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
+                        $(".btnUpdateWord").bind('click', 
+                                                  function (event) { 
+                                                                        var rowEle = $(this).parent().parent();
+                                                                        var modifiedControls = rowEle.find('span.modified');
+
+                                                                        $(this).updateWord( event, modifiedControls );
+                                                                    } );
+                    }
+                },
+            data: sendingData
+        });
+    };
 
     // $("#updateSelectedWordLists").click(function(event) {
     //     event.preventDefault();
