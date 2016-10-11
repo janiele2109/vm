@@ -21,10 +21,10 @@
 		updateWord( $_POST['modifiedControls'] );
 	}
 
-	// if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateSelectedWords' )
-	// {
-	// 	updateSelectedWords();
-	// }
+	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateSelectedWords' )
+	{
+		updateSelectedWords( $_POST['modifiedControlsList'] );
+	}
 
 	function addWord( $wordTitle, $wordlistId, $pronunciation, $wordMeaning )
 	{
@@ -138,7 +138,7 @@
 		return;
 	}
 
-	function updateWord( $modifiedControls )
+	function updateWord( $modifiedControls, $inListFlag=false )
 	{
 		global $mysqli;
 
@@ -154,7 +154,7 @@
                 	$modifiedNewWordVal = $ctrl->newVal;
 
                     if( !updateWordField( $ctrl->orgVal, $ctrl->newVal ) )
-                        return;
+                        return 0;
 
                     break;
 
@@ -167,7 +167,7 @@
                     	$result = updatePronunciationField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
-                    	return;
+                    	return 0;
 
                     break;
                     
@@ -180,7 +180,7 @@
                     	$result = updateWordlistField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
-                    	return;
+                    	return 0;
                     
                     break;
                 case 'meaning':
@@ -192,13 +192,44 @@
                     	$result = updateMeaningField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
-                    	return;
+                    	return 0;
                     
                     break;
-                    
+
                 default:
                     break;
 			}
+		}
+
+		if( $inListFlag == false )
+		{
+			ob_start();
+			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/word/wordView.php';
+			$html = ob_get_contents();
+			ob_end_clean();
+
+			$data = array("errState" => "OK", 
+						  "errCode" => "FFFF", 
+						  "msg" => "Updated successfully", 
+						  "htmlContent" => $html
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+		}
+
+		return 1;
+	}
+
+	function updateSelectedWords( $modifiedControlsList )
+	{
+		global $mysqli;
+
+		$modifiedCtrlsList = json_decode( $modifiedControlsList );
+
+		foreach( $modifiedCtrlsList as $modifiedCtrls )
+		{
+			if( !updateWord( json_encode( $modifiedCtrls ), true ) )
+				return;
 		}
 
 		ob_start();
@@ -208,7 +239,7 @@
 
 		$data = array("errState" => "OK", 
 					  "errCode" => "FFFF", 
-					  "msg" => "Updated successfully", 
+					  "msg" => "Updated selected words successfully: ", 
 					  "htmlContent" => $html
 					 );
 		header("Content-Type: application/json");
@@ -452,94 +483,4 @@
 		else
 			return 1;
 	}
-
-	// function updateSelectedWordLists()
-	// {
-	// 	global $mysqli;
-
-	// 	$cntWordlistTotal = 0;
-	// 	$cntDuplicatedWordlist = 0;
-	// 	$duplicatedWordlist = "";
-
-	// 	foreach( $_POST['wordlistArr'] as $check ) {
-	// 		$cntWordlistTotal++;
-	// 		$startIndex = strpos($check, ":") + 1;
-	// 		$len = strpos($check, ";") - $startIndex;
-
-	// 		$oldWordlist = substr($check, $startIndex, $len);
-	// 		$newWordlist = substr($check, strrpos($check, ":") + 1);
-
-	// 		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newWordlist . '";';
-
-	// 		$result = $mysqli->query( $query );
-
-	// 		if ($result->num_rows > 0) 
-	// 		{
-	// 			if( empty( $duplicatedWordlist ) )
-	// 				$duplicatedWordlist = $newWordlist;
-	// 			else
-	// 				$duplicatedWordlist = $duplicatedWordlist . ", " . $newWordlist;
-
-	// 			$cntDuplicatedWordlist++;
-	// 			continue;
-	// 		}
-
-	// 		$query = 'UPDATE wordlist SET wordlistName = "' . $newWordlist . '" WHERE wordlistName="' . $oldWordlist . '";';
-
-	// 		$result = $mysqli->query( $query );
-
-	// 		if( !$result )
-	// 		{
-	// 			$data = array("errState" => "NG", 
-	// 						  "errCode" => "00002", 
-	// 						  "msg" => "Updating selected wordlist failed!", 
-	// 						  "htmlContent" => ""
-	// 						 );
-	// 			header("Content-Type: application/json");
-	// 			echo json_encode($data);
-
-	// 			return;
-	// 		}			
-	// 	}
-
-	// 	if ( !empty($duplicatedWordlist) ) 
-	// 	{
-	// 		$msg = "";
-	// 		$range = $cntWordlistTotal - $cntDuplicatedWordlist;
-
-	// 		if ( $range == 1 )
-	// 			$msg = "Duplicated wordlist: " . $duplicatedWordlist . "! Remaining wordlist is updated successfully!";
-	// 		else if ( $range > 1 )
-	// 			$msg = "Duplicated wordlist: " . $duplicatedWordlist . "! Remaining wordlist are updated successfully!";
-	// 		else
-	// 			$msg = "Duplicated wordlist: " . $duplicatedWordlist;
-
-	// 		$data = array("errState" => "NG", 
-	// 					  "errCode" => "00001", 
-	// 					  "msg" => $msg, 
-	// 					  "htmlContent" => ""
-	// 					 );
-	// 		header("Content-Type: application/json");
-	// 		echo json_encode($data);
-
-	// 		return;
-	// 	}
-	// 	else
-	// 	{
-	// 		ob_start();
-	// 		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
-	// 		$html = ob_get_contents();
-	// 		ob_end_clean();
-
-	// 		$data = array("errState" => "OK", 
-	// 					  "errCode" => "FFFF", 
-	// 					  "msg" => "Selected wordlist updated!", 
-	// 					  "htmlContent" => $html
-	// 					 );
-
-	// 		header("Content-Type: application/json");
-
-	// 		echo json_encode($data);
-	// 	}
-	// }
 ?>
