@@ -55,7 +55,7 @@
 
 		$query = 'INSERT INTO wordMeaning(meaning, wordId) values("' . $wordMeaning . '", "' . $wordId . '");';
 
-		if( !(execQuery( $query, "Adding word failed!" ) ) )
+		if( !(execQuery( $query, "Adding word meaning failed!" ) ) )
 			return;
 		
 		ob_start();

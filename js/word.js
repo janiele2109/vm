@@ -199,8 +199,6 @@ $(document).ready(function() {
                         $("#select_all").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
-                        chkBoxEle = rowEle.find('input[type="checkbox"][name="word"]');
-
                         $.each( modifiedControls, function() { 
                             dataSourceName = '';
 
@@ -232,10 +230,9 @@ $(document).ready(function() {
                             $(this).attr(dataSourceName, newVal);
                             $(this).css('color', 'black');
                             $(this).removeClass('modified');
-                        });
 
-                        $.each(chkBoxEle, function(){ 
-                            $(this).attr('checked', false);
+                            var chkboxEle = rowEle.find('input[type="checkbox"]');
+                            chkboxEle.first().prop('checked', false);
                         });
                     }
                 },
