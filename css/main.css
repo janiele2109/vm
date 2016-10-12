@@ -12,16 +12,76 @@ header{
 	margin-bottom: 20px;
 }
 
+.noselect {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Chrome/Safari/Opera */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* IE/Edge */
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+}
+
+/* Test page - START */
 .testForm {
 	position: relative; 
-	display: block; 
+	display: none; 
 	margin: auto; 
-	margin-top: 50px;
+	margin-top: 10px;
 	background-color: "blue"; 
 	width: 100%; 
 	font-size: 20px;
 	text-align: center;
 }
+
+.testOptions {
+	margin-top: 30px;
+	font-size: 15px;
+	height: 10px;
+}
+
+.meaningDescription {
+	margin-top: 30px;
+}
+
+.meaningLabel {
+	margin-right: 10px;
+}
+
+.inputWord {
+	margin-top: 30px; 
+	margin-bottom: 20px;
+	text-align: center; 
+	height: 50px; 
+	font-size: 26px;
+	font-style: italic;
+}
+
+.testForm button {
+	width:200px; 
+	height: 40px;
+	margin-left: 15px; 
+	margin-top: 20px;
+}
+
+.testForm .resultSpan {	 
+	position: relative; 
+	display: none; 
+	font-size: 30px;
+	margin-top: 40px;
+}
+
+.testForm .pronunciationSpan {	 
+	position: relative; 
+	display:inline-block;
+    visibility: hidden;
+}
+/* Test form - END */
+
+
 
 .word, .pronunciation {
 	width: 150px;
