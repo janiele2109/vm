@@ -24,7 +24,7 @@
 					'<td class="toggleEnabled"><span class="word" data-controltranstype="input-text" data-sourceword="' . $row[0] . '">' . $row[0] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="pronunciation" data-controltranstype="input-text" data-sourcepron="' . $row[1] . '">' . $row[1] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="wordlist" data-controltranstype="select" data-sourcewordlistname="' . $row[2] . '">' . $row[2] . '</span></td>' .
-					'<td class="toggleEnabled"><span class="meaning" data-controltranstype="input-text" data-sourcemeaning="' . $row[3] . '">' . $row[3] . '</span></td>' .
+					'<td class="toggleEnabled"><span class="meaning" data-controltranstype="textarea" data-sourcemeaning="' . $row[3] . '">' . $row[3] . '</span></td>' .
 					'<td><button class="btnUpdateWord">Update</button></td>' .
 				 '</tr>';
 		}

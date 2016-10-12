@@ -81,22 +81,32 @@
 
 		foreach( $_POST['wordlistArr'] as $wordlist ) {
 
-			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $wordlist . '";';
+			$query = 'SELECT w.wordId
+					  FROM word w
+					  INNER JOIN wordlist wl
+					  ON w.wordlistId = wl.wordlistId 
+					  WHERE wl.wordlistName = "' . $wordlist . '"' ;
 
 			$result = $mysqli->query( $query );
 
-			if( !$result )
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00002", 
-							  "msg" => "Deleting wordlist failed!", 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
+			while ( $row = mysqli_fetch_row( $result ) ) 
+			{				
+				$query = 'DELETE FROM wordMeaning 
+						  WHERE wordId="' . $row[0] . '";';
 
-				return;
+				if( !execQuery( $query, "Delete word meanings of word belongs to wordlist failed!" ) )
+					return;
+
+				$query = 'DELETE FROM word WHERE wordId="' . $row[0] . '";';
+
+				if( !execQuery( $query, "Delete words belong to wordlist failed!" ) )
+					return;
 			}
+
+			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $wordlist . '";';
+
+			if( !execQuery( $query, "Deleting wordlist failed!" ) )
+				return;
 		}
 
 		$data = array("errState" => "OK", 
@@ -245,5 +255,27 @@
 
 			return;
 		}			
+	}
+
+	function execQuery( $query, $errMsg )
+	{
+		global $mysqli;
+
+		$result = $mysqli->query( $query );
+
+		if( !$result )
+		{
+			$data = array("errState" => "NG", 
+						  "errCode" => "00002", 
+						  "msg" => $errMsg, 
+						  "htmlContent" => ""
+						 );
+			header("Content-Type: application/json");
+			echo json_encode($data);
+
+			return 0;
+		}
+		else
+			return 1;
 	}
 ?>

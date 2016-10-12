@@ -63,6 +63,29 @@ $(document).ready(function() {
         return inputTag;
     }
 
+    $.fn.toTextAreaControl = function() {
+        var textarea = document.createElement('TEXTAREA');
+
+        $.each(this[0].attributes, function(i, attrib){
+            $(textarea).attr(attrib.name, attrib.value);
+        });
+
+        textarea.value = $(this).text();
+
+        $(textarea).attr('data-controltranstype', 'span');
+
+        textarea.style.width = $(this).parent().width() - 6 + "px";
+        textarea.style.color = $(this).css("color");
+
+        $(textarea).bind('blur', function ( event ) { $(this).toggleControl( event ); } );
+
+        $(textarea).bind('keypress', function ( event ) { $(this).toggleControl( event ); } );
+
+        $(this).replaceWith(textarea);
+
+        return textarea;
+    }
+
     $.fn.toSelectControl = function() {
         var selectTag = document.createElement('SELECT');
         var selectedText = $(this).text();
@@ -140,6 +163,11 @@ $(document).ready(function() {
                 spanTag.innerHTML = $(this).prop('value');                
                 break;
 
+            case 'TEXTAREA':
+                $(spanTag).attr('data-controltranstype', 'textarea');
+                spanTag.innerHTML = $(this).prop('value');                
+                break;
+
             default:
                 break;
         }
@@ -189,6 +217,12 @@ $(document).ready(function() {
 
                             break;
 
+                        case 'textarea':
+                            var textarea = childTag.toTextAreaControl();
+                            $(textarea).focus();
+
+                            break;
+
                         default:
                             break;
                     }
@@ -198,6 +232,7 @@ $(document).ready(function() {
 
             case 'INPUT':
             case 'SELECT':
+            case 'TEXTAREA':
 
                 if( event.type == 'keypress' && event.which != 13 )
                     break;

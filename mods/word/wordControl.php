@@ -32,7 +32,7 @@
 
 		$wordId = null;
 
-		if( checkDuplicateWord($wordTitle, $wordlistId) )
+		if( checkDuplicateWord($wordTitle, $wordlistId, $wordMeaning) )
 			return;
 
 		$query = 'INSERT INTO word(word, pronunciation, wordlistId) values("' . $wordTitle . '", "' . $pronunciation . '", "' . $wordlistId . '");';
@@ -419,7 +419,7 @@
 		return;
 	}
 
-	function checkDuplicateWord($wordTitle, $wordlistId)
+	function checkDuplicateWord($wordTitle, $wordlistId, $wordMeaning)
 	{
 		global $mysqli;
 
@@ -437,7 +437,9 @@
 					  FROM wordmeaning wm
 					  INNER JOIN word w
 					  ON w.wordId = wm.wordId
-					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '"';
+					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '" AND wm.meaning = "' . $wordMeaning . '";';
+
+			$result = $mysqli->query( $query );
 
 			if ($result->num_rows > 0) 
 			{
