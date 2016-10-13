@@ -1,7 +1,8 @@
 <?php
-	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/constants.php';
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'testDataRequest' ) 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'testDataRequest' )
 	{
 		getTestData();
 	}
@@ -10,9 +11,16 @@
 	{
 		global $mysqli;
 
-		$wordsList = []; 
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
 
-		$query = 'SELECT w.wordId, w.word, wl.wordlistName, w.pronunciation, wm.meaning
+		$wordsList = [];
+
+		$query = 'SELECT w.wordId, w.word, w.partOfSpeech, wl.wordlistName, w.pronunciation, wm.meaning
 				  FROM word w
 				  INNER JOIN wordmeaning wm
 				  ON w.wordId = wm.wordId
@@ -21,28 +29,59 @@
 
 		$result = $mysqli->query( $query );
 
-		if ($result->num_rows > 0)
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
 		{
 			while ( $row = mysqli_fetch_row( $result ) )
 			{
-				$word = array('wordId' => $row[0],
-							  'word' => $row[1],
-							  'wordlistName' => $row[2],
-							  'pronunciation' => $row[3],
-							  'meaning' => $row[4] );
+				$examplesList = [];
+
+				$query = 'SELECT we.example
+						  FROM wordexample we
+						  INNER JOIN wordmeaning wm
+						  ON we.wordMeaningId = wm.wordMeaningId
+						  WHERE wm.meaning = "' . $row[ 5 ] . '"';
+
+				$examples = $mysqli->query( $query );
+
+				if ( $examples != FALSE &&
+					 $examples->num_rows > 0 )
+				{
+					while ( $ex = mysqli_fetch_row( $examples ) )
+					{
+						$examplesList[] = $ex;
+					}
+
+					mysqli_free_result( $examples );
+				}
+
+				$word = array(
+							   'wordId' 		=> $row[ 0 ],
+							   'word' 			=> $row[ 1 ],
+							   'partOfSpeech'	=> $row[ 2 ],
+							   'wordlistName' 	=> $row[ 3 ],
+							   'pronunciation' 	=> $row[ 4 ],
+							   'meaning' 		=> $row[ 5 ],
+							   'examples'		=> $examplesList
+							 );
 
 				$wordsList[] = $word;
 			}
+
+			$responseData[ 'errState' ] = 'OK';
+			$responseData[ 'data' ] = $wordsList;
+
+			mysqli_free_result( $result );
+		}
+		else if( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0001';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-				  	  "msg" => "", 
-					  "data" => $wordsList
-					 );
-		header("Content-Type: application/json");
-		echo json_encode($data);
-
-		return;
+		$data = $responseData;
+		header( 'Content-Type: application/json' );
+		echo json_encode( $data );
 	}
 ?>

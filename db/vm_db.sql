@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `wordlist`(
 CREATE TABLE IF NOT EXISTS `word`(
 	wordId      	INT NOT NULL AUTO_INCREMENT,
 	word 			VARCHAR(50) NOT NULL,
+	partOfSpeech	VARCHAR(50) NOT NULL,
 	pronunciation	VARCHAR(50) NOT NULL,
 	wordlistId    	INT NOT NULL,
 	PRIMARY KEY (wordId, wordlistId)
@@ -31,14 +32,14 @@ CREATE TABLE IF NOT EXISTS `word`(
 
 CREATE TABLE IF NOT EXISTS `wordMeaning`(
 	wordMeaningId  	INT NOT NULL AUTO_INCREMENT,
-	meaning			VARCHAR(50) NOT NULL,
+	meaning			longtext NOT NULL,
 	wordId    		INT NOT NULL,
 	PRIMARY KEY (wordMeaningId, wordId)
 );
 
 CREATE TABLE IF NOT EXISTS `wordExample`(
 	wordExampleId  	INT NOT NULL AUTO_INCREMENT,
-	example			VARCHAR(50) NOT NULL,
+	example			longtext NOT NULL,
 	wordMeaningId	INT NOT NULL,
 	PRIMARY KEY (wordExampleId, wordMeaningId)
 );
@@ -51,5 +52,4 @@ CREATE TABLE IF NOT EXISTS `sessionInfo`(
 );
 
 INSERT INTO users(userName, password, email, firstName, fullName, accType) VALUES 
-("asd", "123", "janiele2109@gmail.com", "Janie", "Janie Le", 1),
-("sophiele", "mypass", "sophiele@gmail.com", "Sophie", "Sophie Le", 1);
+("asd", "123", "janiele2109@gmail.com", "Janie", "Janie Le", 1)

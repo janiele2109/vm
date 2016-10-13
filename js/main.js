@@ -95,7 +95,19 @@ $(document).ready(function() {
                 $(selectTag).attr(attrib.name, attrib.value);
         });
 
-        $('#hiddenWordlistCb option').clone().appendTo(selectTag);
+        switch( $(selectTag).attr('class').replace('modified', '').trim() )
+        {
+            case 'wordlist':
+                $('#hiddenWordlistCb option').clone().appendTo(selectTag);
+                break;
+
+            case 'partOfSpeech':
+                $('#wordClassCb option').clone().appendTo(selectTag);
+                break;
+
+            default:
+                break;
+        }
 
         $(selectTag).children().filter(function() { return $(this).text() == selectedText; } ).prop('selected', true);
 
@@ -127,7 +139,7 @@ $(document).ready(function() {
 
             if(attrib.name == 'class')
             {
-                switch(attrib.value)
+                switch(attrib.value.replace('modified', '').trim())
                 {
                     case 'wordlist':
                         dataSourceName = "data-sourcewordlistname";
@@ -137,12 +149,20 @@ $(document).ready(function() {
                         dataSourceName = "data-sourceword";
                         break;
 
+                    case 'partOfSpeech':
+                        dataSourceName = "data-sourcepos";
+                        break;
+
                     case 'pronunciation':
                         dataSourceName = "data-sourcepron";
                         break;
 
                     case 'meaning':
                         dataSourceName = "data-sourcemeaning";
+                        break;
+
+                    case 'example':
+                        dataSourceName = "data-sourceexample";
                         break;
 
                     default:

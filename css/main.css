@@ -31,7 +31,6 @@ header{
 	display: none; 
 	margin: auto; 
 	margin-top: 10px;
-	background-color: "blue"; 
 	width: 100%; 
 	font-size: 20px;
 	text-align: center;
@@ -45,6 +44,10 @@ header{
 
 .meaningDescription {
 	margin-top: 30px;
+}
+
+.wordClassDescription {
+	margin-top: 20px;
 }
 
 .meaningLabel {
@@ -69,7 +72,10 @@ header{
 
 .testForm .resultSpan {	 
 	position: relative; 
-	display: none; 
+	display:inline-block;
+    visibility: hidden;
+    margin: auto;
+	width: 100%;
 	font-size: 30px;
 	margin-top: 40px;
 }
@@ -79,15 +85,42 @@ header{
 	display:inline-block;
     visibility: hidden;
 }
+
+.testForm .exampleDiv {	 
+	position: relative; 
+	display:inline-block;
+	margin: auto;
+	width: 100%;
+	padding-left: 30%;
+    visibility: hidden;
+    font-size: 20px;
+	margin-top: 20px;
+	text-align: left;
+}
+
+.testForm .exampleP {	 
+	margin-left: 30px;
+	margin-top: 10px;
+}
+
+.testPage #msg {
+	position: relative; 
+	display: none; 
+	margin: auto; 
+	margin-top: 80px;
+	width: 100%; 
+	font-size: 30px;
+	text-align: center;
+}
 /* Test form - END */
 
 
 
-.word, .pronunciation {
+.word, .pronunciation, .partOfSpeech {
 	width: 150px;
 }
 
-.wordlist, .meaning {
+.wordlist, .meaning, .example {
 	width: 300px;
 }
 

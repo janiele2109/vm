@@ -10,8 +10,10 @@ $(document).ready(function() {
         var sendingData = {
             wordName: $("#addNewWordTextBox").val(),
             wordlistId: $("#wordlistCb").find(":selected").val(),
+            partsOfSpeech: $("#wordClassCb").find(":selected").val(),
             pronunciation: $("#pronunciationTextBox").val(),
             wordMeaning: $("#meaningTextArea").val(),
+            wordExample: $("#exampleTextArea").val(),
             requestType: "addWord"
         }
 

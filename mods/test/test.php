@@ -23,7 +23,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/inc/head.php";
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/nav/nav.php";
 		require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/test/testForm.php";
 		?>
-		<b><div id="msg" style="display:none; margin:auto; margin-top: 10px; width: 200px; height: 100px">&nbsp;</div></b>
+		<div class='testPage'>
+			<b><span id="msg"></span></b>
+		</div>
 		<button id='testBtn' style='display: block; margin:auto; width: 400px; height: 100px; margin-top: 200px'>Test</button>
 	</div>
 	<footer>

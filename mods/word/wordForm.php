@@ -12,9 +12,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/newWordForm.php";
 	<tr>
 		<td><input type="checkbox" id="select_all" /></td>
 		<td class ='word'>Word Title</td>
+		<td class ='partOfSpeech'>Word class</td>
 		<td class ='pronunciation'>Pronunciation</td>
 		<td class ='wordlist'>Wordlist</td>
 		<td class ='meaning'>Meaning</td>
+		<td class ='example'>Example</td>
 		<td style="width: 100px; text-align: center; margin: 0; padding: 0;"></td>
 	</tr>
 	

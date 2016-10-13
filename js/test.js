@@ -8,14 +8,25 @@ $(document).ready(function() {
 
     function genNewWord() {
         var randomNo = randomNumber( 0, unCheckDataArr.length - 1 );
-        var index = unCheckDataArr[ randomNo ];        
-
-        $("#meaningSpan").html( testData[ index ]['meaning'] );
+        var index = unCheckDataArr[ randomNo ];
 
         $("#meaningSpan").attr('data-wordId', testData[ index ]['wordId']);
         $("#meaningSpan").attr('data-word', testData[ index ]['word']);
         $("#meaningSpan").attr('data-wordlistName', testData[ index ]['wordlistName']);
         $("#meaningSpan").attr('data-pronunciation', testData[ index ]['pronunciation']);
+
+        $("#meaningSpan").html( testData[ index ]['meaning'] );
+        $("#wordClassSpan").html( testData[ index ]['partOfSpeech'] );
+
+        for(var i = 0; i < testData[ index ][ 'examples' ].length; i++ )
+        {
+            var pTag = document.createElement('P');
+            $(pTag).html( testData[ index ][ 'examples' ][ i ] );
+
+            $(pTag).addClass('exampleP');
+
+            $( '#exampleDiv' ).append( pTag );
+        }
 
         unCheckDataArr.splice(randomNo,1);
     }
@@ -51,7 +62,18 @@ $(document).ready(function() {
                         if( Object.keys(testData).length > 0 )
                         {
                             $("#testBtn").css('display', 'none');
-                            $("#retestBtn").css('display', 'none');
+
+                            if( Object.keys(testData).length == 1 )
+                            {
+                                $("#retestBtn").css('display', 'inline');
+                                $("#nextWordBtn").css('display', 'none');
+                            }
+                            else
+                            {
+                                $("#retestBtn").css('display', 'none');
+                                $("#nextWordBtn").css('display', 'inline');
+                            }
+
                             $(".testForm").css('display', 'inline');
 
                             genNewWord();
@@ -60,7 +82,7 @@ $(document).ready(function() {
                         }
                         else
                         {
-                            $('#msg').css('display', 'inline').html("There is no data for testing");
+                            $('#msg').css('display', 'inline-block').html("There is no data for testing");
                             $("#testBtn").css('display', 'none');
                         }
                     }
@@ -74,11 +96,16 @@ $(document).ready(function() {
 
         $('#pronunciationSpan').html($('#meaningSpan').attr('data-pronunciation'));
 
-        $("#resultSpan").css('display', 'block');
+        $("#resultSpan").css('visibility', 'visible');
 
         if( $('#displayPron').prop('checked') )
         {
             $("#pronunciationSpan").css('visibility', 'visible');
+        }
+
+        if( $('#displayExample').prop('checked') )
+        {
+            $("#exampleDiv").css('visibility', 'visible');
         }
 
         if( $('#inputWord').prop('value') == '' )
@@ -110,7 +137,7 @@ $(document).ready(function() {
     $("#showWordBtn").click(function(event) {
         event.preventDefault();
 
-        $("#resultSpan").css('display', 'block');
+        $("#resultSpan").css('visibility', 'visible');
         $('#resultSpan').html($('#meaningSpan').attr('data-word'));
         $("#resultSpan").css('color','blue');
     
@@ -120,6 +147,11 @@ $(document).ready(function() {
             $('#pronunciationSpan').html($('#meaningSpan').attr('data-pronunciation'));
         }
         
+        if( $('#displayExample').prop('checked') )
+        {
+            $("#exampleDiv").css('visibility', 'visible');
+        }
+
         if( $("#nextWordBtn").css('display') != 'none' )
             $("#nextWordBtn").focus();
         else if( $("#retestBtn").css('display') != 'none' )
@@ -129,8 +161,9 @@ $(document).ready(function() {
     $("#nextWordBtn").click(function(event) {
         event.preventDefault();
 
-        $("#resultSpan").css('display', 'none');
+        $("#resultSpan").css('visibility', 'hidden');
         $("#pronunciationSpan").css('visibility', 'hidden');
+        $("#exampleDiv").css('visibility', 'hidden');
         $("#inputWord").prop('value', '');
         $("#inputWord").focus();
 
@@ -149,7 +182,8 @@ $(document).ready(function() {
         $("#retestBtn").css('display', 'none');
         $("#pronunciationSpan").css('visibility', 'hidden');
         $("#nextWordBtn").css('display', 'inline');
-        $("#resultSpan").css('display', 'none');
+        $("#resultSpan").css('visibility', 'hidden');
+        $("#exampleDiv").css('visibility', 'hidden');
         $("#inputWord").prop('value', '');
         $("#inputWord").focus();
 
@@ -163,10 +197,17 @@ $(document).ready(function() {
     });
 
     $("#displayPron").click(function(event) {
-        if( $(this).prop('checked') )
+        if( $(this).prop('checked') && $("#resultSpan").css('visibility') != 'hidden')
             $("#pronunciationSpan").css('visibility', 'visible');
         else
             $("#pronunciationSpan").css('visibility', 'hidden');
+    });
+
+    $("#displayExample").click(function(event) {
+        if( $(this).prop('checked') && $("#resultSpan").css('visibility') != 'hidden')
+            $("#exampleDiv").css('visibility', 'visible');
+        else
+            $("#exampleDiv").css('visibility', 'hidden');
     });
 
     $("#test").click(function(event) {

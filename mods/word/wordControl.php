@@ -1,75 +1,160 @@
 <?php
-	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/constants.php';
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getOptionData' ) 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getOptionData' )
 	{
 		getOptionData();
 	}
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWord' ) 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWord' )
 	{
-		addWord( $_POST[ 'wordName' ], $_POST[ 'wordlistId' ], $_POST[ 'pronunciation' ], $_POST[ 'wordMeaning' ] );
+		addWord(
+				 $_POST[ 'wordName' ],
+				 $_POST[ 'partsOfSpeech' ],
+				 $_POST[ 'wordlistId' ],
+				 $_POST[ 'pronunciation' ],
+				 $_POST[ 'wordMeaning' ],
+				 $_POST[ 'wordExample' ]
+			   );
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'delSelectedWords' ) 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'delSelectedWords' )
 	{
 		delSelectedWords();
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWord' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateWord' )
 	{
-		updateWord( $_POST['modifiedControls'] );
+		updateWord( $_POST[ 'modifiedControls' ] );
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateSelectedWords' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateSelectedWords' )
 	{
-		updateSelectedWords( $_POST['modifiedControlsList'] );
+		updateSelectedWords( $_POST[ 'modifiedControlsList' ] );
 	}
 
-	function addWord( $wordTitle, $wordlistId, $pronunciation, $wordMeaning )
+	function addWord( $wordTitle,
+					  $partsOfSpeech,
+					  $wordlistId,
+					  $pronunciation,
+					  $wordMeaning,
+					  $wordExample )
 	{
 		global $mysqli;
 
-		$wordId = null;
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
 
-		if( checkDuplicateWord($wordTitle, $wordlistId, $wordMeaning) )
-			return;
+		$result = FALSE;
 
-		$query = 'INSERT INTO word(word, pronunciation, wordlistId) values("' . $wordTitle . '", "' . $pronunciation . '", "' . $wordlistId . '");';
-
-		if( !(execQuery( $query, "Adding word failed!" ) ) )
-			return;
-		
-		$query = 'SELECT w.wordId
-				  FROM word w
-				  INNER JOIN wordlist wl
-				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
-
-		$result = $mysqli->query( $query );
-
-		if ($result->num_rows > 0) 
+		/* Check for adding duplicated word */
+		if( checkDuplicateWord( $wordTitle,
+								$wordlistId,
+								$wordMeaning ) )
 		{
-			$wordId = $result->fetch_object()->wordId;
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0002';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+		{
+			/* Add new word */
+			$query = 'INSERT INTO word( word, partOfSpeech, pronunciation, wordlistId )
+					  VALUES ( "' . $wordTitle . '",' .
+					  		 ' "' . $partsOfSpeech . '",' .
+					  		 ' "' . $pronunciation . '",' .
+					  		 ' "' . $wordlistId . '")';
+
+			if( !execQuery( $query ) )
+			{
+				$responseData[ 'errState' ] = 'NG';
+				$responseData[ 'errCode' ] = '0003';
+				$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+			}
+			else
+			{
+				/* Get word Id of new added word for adding meaning of word */
+				$query = 'SELECT w.wordId
+						  FROM word w
+						  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
+
+				if( !( $result = execQuery( $query ) ) ||
+				    ( $result && $result->num_rows <= 0 ) )
+				{
+					$responseData[ 'errState' ] = 'NG';
+					$responseData[ 'errCode' ] = '0004';
+					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+				}
+				else
+				{
+					$wordId = $result->fetch_object()->wordId;
+
+					/* Add meaning of new word */
+					$query = 'INSERT INTO wordMeaning( meaning, wordId )
+							  VALUES ( "' . $wordMeaning . '",' .
+							         ' "' . $wordId . '")';
+
+					if( !execQuery( $query ) )
+					{
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '0005';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+					}
+					else
+					{
+						/* Get word meaning Id of new added word meaning for adding example of added word meaning */
+						$query = 'SELECT wm.wordMeaningId
+								  FROM wordmeaning wm
+								  INNER JOIN word w
+								  ON wm.wordId = w.wordId
+								  WHERE w.wordId = "' . $wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
+
+						if( !( $result = execQuery( $query ) ) ||
+						    ( $result && $result->num_rows <= 0 ) )
+						{
+							$responseData[ 'errState' ] = 'NG';
+							$responseData[ 'errCode' ] = '0006';
+							$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+						}
+						else
+						{
+							$wordMeaningId = $result->fetch_object()->wordMeaningId;
+							
+							/* Add example of new added word meaning */
+							$query = 'INSERT INTO wordexample( example, wordMeaningId )
+									  VALUES ( "' . $wordExample . '",' .
+									         ' "' . $wordMeaningId . '")';
+
+							if( !execQuery( $query ) )
+							{
+								$responseData[ 'errState' ] = 'NG';
+								$responseData[ 'errCode' ] = '0007';
+								$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+							}
+							else
+							{
+								ob_start();
+								require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/word/wordView.php';
+								$html = ob_get_contents();
+								ob_end_clean();
+
+								$responseData[ 'errState' ] = 'OK';
+								$responseData[ 'htmlContent' ] = $html;
+							}
+						}
+					}
+				}
+			}
 		}
 
-		$query = 'INSERT INTO wordMeaning(meaning, wordId) values("' . $wordMeaning . '", "' . $wordId . '");';
-
-		if( !(execQuery( $query, "Adding word meaning failed!" ) ) )
-			return;
-		
-		ob_start();
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/word/wordView.php';
-		$html = ob_get_contents();
-		ob_end_clean();
-
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-					  "msg" => $wordTitle . " added", 
-					  "htmlContent" => $html
-					 );
-		header("Content-Type: application/json");
-		echo json_encode($data);
+		$data = $responseData;
+		header( 'Content-Type: application/json' );
+		echo json_encode( $data );
 	}
 
 	function delSelectedWords()
@@ -419,7 +504,9 @@
 		return;
 	}
 
-	function checkDuplicateWord($wordTitle, $wordlistId, $wordMeaning)
+	function checkDuplicateWord( $wordTitle, 
+								 $wordlistId, 
+								 $wordMeaning )
 	{
 		global $mysqli;
 
@@ -431,53 +518,32 @@
 
 		$result = $mysqli->query( $query );
 
-		if ($result->num_rows > 0) 
+		if ( $result->num_rows > 0 ) 
 		{
 			$query = 'SELECT *
 					  FROM wordmeaning wm
 					  INNER JOIN word w
 					  ON w.wordId = wm.wordId
-					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '" AND wm.meaning = "' . $wordMeaning . '";';
+					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
 
 			$result = $mysqli->query( $query );
 
-			if ($result->num_rows > 0) 
-			{
-				$data = array("errState" => "NG", 
-							  "errCode" => "00001", 
-							  "msg" => "Duplicated word!", 
-							  "htmlContent" => ""
-							 );
-				header("Content-Type: application/json");
-				echo json_encode($data);
-
+			if ( $result->num_rows > 0 ) 
 				return true;
-			}
-			else
-				return false;
 		}
+
 		return false;
 	}
 
-	function execQuery( $query, $errMsg )
+	function execQuery( $query )
 	{
 		global $mysqli;
 
 		$result = $mysqli->query( $query );
 
 		if( !$result )
-		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00002", 
-						  "msg" => $errMsg, 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-
 			return 0;
-		}
 		else
-			return 1;
+			return $result;
 	}
 ?>
