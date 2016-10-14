@@ -46,8 +46,9 @@ header{
 	margin-top: 30px;
 }
 
-.wordClassDescription {
-	margin-top: 20px;
+.wordClassSpan {
+	font-style: normal;
+	color:red;
 }
 
 .meaningLabel {

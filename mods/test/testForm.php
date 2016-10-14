@@ -8,12 +8,9 @@
 	    	<label for="displayExample" class='noselect'>Display example</label>
 		</div>
 		<div class='meaningDescription'>
-			<b><span class='meaningLabel'>Meaning:</span></b>
+			<b><span class='meaningLabel'>Meaning</span></b>
+			<span id='wordClassSpan' class='wordClassSpan'></span>:
 			<span id='meaningSpan' data-wordId='' data-word='' data-partOfSpeech='' data-wordlistName='' data-pronunciation=''></span>
-		</div>
-		<div class='wordClassDescription'>
-			<b><span class='wordClassLabel'>Word class:</span></b>
-			<span id='wordClassSpan' class='wordClassSpan'></span>
 		</div>
 		<input id="inputWord" type="text" autocomplete="off" size="50" maxlength="50" class='inputWord'></input><br/>
 		<span id='pronunciationSpan' class='pronunciationSpan'></span><br/>		

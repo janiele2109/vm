@@ -16,7 +16,10 @@ $(document).ready(function() {
         $("#meaningSpan").attr('data-pronunciation', testData[ index ]['pronunciation']);
 
         $("#meaningSpan").html( testData[ index ]['meaning'] );
-        $("#wordClassSpan").html( testData[ index ]['partOfSpeech'] );
+        $("#wordClassSpan").html( '<i>(' + testData[ index ]['partOfSpeech'] + ')</i>');
+        $('#pronunciationSpan').html($('#meaningSpan').attr('data-pronunciation'));
+
+        $( '#exampleDiv' ).find('p.exampleP').remove();
 
         for(var i = 0; i < testData[ index ][ 'examples' ].length; i++ )
         {
@@ -29,6 +32,30 @@ $(document).ready(function() {
         }
 
         unCheckDataArr.splice(randomNo,1);
+    }
+
+    function eleAppearControl(behavior, controlId=null) {
+        if(controlId != null)
+            $('#' + controlId).css('visibility', behavior);
+        else
+        {
+            if(behavior == 'visible')
+            {
+                $("#resultSpan").css('visibility', behavior);
+                
+                if( $('#displayPron').prop('checked') )
+                    $("#pronunciationSpan").css('visibility', behavior);
+
+                if( $('#displayExample').prop('checked') )
+                    $("#exampleDiv").css('visibility', behavior);
+            }
+            else
+            {
+                $("#pronunciationSpan").css('visibility', behavior);
+                $("#resultSpan").css('visibility', behavior);
+                $("#exampleDiv").css('visibility', behavior);
+            }
+        }
     }
 
     $("#testBtn").click(function(event) {
@@ -74,6 +101,7 @@ $(document).ready(function() {
                                 $("#nextWordBtn").css('display', 'inline');
                             }
 
+                            eleAppearControl('hidden');
                             $(".testForm").css('display', 'inline');
 
                             genNewWord();
@@ -92,31 +120,24 @@ $(document).ready(function() {
     });
 
     $("#checkWordBtn").click(function(event) {
-        event.preventDefault();
+        event.preventDefault(); 
 
-        $('#pronunciationSpan').html($('#meaningSpan').attr('data-pronunciation'));
-
-        $("#resultSpan").css('visibility', 'visible');
-
-        if( $('#displayPron').prop('checked') )
-        {
-            $("#pronunciationSpan").css('visibility', 'visible');
-        }
-
-        if( $('#displayExample').prop('checked') )
-        {
-            $("#exampleDiv").css('visibility', 'visible');
-        }
+        eleAppearControl('visible', 'resultSpan');
 
         if( $('#inputWord').prop('value') == '' )
         {
-            $('#resultSpan').html('No word is input!');
+            $('#resultSpan').html( 'No word is input!' );
             $("#resultSpan").css('color','red');
 
             $("#inputWord").focus();
+
+            return;
         }
-        else if( $('#inputWord').prop('value') == $('#meaningSpan').attr('data-word') )
-        {            
+
+        if( $('#inputWord').prop('value') == $('#meaningSpan').attr('data-word') )
+        {   
+            eleAppearControl('visible');
+        
             $('#resultSpan').html('Correct!');
             $("#resultSpan").css('color','green');
 
@@ -137,33 +158,26 @@ $(document).ready(function() {
     $("#showWordBtn").click(function(event) {
         event.preventDefault();
 
-        $("#resultSpan").css('visibility', 'visible');
+        eleAppearControl('visible');
+
         $('#resultSpan').html($('#meaningSpan').attr('data-word'));
         $("#resultSpan").css('color','blue');
     
-        if( $('#displayPron').prop('checked') )
-        {
-            $("#pronunciationSpan").css('visibility', 'visible');
-            $('#pronunciationSpan').html($('#meaningSpan').attr('data-pronunciation'));
-        }
-        
-        if( $('#displayExample').prop('checked') )
-        {
-            $("#exampleDiv").css('visibility', 'visible');
-        }
-
         if( $("#nextWordBtn").css('display') != 'none' )
             $("#nextWordBtn").focus();
         else if( $("#retestBtn").css('display') != 'none' )
             $("#retestBtn").focus();
+
+        $("#checkWordBtn").attr('disabled', true);
     });
 
     $("#nextWordBtn").click(function(event) {
         event.preventDefault();
 
-        $("#resultSpan").css('visibility', 'hidden');
-        $("#pronunciationSpan").css('visibility', 'hidden');
-        $("#exampleDiv").css('visibility', 'hidden');
+        eleAppearControl('hidden');
+
+        $("#checkWordBtn").attr('disabled', false);
+
         $("#inputWord").prop('value', '');
         $("#inputWord").focus();
 
@@ -179,11 +193,21 @@ $(document).ready(function() {
     $("#retestBtn").click(function(event) {
         event.preventDefault();
 
-        $("#retestBtn").css('display', 'none');
-        $("#pronunciationSpan").css('visibility', 'hidden');
-        $("#nextWordBtn").css('display', 'inline');
-        $("#resultSpan").css('visibility', 'hidden');
-        $("#exampleDiv").css('visibility', 'hidden');
+        eleAppearControl('hidden');
+
+        $("#checkWordBtn").attr('disabled', false);
+
+        if( Object.keys(testData).length == 1 )
+        {
+            $("#retestBtn").css('display', 'inline');
+            $("#nextWordBtn").css('display', 'none');
+        }
+        else
+        {
+            $("#retestBtn").css('display', 'none');
+            $("#nextWordBtn").css('display', 'inline');
+        }
+
         $("#inputWord").prop('value', '');
         $("#inputWord").focus();
 
@@ -197,17 +221,29 @@ $(document).ready(function() {
     });
 
     $("#displayPron").click(function(event) {
-        if( $(this).prop('checked') && $("#resultSpan").css('visibility') != 'hidden')
+        if( $(this).prop('checked') && 
+            $("#resultSpan").css('visibility') == 'visible' &&
+            $("#resultSpan").css('color') != 'rgb(255, 0, 0)' )
+        {
             $("#pronunciationSpan").css('visibility', 'visible');
+        }
         else
+        {
             $("#pronunciationSpan").css('visibility', 'hidden');
+        }
     });
 
     $("#displayExample").click(function(event) {
-        if( $(this).prop('checked') && $("#resultSpan").css('visibility') != 'hidden')
+        if( $(this).prop('checked') && 
+            $("#resultSpan").css('visibility') == 'visible' &&
+            $("#resultSpan").css('color') != 'rgb(255, 0, 0)' )
+        {
             $("#exampleDiv").css('visibility', 'visible');
+        }
         else
+        {
             $("#exampleDiv").css('visibility', 'hidden');
+        }
     });
 
     $("#test").click(function(event) {
