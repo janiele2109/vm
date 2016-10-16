@@ -12,6 +12,10 @@ define( '0007'		, 'Adding example of new added word meaning failed!' );
 define( '0008'		, 'Searching for meaning of updated/added example fail!' );
 define( '0009'		, 'Updating example failed!' );
 define( '0010'		, 'Adding example failed!' );
+define( '0011'		, 'Updating word failed!' );
+define( '0012'		, 'Updating pronunciation failed!' );
+define( '0013'		, 'Updating wordlist failed!' );
+define( '0014'		, 'Updating meaning failed!' );
 
 /* Error constants - END */
 

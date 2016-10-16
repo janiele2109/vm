@@ -227,6 +227,13 @@
 	{
 		global $mysqli;
 
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
 		$modifiedNewWordVal = '';
 
 		$modifiedCtrls = json_decode( $modifiedControls );
@@ -239,7 +246,13 @@
                 	$modifiedNewWordVal = $ctrl->newVal;
 
                     if( !updateWordField( $ctrl->orgVal, $ctrl->newVal ) )
-                        return 0;
+                    {
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '0011';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+                    }
+                    else
+                    	$responseData[ 'errState' ] = 'OK';
 
                     break;
 
@@ -252,7 +265,13 @@
                     	$result = updatePronunciationField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
-                    	return 0;
+                    {
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '0012';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+                    }
+                    else
+                    	$responseData[ 'errState' ] = 'OK';
 
                     break;
                     
@@ -265,7 +284,13 @@
                     	$result = updateWordlistField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
-                    	return 0;
+                    {
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '0013';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+                    }
+                    else
+                    	$responseData[ 'errState' ] = 'OK';
                     
                     break;
 
@@ -278,7 +303,13 @@
                     	$result = updateMeaningField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
-                    	return 0;
+                    {
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '0014';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+                    }
+                    else
+                    	$responseData[ 'errState' ] = 'OK';
                     
                     $modifiedNewMeaningVal = $ctrl->newVal;
 
@@ -299,7 +330,13 @@
                 	}                    
                 	
                     if( $result[ 'errState' ] == 'NG' )
-                    	return 0;
+                    {
+						$responseData[ 'errState' ] = $result[ 'errState' ];
+						$responseData[ 'errCode' ] = $result[ 'errCode' ];
+						$responseData[ 'msg' ] = $result[ 'msg' ];
+                    }
+                    else
+                    	$responseData[ 'errState' ] = 'OK';
                     
                     break;
 
@@ -310,11 +347,7 @@
 
 		if( $inListFlag == false )
 		{
-			$data = array("errState" => "OK", 
-						  "errCode" => "FFFF", 
-						  "msg" => "Updated successfully", 
-						  "htmlContent" => ""
-						 );
+			$data = $responseData;
 			header("Content-Type: application/json");
 			echo json_encode($data);
 		}
@@ -541,8 +574,8 @@
 				}
 				else
 				{
-					$query = 'DELETE FROM wordexample as we
-							  WHERE we.wordExampleId="' . $wordExampleId . '"';
+					$query = 'DELETE FROM wordexample
+							  WHERE wordExampleId=' . $wordExampleId;
 				}
 
 				$result = $mysqli->query( $query );
