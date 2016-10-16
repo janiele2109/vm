@@ -4,8 +4,49 @@ $(document).ready(function() {
         $( this ).toggleControl( event );
     });
 
+    $('.exampleEntry').mouseenter(
+        function() {
+            if( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
+            {
+                $(this).createExampleControlsDiv();
+                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+                $(this).addClass('transEffectHover');
+            }
+        }
+    );
+
+    $('.exampleTd').mouseenter(
+        function() {
+            var div = $(this).find('div.exampleEntry');
+
+            if( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 && $('textarea.exampleTd').length == 0 && div.length == 0 )
+            {
+                $(this).createExampleControlsDiv();
+                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+            }
+        }
+    );
+
     $("#addNewWordBtn").click(function(event) {
         event.preventDefault();
+
+        if( $("#addNewWordTextBox").val() == '' )
+        {
+            $("#msg").html( 'Word title is empty!' );
+            return;
+        }
+
+        if( $("#pronunciationTextBox").val() == '' )
+        {
+            $("#msg").html( 'Pronunciation is empty!' );
+            return;
+        }
+
+        if( $("#meaningTextArea").val() == '' )
+        {
+            $("#msg").html( 'Meaning is empty!' );
+            return;
+        }
 
         var sendingData = {
             wordName: $("#addNewWordTextBox").val(),
@@ -41,6 +82,14 @@ $(document).ready(function() {
                         $("#addNewWordTextBox").focus();  
 
                         $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
+                        $(".exampleEntry").bind('mouseenter', function() {
+                                                                            if( $('textarea.exampleEntry').length == 0 )
+                                                                            {
+                                                                                $(this).createExampleControlsDiv();
+                                                                                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+                                                                                $(this).addClass('transEffectHover');
+                                                                            }
+                                                                         } );
                         $(".btnUpdateWord").bind('click', 
                                                   function (event) { 
                                                                         var rowEle = $(this).parent().parent();
@@ -125,7 +174,7 @@ $(document).ready(function() {
 
     $('.btnUpdateWord').on( 'click', function( event ) {
         var rowEle = $(this).parent().parent();
-        var modifiedControls = rowEle.find('span.modified');
+        var modifiedControls = rowEle.find('.modified');
 
         $(this).updateWord( event, modifiedControls );
     });
@@ -138,41 +187,66 @@ $(document).ready(function() {
         var modifiedEle = [];
 
         $.each( modifiedControls, function() { 
+            var exampleList = [];
             var data = {};
             var dataSourceName = '';
 
-            var controlType = $(this).attr('class').replace('modified', '').trim();
+            var classString = $(this).attr('class');
             var orgVal = '';
-            var newVal = $(this).text();
+            var newVal = '';
+            var controlType = '';
 
-            switch( controlType )
-            {                
-                case 'word':
-                    dataSourceName = "data-sourceword";
-                    break;
-
-                case 'pronunciation':
-                    dataSourceName = "data-sourcepron";
-                    break;
-
-                case 'wordlist':
-                    dataSourceName = "data-sourcewordlistname";
-                    break;
-
-                case 'meaning':
-                    dataSourceName = "data-sourcemeaning";
-                    break;
-
-                default:
-                    break;
+            if( classString.indexOf('word') != -1 )
+            {
+                dataSourceName = "data-sourceword";
+                controlType = 'word';
             }
 
-            orgVal = $(this).attr(dataSourceName);
+            else if( classString.indexOf('pronunciation') != -1 )
+            {
+                dataSourceName = "data-sourcepron";
+                controlType = 'pronunciation';
+            }
+
+            else if( classString.indexOf('wordlist') != -1 )
+            {
+                dataSourceName = "data-sourcewordlistname";
+                controlType = 'wordlist';
+            }
+
+            else if( classString.indexOf('meaning') != -1 )
+            {
+                dataSourceName = "data-sourcemeaning";
+                controlType = 'meaning';
+            }
+
+            else if( classString.indexOf('exampleEntry') != -1 )
+            {
+                dataSourceName = "data-sourceexample";
+                controlType = 'example';
+            }
+
+            if( controlType != 'example' )
+            {
+                orgVal = $(this).attr(dataSourceName);
+                newVal = $(this).text();
+            }
+            else
+            {
+                var ex = {};
+
+                ex['meaning'] = $(this).parent().parent().find('span.meaning').first().text();
+                ex['orgVal'] = $(this).attr(dataSourceName);
+                ex['newVal'] = $(this).text();
+
+                exampleList.push(ex);
+            }        
 
             data[ "word" ] = rowEle.find('span.word').attr('data-sourceword');
             data[ "controlType" ] = controlType;
             data[ "orgVal" ] = orgVal;
             data[ "newVal" ] = newVal;
+            data[ "exampleList"] = exampleList;
 
             modifiedEle.push( data );
         });
@@ -204,29 +278,38 @@ $(document).ready(function() {
                         $.each( modifiedControls, function() { 
                             dataSourceName = '';
 
-                            controlType = $(this).attr('class').replace('modified', '').trim();
+                            classString = $(this).attr('class');
+                            controlType = '';
                             newVal = $(this).text();
 
-                            switch( controlType )
-                            {                
-                                case 'word':
-                                    dataSourceName = "data-sourceword";
-                                    break;
+                            if( classString.indexOf('word') != -1 )
+                            {
+                                dataSourceName = "data-sourceword";
+                                controlType = 'word';
+                            }
 
-                                case 'pronunciation':
-                                    dataSourceName = "data-sourcepron";
-                                    break;
+                            else if( classString.indexOf('pronunciation') != -1 )
+                            {
+                                dataSourceName = "data-sourcepron";
+                                controlType = 'pronunciation';
+                            }
 
-                                case 'wordlist':
-                                    dataSourceName = "data-sourcewordlistname";
-                                    break;
+                            else if( classString.indexOf('wordlist') != -1 )
+                            {
+                                dataSourceName = "data-sourcewordlistname";
+                                controlType = 'wordlist';
+                            }
 
-                                case 'meaning':
-                                    dataSourceName = "data-sourcemeaning";
-                                    break;
+                            else if( classString.indexOf('meaning') != -1 )
+                            {
+                                dataSourceName = "data-sourcemeaning";
+                                controlType = 'meaning';
+                            }
 
-                                default:
-                                    break;
+                            else if( classString.indexOf('exampleEntry') != -1 )
+                            {
+                                dataSourceName = "data-sourceexample";
+                                controlType = 'example';
                             }
 
                             $(this).attr(dataSourceName, newVal);
@@ -250,44 +333,69 @@ $(document).ready(function() {
             var rowEle = $(this).parent().parent();
             var modifiedEle = [];
 
-            var modifiedControls = rowEle.find('span.modified');
+            var modifiedControls = rowEle.find('.modified');
 
             $.each( modifiedControls, function() { 
+                var exampleList = [];
                 var data = {};
                 var dataSourceName = '';
 
-                var controlType = $(this).attr('class').replace('modified', '').trim();
+                var classString = $(this).attr('class');
                 var orgVal = '';
-                var newVal = $(this).text();
+                var newVal = '';
+                var controlType = '';
 
-                switch( controlType )
-                {                
-                    case 'word':
-                        dataSourceName = "data-sourceword";
-                        break;
-
-                    case 'pronunciation':
-                        dataSourceName = "data-sourcepron";
-                        break;
-
-                    case 'wordlist':
-                        dataSourceName = "data-sourcewordlistname";
-                        break;
-
-                    case 'meaning':
-                        dataSourceName = "data-sourcemeaning";
-                        break;
-
-                    default:
-                        break;
+                if( classString.indexOf('word') != -1 )
+                {
+                    dataSourceName = "data-sourceword";
+                    controlType = 'word';
                 }
 
-                orgVal = $(this).attr(dataSourceName);
+                else if( classString.indexOf('pronunciation') != -1 )
+                {
+                    dataSourceName = "data-sourcepron";
+                    controlType = 'pronunciation';
+                }
+
+                else if( classString.indexOf('wordlist') != -1 )
+                {
+                    dataSourceName = "data-sourcewordlistname";
+                    controlType = 'wordlist';
+                }
+
+                else if( classString.indexOf('meaning') != -1 )
+                {
+                    dataSourceName = "data-sourcemeaning";
+                    controlType = 'meaning';
+                }
+
+                else if( classString.indexOf('exampleEntry') != -1 )
+                {
+                    dataSourceName = "data-sourceexample";
+                    controlType = 'example';
+                }
+
+                if( controlType != 'example' )
+                {
+                    orgVal = $(this).attr(dataSourceName);
+                    newVal = $(this).text();
+                }
+                else
+                {
+                    var ex = {};
+
+                    ex['meaning'] = $(this).parent().parent().find('span.meaning').first().text();
+                    ex['orgVal'] = $(this).attr(dataSourceName);
+                    ex['newVal'] = $(this).text();
+
+                    exampleList.push(ex);
+                }        
 
                 data[ "word" ] = rowEle.find('span.word').attr('data-sourceword');
                 data[ "controlType" ] = controlType;
                 data[ "orgVal" ] = orgVal;
                 data[ "newVal" ] = newVal;
+                data[ "exampleList"] = exampleList;
 
                 modifiedEle.push( data );
             });
@@ -327,7 +435,7 @@ $(document).ready(function() {
                         $(".btnUpdateWord").bind('click', 
                                                   function (event) { 
                                                                         var rowEle = $(this).parent().parent();
-                                                                        var modifiedControls = rowEle.find('span.modified');
+                                                                        var modifiedControls = rowEle.find('.modified');
 
                                                                         $(this).updateWord( event, modifiedControls );
                                                                     } );
@@ -336,6 +444,87 @@ $(document).ready(function() {
             data: sendingData
         });
     });
+
+    $('html').click(function(event){
+        if( $(event.target).prop('id') != 'updateExampleBtn' &&
+            $(event.target).prop('id') != 'addExampleBtn' )
+        {
+            $('.exampleBtnlDiv').remove();
+            $('div.exampleEntry').removeClass('transEffectHover');
+
+            if( event.target.tagName != 'TEXTAREA' )
+            {
+                $('textarea.exampleEntry').next('br').remove();
+                $('textarea.exampleEntry').prev('br').remove();
+                $('textarea.exampleEntry').remove();
+            }
+        }
+    });
+
+    $.fn.exampleBtnlDivMouseOut = function(event) {
+        $('.exampleBtnlDiv').remove();
+
+        if($('div.exampleEntry').length != 0)
+            $('div.exampleEntry').removeClass('transEffectHover');
+    };
+
+    $.fn.updateExampleBtnClick = function(event) {
+
+        var textarea = $(this).toTextAreaControl($('div[data-exId=' + $(this).attr('data-exId') + ']').text());
+
+        $(textarea).removeAttr('id');
+        $(textarea).removeAttr('style');
+
+        textarea.style.width = $(this).parent().width() - 6 + "px";
+        textarea.style.color = $('div[data-exId=' + $(textarea).attr('data-exId') + ']').css("color");
+
+        $(textarea).addClass('transEffect');
+
+        $(textarea).attr('data-controltranstype', 'div');
+
+        $('div[data-exId=' + $(textarea).attr('data-exId') + ']').replaceWith(textarea);
+
+        $('<br/>').insertAfter(textarea);
+
+        $(textarea).focus();
+        $('.exampleBtnlDiv').remove();
+        $('div.exampleEntry').removeClass('transEffectHover');
+    };
+
+    $.fn.addExampleBtnClick = function(event) {
+        var textarea = $(this).toTextAreaControl('');
+        var tdTag = null;
+
+        if($(this).is('[data-exId]'))
+            tdTag = $('div[data-exId=' + $(this).attr('data-exId') + ']').parent();
+        else
+            tdTag = $(this).parent().parent();
+
+        $(textarea).removeAttr('id');
+        $(textarea).removeAttr('style');
+
+        textarea.style.width = $(this).parent().width() - 6 + "px";
+        textarea.style.color = 'red';
+        $(textarea).css('left', '5px' );
+        $(textarea).css('width', $(tdTag).width() - 10 + 'px' );
+
+        $(textarea).attr('data-controltranstype', 'div');
+        $(textarea).attr('data-exId', 'ex_' + $('div[data-exId]').length);
+        $(textarea).attr('data-sourceexample', '');
+
+        $(tdTag).append(textarea);
+
+        $('<br/>').insertAfter(textarea);
+
+        $('<br/>').insertAfter(textarea);
+
+        $(textarea).focus(); 
+
+        $('.exampleBtnlDiv').remove();
+
+        if($('div.exampleEntry').length > 0)
+            $('div.exampleEntry').removeClass('transEffectHover');
+    };
 
     $("#myWordMenuItem").click(function(event) {
         event.preventDefault(); // not show hashtag in url

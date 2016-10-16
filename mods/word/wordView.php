@@ -21,11 +21,12 @@
 		while ( $row = mysqli_fetch_row( $result ) )
 		{
 
-			$query = "SELECT we.example
+			$query = 'SELECT we.wordExampleId, we.example
 					  FROM wordexample we
 					  INNER JOIN wordmeaning wm
 					  ON we.wordMeaningId = wm.wordMeaningId 
-					  ORDER BY we.example";
+					  WHERE wm.meaning = "' . $row[4] . '"
+					  ORDER BY we.example';
 
 			$wordExamples = $mysqli->query( $query );
 
@@ -36,12 +37,14 @@
 					'<td class="toggleEnabled"><span class="pronunciation" data-controltranstype="input-text" data-sourcepron="' . $row[2] . '">' . $row[2] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="wordlist" data-controltranstype="select" data-sourcewordlistname="' . $row[3] . '">' . $row[3] . '</span></td>' .
 					'<td class="toggleEnabled"><span class="meaning" data-controltranstype="textarea" data-sourcemeaning="' . $row[4] . '">' . $row[4] . '</span></td>' .
-					'<td class="toggleEnabled">';
+					'<td class="exampleTd">';
 
 			if( $wordExamples )
 			{
 				while ( $example = mysqli_fetch_row( $wordExamples ) )
-					echo '<span class="example" data-controltranstype="textarea" data-sourceexample="' . $example[0] . '">' . $example[0] . '</span><br/>';
+				{
+					echo '<div class="exampleEntry transEffect" data-exId="ex_' . $example[0] . '" data-controltranstype="button" data-sourceexample="' . $example[1] . '">' . $example[1] . '</div><br/>';
+				}
 			}
 
 			echo 	'</td>' .

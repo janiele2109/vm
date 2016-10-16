@@ -48,7 +48,7 @@ header{
 
 .wordClassSpan {
 	font-style: normal;
-	color:red;
+	color: green;
 }
 
 .meaningLabel {
@@ -115,14 +115,30 @@ header{
 }
 /* Test form - END */
 
+.transEffect {
+	-webkit-transition: opacity 0.1s ease-in-out;
+	-moz-transition: opacity 0.1s ease-in-out;
+	-ms-transition: opacity 0.1s ease-in-out;
+	-o-transition: opacity 0.1s ease-in-out;
+	transition: opacity 0.1s ease-in-out;
+}
 
+.transEffectHover {
+    zoom: 1;
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+}
 
 .word, .pronunciation, .partOfSpeech {
 	width: 150px;
 }
 
-.wordlist, .meaning, .example {
+.wordlist, .meaning, .example, .exampleEntry {
 	width: 300px;
+}
+
+.exampleEntry {
+	padding-left: 5px;
 }
 
 .title{
@@ -185,11 +201,29 @@ nav {
 	margin-bottom: 10px;
 }
 
+.exampleBtn {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	height: 40px;
+	width: 80px;
+}
+
+.exampleBtnlDiv {
+	position: absolute;
+	margin: auto;
+}
+
 .btnUpdateWordlist, .btnUpdateWord {
 	display: block;
 	margin: auto;
 	height: 50px;
 	width: 80px;
+}
+
+td.exampleTd
+{
+	padding: 0;
 }
 
 button {

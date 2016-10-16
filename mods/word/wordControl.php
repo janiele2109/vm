@@ -268,8 +268,9 @@
                     	return 0;
                     
                     break;
+
                 case 'meaning':
-                    $result = false;
+                    $result = false;                    
 
                 	if( $modifiedNewWordVal != '' )
                     	$result = updateMeaningField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
@@ -277,6 +278,27 @@
                     	$result = updateMeaningField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
                     if( !$result )
+                    	return 0;
+                    
+                    $modifiedNewMeaningVal = $ctrl->newVal;
+
+                    break;
+
+                case 'example':
+                    $result = false;
+                    $wordVal = '';
+
+                	if( $modifiedNewWordVal != '' )
+                		$wordVal = $modifiedNewWordVal;
+                	else
+                		$wordVal = $ctrl->word;
+
+                	foreach( $ctrl->exampleList as $ex )
+                	{
+                		$result = updateExampleField( $wordVal, $ex->meaning, $ex->orgVal, $ex->newVal );
+                	}                    
+                	
+                    if( $result[ 'errState' ] == 'NG' )
                     	return 0;
                     
                     break;
@@ -474,6 +496,91 @@
 
 			return 0;
 		}
+	}
+
+	function updateExampleField($word, $meaning, $oldVal, $newVal)
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'SELECT wm.wordMeaningId 
+				  FROM wordmeaning wm
+				  INNER JOIN word w
+				  ON wm.wordId = w.wordId
+				  WHERE w.word="' . $word . '" AND wm.meaning="' . $meaning . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			$wordMeaningId = $result->fetch_object()->wordMeaningId;
+
+			$query = 'SELECT we.wordExampleId 
+					  FROM wordexample we
+					  WHERE we.wordMeaningId="' . $wordMeaningId . '" AND we.example="' . $oldVal . '"';
+
+			$result = $mysqli->query( $query );
+
+			if ( $result != FALSE &&
+				 $result->num_rows > 0 )
+			{				
+				$wordExampleId = $result->fetch_object()->wordExampleId;
+
+				if( $newVal != '' )
+				{
+					$query = 'UPDATE wordexample as we
+							  SET we.example = "' . $newVal . '" ' .
+							  'WHERE we.wordExampleId="' . $wordExampleId . '"';
+				}
+				else
+				{
+					$query = 'DELETE FROM wordexample as we
+							  WHERE we.wordExampleId="' . $wordExampleId . '"';
+				}
+
+				$result = $mysqli->query( $query );
+
+				if ( $result != FALSE )
+					$responseData[ 'errState' ] = 'OK';
+				else
+				{
+					$responseData[ 'errState' ] = 'NG';
+					$responseData[ 'errCode' ] = '0009';
+					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+				}
+			}
+			else
+			{				
+				$query = 'INSERT INTO wordexample(example, wordMeaningId)
+						  VALUES("' . $newVal . '", "' . $wordMeaningId . '")';
+
+				$result = $mysqli->query( $query );
+
+				if ( $result != FALSE )
+					$responseData[ 'errState' ] = 'OK';
+				else
+				{
+					$responseData[ 'errState' ] = 'NG';
+					$responseData[ 'errCode' ] = '0010';
+					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+				}
+			}
+		}
+		else
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0008';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+
+		return $responseData;
 	}
 
 	function getOptionData()

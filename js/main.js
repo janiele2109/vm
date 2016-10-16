@@ -63,14 +63,14 @@ $(document).ready(function() {
         return inputTag;
     }
 
-    $.fn.toTextAreaControl = function() {
+    $.fn.toTextAreaControl = function(text) {
         var textarea = document.createElement('TEXTAREA');
 
         $.each(this[0].attributes, function(i, attrib){
             $(textarea).attr(attrib.name, attrib.value);
         });
 
-        textarea.value = $(this).text();
+        textarea.value = text;
 
         $(textarea).attr('data-controltranstype', 'span');
 
@@ -80,8 +80,6 @@ $(document).ready(function() {
         $(textarea).bind('blur', function ( event ) { $(this).toggleControl( event ); } );
 
         $(textarea).bind('keypress', function ( event ) { $(this).toggleControl( event ); } );
-
-        $(this).replaceWith(textarea);
 
         return textarea;
     }
@@ -139,35 +137,23 @@ $(document).ready(function() {
 
             if(attrib.name == 'class')
             {
-                switch(attrib.value.replace('modified', '').trim())
-                {
-                    case 'wordlist':
-                        dataSourceName = "data-sourcewordlistname";
-                        break;
+                if( attrib.value.indexOf('wordlist') != -1 )
+                    dataSourceName = "data-sourcewordlistname";
 
-                    case 'word':
-                        dataSourceName = "data-sourceword";
-                        break;
+                else if( attrib.value.indexOf('word') != -1 )
+                    dataSourceName = "data-sourceword";
 
-                    case 'partOfSpeech':
-                        dataSourceName = "data-sourcepos";
-                        break;
+                else if( attrib.value.indexOf('partOfSpeech') != -1 )
+                    dataSourceName = "data-sourcepos";
 
-                    case 'pronunciation':
-                        dataSourceName = "data-sourcepron";
-                        break;
+                else if( attrib.value.indexOf('pronunciation') != -1 )
+                    dataSourceName = "data-sourcepron";
 
-                    case 'meaning':
-                        dataSourceName = "data-sourcemeaning";
-                        break;
+                else if( attrib.value.indexOf('meaning') != -1 )
+                    dataSourceName = "data-sourcemeaning";
 
-                    case 'example':
-                        dataSourceName = "data-sourceexample";
-                        break;
-
-                    default:
-                        break;
-                }
+                else if( attrib.value.indexOf('exampleEntry') != -1 )
+                    dataSourceName = "data-sourceexample";
             }
         });
 
@@ -184,7 +170,11 @@ $(document).ready(function() {
                 break;
 
             case 'TEXTAREA':
-                $(spanTag).attr('data-controltranstype', 'textarea');
+                if( $(this).attr('class').indexOf('example') == -1 )
+                    $(spanTag).attr('data-controltranstype', 'textarea');
+                else
+                    $(spanTag).attr('data-controltranstype', 'button');
+
                 spanTag.innerHTML = $(this).prop('value');                
                 break;
 
@@ -207,6 +197,152 @@ $(document).ready(function() {
         $(this).replaceWith(spanTag);
 
         return spanTag;
+    }
+
+    $.fn.toDivControl = function() {
+        var divTag = document.createElement('DIV');
+        var chkboxEle = $(this).parent().parent().find('input[type="checkbox"]');
+        var dataSourceName = '';
+
+        $.each(this[0].attributes, function(i, attrib){
+            $(divTag).attr(attrib.name, attrib.value);
+
+            if(attrib.name == 'class')
+            {
+                if( attrib.value.indexOf('wordlist') != -1 )
+                    dataSourceName = "data-sourcewordlistname";
+
+                else if( attrib.value.indexOf('word') != -1 )
+                    dataSourceName = "data-sourceword";
+
+                else if( attrib.value.indexOf('partOfSpeech') != -1 )
+                    dataSourceName = "data-sourcepos";
+
+                else if( attrib.value.indexOf('pronunciation') != -1 )
+                    dataSourceName = "data-sourcepron";
+
+                else if( attrib.value.indexOf('meaning') != -1 )
+                    dataSourceName = "data-sourcemeaning";
+
+                else if( attrib.value.indexOf('exampleEntry') != -1 )
+                    dataSourceName = "data-sourceexample";
+            }
+        });
+
+        $(divTag).text($(this).prop('value'));
+
+        $(divTag).attr('data-controltranstype', 'button');
+
+        if( $(this).prop('value') == '' )
+        {
+            $(divTag).css('display', 'none');
+            $(this).next('br').remove();
+        }    
+
+        divTag.style.width = $(this).parent().width() - 6 + "px";
+
+        if( $(divTag).attr(dataSourceName) != $(divTag).text() )
+        {
+            $(divTag).addClass('modified');
+            divTag.style.color = 'red';
+            chkboxEle.first().prop('checked', true);
+        }    
+        else
+        {
+            $(divTag).removeClass('modified');
+            divTag.style.color = 'black';
+        }   
+
+        $(divTag).bind('mouseenter', function ( event ) { 
+                                                            if( $('textarea.exampleEntry').length == 0 )
+                                                            {
+                                                                $(this).createExampleControlsDiv();
+                                                                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+                                                                $(this).addClass('transEffectHover');
+                                                            }
+                                                        } );
+
+        $(this).replaceWith(divTag);
+
+        return divTag;
+    }
+
+    $.fn.toButtonControl = function(buttonId, buttonLabel) {
+        var buttonTag = document.createElement('BUTTON');
+
+        $.each(this[0].attributes, function(i, attrib){
+            $(buttonTag).attr(attrib.name, attrib.value);
+        });
+
+        $(buttonTag).prop('id', buttonId);
+        $(buttonTag).html(buttonLabel);
+
+        $(buttonTag).removeAttr('style');
+        $(buttonTag).removeClass('transEffect');
+        $(buttonTag).attr('data-controltranstype', 'textarea');
+
+        $(buttonTag).addClass('exampleBtn');
+
+        $(buttonTag).bind('click', function ( event ) { 
+                                                        if( buttonId == 'updateExampleBtn' )
+                                                            $(this).updateExampleBtnClick(event);
+
+                                                        else if( buttonId == 'addExampleBtn' )
+                                                            $(this).addExampleBtnClick(event);
+                                                      });
+
+        return buttonTag;
+    }
+
+    $.fn.createExampleControlsDiv = function() {
+        var divTag = document.createElement('DIV');
+        var updateButton = $(this).toButtonControl('updateExampleBtn', 'Update');
+        var addButton = $(this).toButtonControl('addExampleBtn', 'Add');
+        var thisPos = $(this).position();
+        var topPosBtn, leftPosBtn;
+
+        if($(this).prop("tagName") != 'TD')
+            divTag.append(updateButton);
+        
+        divTag.append(addButton);
+
+        $(divTag).addClass('exampleBtnlDiv');
+
+        $(divTag).css('top', thisPos.top + 'px' );
+        $(divTag).css('left', thisPos.left + 'px' );
+        $(divTag).css('display', 'none' );
+
+        if($(this).prop("tagName") == 'TD')
+        {
+            $(divTag).css('width', $(this).width() + $(this).css('padding-right').replace('px', '') * 2 + 'px' );
+            $(divTag).css('height', $(this).height() + $(this).css('padding-bottom').replace('px', '') * 2 + 'px' );
+        }
+        else
+        {
+            $(divTag).css('width', $(this).parent().width() );
+            $(divTag).css('height', $(this).height() );
+        }
+
+        topPosBtn = $(divTag).css('height').replace('px', '') / 2 - $(updateButton).css('height').replace('px', '') / 2;
+        leftPosBtn = $(divTag).css('width').replace('px', '') / 2 - $(updateButton).css('width').replace('px', '') - 10;
+
+        $(updateButton).css('top', topPosBtn + 'px' );
+        $(updateButton).css('left', leftPosBtn + 'px' );
+        $(updateButton).css('margin-right', '5px' );
+
+        $(addButton).css('top', topPosBtn + 'px' );
+
+        if($(this).prop("tagName") == 'TD')
+            $(addButton).css('left', $(divTag).css('width').replace('px', '') / 2 - $(addButton).css('width').replace('px', '') / 2 + 10 );
+        else
+            $(addButton).css('left', $(updateButton).css('width').replace('px', '') + 'px' );
+
+        $(divTag).bind('mouseleave', function (event){ $(this).exampleBtnlDivMouseOut(); });
+
+        if($(this).prop("tagName") == 'TD')
+            $(this).append(divTag);
+        else
+            $(this).parent().append(divTag);
     }
 
     $.fn.toggleControl = function( event ) {
@@ -238,7 +374,8 @@ $(document).ready(function() {
                             break;
 
                         case 'textarea':
-                            var textarea = childTag.toTextAreaControl();
+                            var textarea = childTag.toTextAreaControl($(this).text());
+                            $(childTag).replaceWith(textarea);
                             $(textarea).focus();
 
                             break;
@@ -253,11 +390,26 @@ $(document).ready(function() {
             case 'INPUT':
             case 'SELECT':
             case 'TEXTAREA':
+            case 'BUTTON':
 
                 if( event.type == 'keypress' && event.which != 13 )
                     break;
 
-                this.toSpanControl();
+                if( $(this).prop('value') != '' && $(this).attr('class').indexOf('exampleBtn') != -1 )
+                {
+                    var divTag = $(this).toDivControl();
+                    $(divTag).removeClass('exampleBtn');
+                    $(divTag).next('br').remove();
+
+                    if($(this).attr('class').indexOf('exampleTd') != -1)
+                    {
+                        $(divTag).removeClass('exampleTd');
+                        $(divTag).addClass('exampleEntry transEffect');
+                    }
+                }
+                else
+                    this.toSpanControl();
+
                 break;
 
             default:
