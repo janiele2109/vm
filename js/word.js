@@ -68,7 +68,7 @@ $(document).ready(function() {
                     if( status != "success" || response['errState'] != "OK")
                     {
                         $("#msg").html(response['msg']);
-                        $("#msg").addClass("Err");
+                        $("#msg").addClass("err");
                     }
                     else
                     {
@@ -78,7 +78,7 @@ $(document).ready(function() {
                         $("#msg").removeClass("Err");
                         $("#msg").html(response['msg']);
                         $("#tbWordView").children().append(response['htmlContent']);
-                        $("#select_all").prop('checked', false);
+                        $("#selectAllChkbox").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
                         $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
@@ -153,7 +153,7 @@ $(document).ready(function() {
                     if( status != "success" || response['errState'] != "OK")
                     {
                         $("#msg").html(response['msg']);
-                        $("#msg").addClass("Err");
+                        $("#msg").addClass("err");
                     }
                     else
                     {
@@ -164,7 +164,7 @@ $(document).ready(function() {
                         $("#msg").removeClass("Err");
                         $("#msg").html(response['msg']);
                         $("#tbWordView").children().append(response['htmlContent']);
-                        $("#select_all").prop('checked', false);
+                        $("#selectAllChkbox").prop('checked', false);
                         $("#addNewWordTextBox").focus();
                     }
                 },
@@ -266,13 +266,13 @@ $(document).ready(function() {
                     if( status != "success" || response['errState'] != "OK")
                     {
                         $("#msg").html(response['msg']);
-                        $("#msg").addClass("Err");
+                        $("#msg").addClass("err");
                     }
                     else
                     {
                         $("#msg").removeClass("Err");
                         $("#msg").html(response['msg']);
-                        $("#select_all").prop('checked', false);
+                        $("#selectAllChkbox").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
                         $.each( modifiedControls, function() { 
@@ -418,7 +418,7 @@ $(document).ready(function() {
                     if( status != "success" || response['errState'] != "OK")
                     {
                         $("#msg").html(response['msg']);
-                        $("#msg").addClass("Err");
+                        $("#msg").addClass("err");
                     }
                     else
                     {
@@ -428,7 +428,7 @@ $(document).ready(function() {
                         $("#msg").removeClass("Err");
                         $("#msg").html(response['msg']);
                         $("#tbWordView").children().append(response['htmlContent']);
-                        $("#select_all").prop('checked', false);
+                        $("#selectAllChkbox").prop('checked', false);
                         $("#addNewWordTextBox").focus();  
 
                         $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
@@ -532,7 +532,7 @@ $(document).ready(function() {
 
         $.post("/mods/word/word.php",
         {
-            menuItem: "myWord",
+            menuItem: "word",
             userName: $("#userName").text()
         },
 

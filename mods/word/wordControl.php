@@ -58,7 +58,7 @@
 								$wordMeaning ) )
 		{
 			$responseData[ 'errState' ] = 'NG';
-			$responseData[ 'errCode' ] = '0002';
+			$responseData[ 'errCode' ] = '1001';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 		else
@@ -73,7 +73,7 @@
 			if( !execQuery( $query ) )
 			{
 				$responseData[ 'errState' ] = 'NG';
-				$responseData[ 'errCode' ] = '0003';
+				$responseData[ 'errCode' ] = '1002';
 				$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 			}
 			else
@@ -87,7 +87,7 @@
 				    ( $result && $result->num_rows <= 0 ) )
 				{
 					$responseData[ 'errState' ] = 'NG';
-					$responseData[ 'errCode' ] = '0004';
+					$responseData[ 'errCode' ] = '1003';
 					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 				}
 				else
@@ -102,7 +102,7 @@
 					if( !execQuery( $query ) )
 					{
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '0005';
+						$responseData[ 'errCode' ] = '1004';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 					}
 					else
@@ -118,7 +118,7 @@
 						    ( $result && $result->num_rows <= 0 ) )
 						{
 							$responseData[ 'errState' ] = 'NG';
-							$responseData[ 'errCode' ] = '0006';
+							$responseData[ 'errCode' ] = '1005';
 							$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 						}
 						else
@@ -133,7 +133,7 @@
 							if( !execQuery( $query ) )
 							{
 								$responseData[ 'errState' ] = 'NG';
-								$responseData[ 'errCode' ] = '0007';
+								$responseData[ 'errCode' ] = '1006';
 								$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 							}
 							else
@@ -248,7 +248,7 @@
                     if( !updateWordField( $ctrl->orgVal, $ctrl->newVal ) )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '0011';
+						$responseData[ 'errCode' ] = '1010';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -267,7 +267,7 @@
                     if( !$result )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '0012';
+						$responseData[ 'errCode' ] = '1011';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -286,7 +286,7 @@
                     if( !$result )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '0013';
+						$responseData[ 'errCode' ] = '1012';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -305,7 +305,7 @@
                     if( !$result )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '0014';
+						$responseData[ 'errCode' ] = '1013';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -585,7 +585,7 @@
 				else
 				{
 					$responseData[ 'errState' ] = 'NG';
-					$responseData[ 'errCode' ] = '0009';
+					$responseData[ 'errCode' ] = '1008';
 					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 				}
 			}
@@ -601,7 +601,7 @@
 				else
 				{
 					$responseData[ 'errState' ] = 'NG';
-					$responseData[ 'errCode' ] = '0010';
+					$responseData[ 'errCode' ] = '1009';
 					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 				}
 			}
@@ -609,7 +609,7 @@
 		else
 		{
 			$responseData[ 'errState' ] = 'NG';
-			$responseData[ 'errCode' ] = '0008';
+			$responseData[ 'errCode' ] = '1007';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 
@@ -686,4 +686,131 @@
 		else
 			return $result;
 	}
+
+	function deleteExamplesBelongsToWordMeaningId( $wordMeaningId )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'DELETE FROM wordexample
+				  WHERE wordMeaningId = "' . $wordMeaningId . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1015';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function deleteWordMeaningsBelongsToWordId( $wordId )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'SELECT wm.wordMeaningId
+				  FROM wordmeaning wm
+				  WHERE wm.wordId = "' . $wordId . '"';
+
+		$wordMeaningIds = $mysqli->query( $query );
+
+		if ( $wordMeaningIds != FALSE &&
+			 $wordMeaningIds->num_rows > 0 )
+		{
+			while ( $wordMeaningId = mysqli_fetch_row( $wordMeaningIds ) )
+			{
+				$responseData = deleteExamplesBelongsToWordMeaningId( $wordMeaningId[0] );
+
+				if( $responseData[ 'errState' ] == 'OK' )
+				{
+					$query = 'DELETE FROM wordmeaning
+							  WHERE wordId = "' . $wordId . '"';
+
+					$result = $mysqli->query( $query );
+
+					if ( $result == FALSE )
+					{
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '1016';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+					}
+					else
+						$responseData[ 'errState' ] = 'OK';
+				}
+			}
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';		
+
+		return $responseData;
+	}
+
+	function deleteWordsBelongToWordlistName( $wordlistName )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'SELECT w.wordId
+				  FROM word w
+				  INNER JOIN wordlist wl
+				  ON w.wordlistId = wl.wordlistId
+				  WHERE wl.wordlistName = "' . $wordlistName . '"';
+
+		$rows = $mysqli->query( $query );
+
+		if ( $rows != FALSE &&
+			 $rows->num_rows > 0 )
+		{
+			while ( $row = mysqli_fetch_row( $rows ) )
+			{
+				$responseData = deleteWordMeaningsBelongsToWordId( $row[0] );
+
+				if( $responseData[ 'errState' ] == 'OK' )
+				{
+					$query = 'DELETE FROM word
+							  WHERE wordId = "' . $row[0] . '"';
+
+					$result = $mysqli->query( $query );
+
+					if ( $result == FALSE )
+					{
+						$responseData[ 'errState' ] = 'NG';
+						$responseData[ 'errCode' ] = '1014';
+						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+					}
+					else
+						$responseData[ 'errState' ] = 'OK';
+				}
+			}
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
 ?>

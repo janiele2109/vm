@@ -1,281 +1,357 @@
 <?php
-	require_once $_SERVER['DOCUMENT_ROOT'] . "/db/mysql.connect.php";
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/constants.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/word/wordControl.php';
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'addWordList') 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWordListName' )
 	{
-		addWordList( $_POST[ "wordlistName" ] );
+		addWordListName( $_POST[ 'wordlistName' ] );
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'delSelectedWordLists') 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'delSelectedWordListNames' )
 	{
-		delSelectedWordLists();
+		delSelectedWordListNames( $_POST[ 'wordlistNameArr' ] );
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateWordList')
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateWordListName' )
 	{
-		updateWordList( $_POST["oldVal"], $_POST["newVal"]);
+		updateWordListName( $_POST[ 'oldVal' ], $_POST[ 'newVal' ] );
 	}
 
-	if ( isset( $_POST[ "requestType" ] ) && $_POST[ "requestType" ] == 'updateSelectedWordLists')
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateSelectedWordListNames' )
 	{
-		updateSelectedWordLists();
+		updateSelectedWordListNames( $_POST[ 'wordlistNamesMap' ] );
 	}
 
-	function addWordList( $wordlistTitle )
+	function addWordListName( $wordlistName )
 	{
 		global $mysqli;
 
-		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $wordlistTitle . '";';
+		$result = validateWordlistName( $wordlistName );
 
-		$result = $mysqli->query( $query );
-
-		if ($result->num_rows > 0) 
+		if( $result[ 'errState' ] == 'OK' )
 		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00001", 
-						  "msg" => "Duplicated wordlist!", 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
+			$result = checkDuplicateWordlistName( $wordlistName );
 
-			return;
-		}
+			/* New wordlist name is not duplicated */
+			if( $result[ 'errState' ] == 'OK' )
+			{
+				$result = addWordlistNameToDb( $wordlistName );
 
-		$query = 'INSERT INTO wordlist(wordlistName) values("' . $wordlistTitle . '");';
-
-		$result = $mysqli->query( $query );
-
-		if( $result )
-		{
-			ob_start();
-			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
-			$html = ob_get_contents();
-			ob_end_clean();
-
-			$data = array("errState" => "OK", 
-						  "errCode" => "FFFF", 
-						  "msg" => $wordlistTitle . " added wordlist", 
-						  "htmlContent" => $html
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-		}
-		else
-		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00002", 
-						  "msg" => "Adding wordlist failed!", 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-
-			return;
-		}
-	}
-
-	function delSelectedWordLists()
-	{
-		global $mysqli;
-
-		foreach( $_POST['wordlistArr'] as $wordlist ) {
-
-			$query = 'SELECT w.wordId
-					  FROM word w
-					  INNER JOIN wordlist wl
-					  ON w.wordlistId = wl.wordlistId 
-					  WHERE wl.wordlistName = "' . $wordlist . '"' ;
-
-			$result = $mysqli->query( $query );
-
-			while ( $row = mysqli_fetch_row( $result ) ) 
-			{				
-				$query = 'DELETE FROM wordMeaning 
-						  WHERE wordId="' . $row[0] . '";';
-
-				if( !execQuery( $query, "Delete word meanings of word belongs to wordlist failed!" ) )
-					return;
-
-				$query = 'DELETE FROM word WHERE wordId="' . $row[0] . '";';
-
-				if( !execQuery( $query, "Delete words belong to wordlist failed!" ) )
-					return;
+				/* Adding wordlist to DB is successful */
+				if( $result[ 'errState' ] == 'OK' )
+				{
+					$result[ 'htmlContent' ] = reloadWordlistViewContent();
+					$result[ 'msg' ] = constant( '0051' );
+				}
 			}
-
-			$query = 'DELETE FROM wordlist WHERE wordlistName="' . $wordlist . '";';
-
-			if( !execQuery( $query, "Deleting wordlist failed!" ) )
-				return;
 		}
 
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-				  	  "msg" => "", 
-					  "htmlContent" => ""
-					 );
-		header("Content-Type: application/json");
-		echo json_encode($data);
-
-		return;
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
 	}
 
-	function updateWordList($oldVal, $newVal)
+	function delSelectedWordListNames( $wordlistNameArr )
 	{
 		global $mysqli;
 
-		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $newVal . '";';
+		foreach( $wordlistNameArr as $wordlistName ) {
 
-		$result = $mysqli->query( $query );
+			$result = checkExistedWordlistName( $wordlistName );
 
-		if ($result->num_rows > 0) 
-		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00001", 
-						  "msg" => "Duplicated wordlist!", 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
+			if( $result[ 'errState' ] == 'OK' )
+			{
+				$result = deleteWordsBelongToWordlistName( $wordlistName );
 
-			return;
+				if( $result[ 'errState' ] == 'OK' )
+				{
+					$result = deleteWordlistNameInDb( $wordlistName );
+
+					if( $result[ 'errState' ] == 'OK' )
+						$result[ 'msg' ] = constant( '0052' );
+				}
+			}
 		}
 
-		$query = 'UPDATE wordlist SET wordlistName = "' . $newVal . '" WHERE wordlistName="' . $oldVal . '";';
-
-		$result = $mysqli->query( $query );
-
-		if( !$result )
-		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00002", 
-						  "msg" => "Updating wordlist failed!", 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-
-			return;
-		}
-
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-					  "msg" =>  $oldVal . " was updated to " . $newVal, 
-					  "htmlContent" => ""
-					 );
-
-		header("Content-Type: application/json");
-
-		echo json_encode($data);
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
 	}
 
-	function updateSelectedWordLists()
+	function updateWordListName( $oldVal, $newVal, &$params = null )
 	{
 		global $mysqli;
-		
-		$params = array('cntWordlistTotal' => 0, 
-						'cntDuplicatedWordlist' =>0,
-						'duplicatedWordlist' => '' );
-			
-		array_walk_recursive($_POST['wordlistMap'], 'updateWordlistInDB', $params);
 
-		if ( !empty($params['duplicatedWordlist']) ) 
+		if( $params )
+			$params[ 'cntWordlistNameTotal' ]++;
+
+		$result = checkExistedWordlistName( $oldVal );
+
+		/* If selected wordlist name for updating exists */
+		if( $result[ 'errState' ] == 'OK' )
 		{
-			$msg = "";
-			$range = $params['cntWordlistTotal'] - $params['cntDuplicatedWordlist'];
+			$result = validateWordlistName( $newVal );
 
-			if ( $range == 1 )
-				$msg = "Duplicated wordlist: " . $params['duplicatedWordlist'] . "! Remaining wordlist is updated successfully!";
-			else if ( $range > 1 )
-				$msg = "Duplicated wordlist: " . $params['duplicatedWordlist'] . "! Remaining wordlist are updated successfully!";
-			else
-				$msg = "Duplicated wordlist: " . $params['duplicatedWordlist'];
+			/* If new wordlist name is valid */
+			if( $result[ 'errState' ] == 'OK' )
+			{
+				$result = checkDuplicateWordlistName( $newVal );
 
-			$data = array("errState" => "NG", 
-						  "errCode" => "00001", 
-						  "msg" => $msg, 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
+				/* New wordlist name is not duplicated */
+				if( $result[ 'errState' ] == 'OK' )
+				{
+					$result = updateWordlistNameToDb( $oldVal, $newVal );
 
-			return;
+					/* Updating new wordlist name successfully */
+					if( $result[ 'errState' ] == 'OK' )
+						$result[ 'msg' ] = constant( '0053' );
+				}
+				else
+				{
+					if( $params )
+					{
+						$params[ 'cntDuplicatedWordlistName' ]++;
+
+						if( empty( $params['duplicatedWordlistName'] ) )
+							$params['duplicatedWordlistName'] = $newVal;
+						else
+							$params['duplicatedWordlistName'] = $params['duplicatedWordlistName'] . ", " . $newVal;
+					}
+				}
+			}
+		}
+
+		if( $params == null )
+		{
+			header( 'Content-Type: application/json' );
+			echo json_encode( $result );
+		}
+		else
+			$params[ 'result' ] = $result;
+	}
+
+	function updateSelectedWordListNames( $wordlistNamesMap )
+	{
+		global $mysqli;
+
+		$params = array('cntWordlistNameTotal' => 0, 
+						'cntDuplicatedWordlistName' =>0,
+						'duplicatedWordlistName' => '',
+						'result' => null
+						);
+
+		foreach( $wordlistNamesMap as $oldVal => $newVal )
+		{
+			updateWordListName( $oldVal, $newVal, $params );
+		}
+
+		$result = $params[ 'result' ];
+
+		/* If there is error cause of duplicated wordlist names */
+		if( ( $result != null &&
+			  $result[ 'errState' ] == 'NG' ) ||
+			 $params[ 'cntDuplicatedWordlistName' ] > 0 )
+		{
+			if( $result[ 'errCode' ] == '0001' )
+			{
+				$range = $params['cntWordlistNameTotal'] - $params['cntDuplicatedWordlistName'];
+
+				if( $range == 1 )
+					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist is updated successfully!";
+				else if ( $range > 1 )
+					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist are updated successfully!";
+				else
+					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'];
+			}
 		}
 		else
 		{
-			ob_start();
-			require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
-			$html = ob_get_contents();
-			ob_end_clean();
-
-			$data = array("errState" => "OK", 
-						  "errCode" => "FFFF", 
-						  "msg" => "Selected wordlist updated!", 
-						  "htmlContent" => $html
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-		}
-	}
-
-	function updateWordlistInDB($item, $key, $params)
-	{	
-		global $mysqli;		
-
-		$params['cntWordlistTotal']++;
-		
-		$query = 'SELECT wordlistName FROM wordlist WHERE wordlistName="' . $item . '";';
-
-		$result = $mysqli->query( $query );
-
-		if ($result->num_rows > 0) 
-		{
-			if( empty( $params['duplicatedWordlist'] ) )
-				$params['duplicatedWordlist'] = $item;
-			else
-				$params['duplicatedWordlist'] = $params['duplicatedWordlist'] . ", " . $item;
-
-			$params['cntDuplicatedWordlist']++;
-			continue;
+			$result[ 'htmlContent' ] = reloadWordlistViewContent();
+			$result[ 'msg' ] = constant( '0054' );
 		}
 
-		$query = 'UPDATE wordlist SET wordlistName = "' . $item . '" WHERE wordlistName="' . $key . '";';
-
-		$result = $mysqli->query( $query );
-
-		if( !$result )
-		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00002", 
-						  "msg" => "Updating selected wordlist failed!", 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-
-			return;
-		}			
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
 	}
 
-	function execQuery( $query, $errMsg )
+	/* ===================== Wordlist helper functions - START ===================== */
+
+	function validateWordlistName( $wordlistName )
+	{
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if( $wordlistName == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0001';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function checkDuplicateWordlistName( $wordlistName )
 	{
 		global $mysqli;
 
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'SELECT wordlistName
+				  FROM wordlist
+				  WHERE wordlistName="' . $wordlistName . '"';
+
 		$result = $mysqli->query( $query );
 
-		if( !$result )
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
 		{
-			$data = array("errState" => "NG", 
-						  "errCode" => "00002", 
-						  "msg" => $errMsg, 
-						  "htmlContent" => ""
-						 );
-			header("Content-Type: application/json");
-			echo json_encode($data);
-
-			return 0;
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0002';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 		else
-			return 1;
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
 	}
+
+	function checkExistedWordlistName( $wordlistName )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'SELECT wordlistName
+				  FROM wordlist
+				  WHERE wordlistName="' . $wordlistName . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			$responseData[ 'errState' ] = 'OK';
+		}
+		else
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0003';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+
+		return $responseData;
+	}
+
+	function addWordlistNameToDb( $wordlistName )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'INSERT INTO wordlist( wordlistName )
+				  VALUES("' . $wordlistName . '")';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0004';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function deleteWordlistNameInDb( $wordlistName )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'DELETE FROM wordlist
+				  WHERE wordlistName="' . $wordlistName . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0005';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function updateWordlistNameToDb( $oldVal, $newVal )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'UPDATE wordlist
+				  SET wordlistName = "' . $newVal .
+				  '" WHERE wordlistName="' . $oldVal . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0006';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function reloadWordlistViewContent()
+	{
+		ob_start();
+		require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/wordlist/wordlistView.php';
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		return $html;
+	}
+
+	/* ===================== Wordlist helper functions - END ===================== */	
 ?>

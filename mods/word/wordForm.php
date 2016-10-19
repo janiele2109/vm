@@ -10,7 +10,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/mods/word/newWordForm.php";
 
 <table id="tbWordView">
 	<tr>
-		<td><input type="checkbox" id="select_all" /></td>
+		<td><input type="checkbox" id="selectAllChkbox" /></td>
 		<td class ='word'>Word Title</td>
 		<td class ='partOfSpeech'>Word class</td>
 		<td class ='pronunciation'>Pronunciation</td>

@@ -76,7 +76,7 @@
 		else if( $result == FALSE )
 		{
 			$responseData[ 'errState' ] = 'NG';
-			$responseData[ 'errCode' ] = '0001';
+			$responseData[ 'errCode' ] = '2001';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 

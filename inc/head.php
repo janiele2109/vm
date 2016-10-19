@@ -8,6 +8,7 @@
 	<link rel="stylesheet" type="text/css" href='/css/main.css'>
 
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="/js/constants.js"></script>
 	<script type="text/javascript" src="/js/main.js"></script>
 	<script type="text/javascript" src="/js/wordlist.js"></script>
 	<script type="text/javascript" src="/js/word.js"></script>

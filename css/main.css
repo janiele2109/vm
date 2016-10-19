@@ -12,6 +12,68 @@ header{
 	margin-bottom: 20px;
 }
 
+.err {
+	color: red;
+}
+
+.loginErr {
+	position: fixed;
+	margin-top: 10px;
+}
+
+
+/* ===================== Wordlist styles - START ===================== */
+
+/* newWordlistForm.php - START */
+
+.wordlistTitle {
+	margin-right: 10px;
+}
+
+/* newWordlistForm.php - END */
+
+/* wordlistForm.php - START */
+
+.displayMsg {
+	display: inline-block;
+	visibility: hidden;
+	font-weight: bold;
+	margin-top: 10px;
+}
+
+.wordlistBtnCtrls {
+	margin-top: 20px;
+	padding: 0;
+}
+
+.wordlistBtnCtrls button {
+	margin-right: 20px;
+	height: 30px;
+}
+
+#wordlistViewTbl .updateBtn {
+	width: 100px;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+/* wordlistForm.php - END */
+
+
+/* wordlistView.php - START */
+
+.updateWordlistNameBtn {
+	display: block;
+	margin: auto;
+	height: 50px;
+	width: 80px;
+}
+
+/* wordlistView.php - END */
+
+/* ===================== Wordlist styles - END ===================== */
+
 .noselect {
   cursor: default;
   user-select: none;
@@ -158,15 +220,6 @@ header{
 	padding-top: 10px;
 }
 
-.Err .Changed {
-	color: red;
-}
-
-.loginErr {
-	position: fixed;
-	margin-top: 10px;
-}
-
 ul {
     list-style-type: none;
     margin: 0;
@@ -227,7 +280,7 @@ td.exampleTd
 }
 
 button {
-	margin: 10px;
+	
 }
 
 table, th, td {

@@ -1,33 +1,15 @@
-$(document).ready(function() {
 
-    var sendingData = {
-        requestType: "getOptionData"
-    }
+$( document ).ready( function() {
 
-    $.ajax({
-        url: '/mods/word/wordControl.php',
-        type: 'post',
-        dataType: 'json',
-        cache: false,
-        success: 
-            function(response,status){
-                if( status != "success" || response['errState'] != "OK")
-                {
-                    $("#msg").html(response['msg']);
-                    $("#msg").addClass("Err");
-                }
-                else
-                {
-                    Object.keys(response['data']).forEach(function (key) {
-                        var option = '<option value="' + key + '">' + response['data'][key] + '</option>';
-                        $("#hiddenWordlistCb").append(option);
-                    });
-                }
-            },
-        data: sendingData
+    getOptionData();
+
+    //$( this ).bindEventsToControls();
+
+    $('.toggleEnabled').on( 'mouseenter mouseleave', function( event ) {
+        $( this ).toggleControl( event );
     });
 
-    $('#select_all').change(function(){
+    $('#selectAllChkbox').change(function(){
         if($(this).prop('checked')){
             $('tbody tr td input[type="checkbox"]').each(function(){
                 $(this).prop('checked', true);
@@ -38,6 +20,78 @@ $(document).ready(function() {
             });
         }
     });
+
+    $.fn.checkServerResponse = function( response, status ) {
+        if( status != "success" || response[ 'errState' ] != 'OK' )
+        {
+            if( $("#msgDiv").length > 0 )
+            {
+                $("#msgDiv").text(response['msg']);
+                $("#msgDiv").css('visibility', 'visible');
+                $("#msgDiv").addClass("err");
+            }
+
+            return false;
+        }
+        else
+            return true;
+    }
+
+    $.fn.errRequestServerData = function( xhr, status, error ) {
+        if( $( '#msgDiv' ).length > 0 )
+        {
+            $("#msgDiv").text( 'Request for data from server failed!' );
+            $("#msgDiv").css('visibility', 'visible');
+            $("#msgDiv").addClass("err");
+        }
+    }
+
+    $.fn.resetControlInfo = function( msg ) {
+        /* Update message information */
+        if( $( '#msgDiv' ).length > 0 )
+        {
+            $("#msgDiv").text( msg );
+            $("#msgDiv").css('visibility', 'visible');
+            $("#msgDiv").removeClass("err");
+        }
+
+        /* Reset checkbox 'Select all' */
+        $( '#selectAllChkbox' ).prop( 'checked', false );
+    }
+
+    $.fn.bindEventsToControls = function() {
+        /* Bind events to controls of new wordlist rows */
+        if( $( '.toggleEnabled' ).length > 0 )
+            $( '.toggleEnabled' ).bind( 'mouseenter mouseleave',
+                                        function( event ) { $( this ).toggleControl( event ); } );
+
+        if( $( '.updateWordlistNameBtn' ).length > 0 )
+            $( '.updateWordlistNameBtn' ).bind( 'click',
+                                                function( event) {
+                                                                    var oldWordlist, newWordlist;
+                                                                    var spanEle;
+                                                                    var rowEle = $( this ).parent().parent();
+
+                                                                    spanEle = rowEle.find( 'span.wordlist[data-controltranstype]' );
+
+                                                                    $.each( spanEle, function() { 
+                                                                                                    oldWordlist = $( this ).attr( 'data-sourcewordlistname' );
+                                                                                                    newWordlist = $( this ).text();
+                                                                                                });
+
+                                                                    $( this ).updateWordlistName( oldWordlist, newWordlist );
+                                                                } );
+    }
+
+    $.fn.err = function( errMsg ) {
+        /* Update and show error message */
+        if( $( '#msgDiv' ).length > 0 )
+        {
+            $("#msgDiv").text( errMsg );
+            $("#msgDiv").css('visibility', 'visible');
+            $("#msgDiv").addClass("err");
+        }
+    }
 
     $.fn.toInputTextControl = function() {
         var inputTag = document.createElement('INPUT');
@@ -161,12 +215,12 @@ $(document).ready(function() {
         {
             case 'SELECT':
                 $(spanTag).attr('data-controltranstype', 'select');
-                spanTag.innerHTML = $(this).find(":selected").text();
+                spanTag.innerHTML = $(this).find(":selected").text().trim();
                 break;
 
             case 'INPUT':
                 $(spanTag).attr('data-controltranstype', 'input-text');
-                spanTag.innerHTML = $(this).prop('value');                
+                spanTag.innerHTML = $(this).prop('value').trim();                
                 break;
 
             case 'TEXTAREA':
@@ -175,14 +229,14 @@ $(document).ready(function() {
                 else
                     $(spanTag).attr('data-controltranstype', 'button');
 
-                spanTag.innerHTML = $(this).prop('value');                
+                spanTag.innerHTML = $(this).prop('value').trim();                
                 break;
 
             default:
                 break;
         }
 
-        if( $(spanTag).attr(dataSourceName) != spanTag.innerHTML )
+        if( $(spanTag).attr(dataSourceName).trim() != spanTag.innerHTML.trim() )
         {
             $(spanTag).addClass('modified');
             spanTag.style.color = 'red';
@@ -417,3 +471,35 @@ $(document).ready(function() {
         }
     }
 });
+
+
+    function getOptionData() {
+        var sendingData = {
+                          requestType: 'getOptionData'
+                      };
+
+        $.ajax(
+        {
+            url: '/mods/word/wordControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            success: 
+                function( response, status )
+                {
+                    if( status != "success" || response['errState'] != "OK")
+                    {
+                        $("#msg").html(response['msg']);
+                        $("#msg").addClass("err");
+                    }
+                    else
+                    {
+                        Object.keys(response['data']).forEach(function (key) {
+                            var option = '<option value="' + key + '">' + response['data'][key] + '</option>';
+                            $("#hiddenWordlistCb").append(option);
+                        });
+                    }
+                },
+            data: sendingData
+        });
+    }
