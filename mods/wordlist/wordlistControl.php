@@ -25,23 +25,21 @@
 
 	function addWordListName( $wordlistName )
 	{
-		global $mysqli;
-
 		$result = validateWordlistName( $wordlistName );
 
-		if( $result[ 'errState' ] == 'OK' )
+		if ( $result[ 'errState' ] == 'OK' )
 		{
 			$result = checkDuplicateWordlistName( $wordlistName );
 
 			/* New wordlist name is not duplicated */
-			if( $result[ 'errState' ] == 'OK' )
+			if ( $result[ 'errState' ] == 'OK' )
 			{
 				$result = addWordlistNameToDb( $wordlistName );
 
 				/* Adding wordlist to DB is successful */
-				if( $result[ 'errState' ] == 'OK' )
+				if ( $result[ 'errState' ] == 'OK' )
 				{
-					$result[ 'htmlContent' ] = reloadWordlistViewContent();
+					$result[ 'dataContent' ] = reloadWordlistViewContent();
 					$result[ 'msg' ] = constant( '0051' );
 				}
 			}
@@ -53,21 +51,19 @@
 
 	function delSelectedWordListNames( $wordlistNameArr )
 	{
-		global $mysqli;
-
 		foreach( $wordlistNameArr as $wordlistName ) {
 
 			$result = checkExistedWordlistName( $wordlistName );
 
-			if( $result[ 'errState' ] == 'OK' )
+			if ( $result[ 'errState' ] == 'OK' )
 			{
 				$result = deleteWordsBelongToWordlistName( $wordlistName );
 
-				if( $result[ 'errState' ] == 'OK' )
+				if ( $result[ 'errState' ] == 'OK' )
 				{
 					$result = deleteWordlistNameInDb( $wordlistName );
 
-					if( $result[ 'errState' ] == 'OK' )
+					if ( $result[ 'errState' ] == 'OK' )
 						$result[ 'msg' ] = constant( '0052' );
 				}
 			}
@@ -79,39 +75,37 @@
 
 	function updateWordListName( $oldVal, $newVal, &$params = null )
 	{
-		global $mysqli;
-
-		if( $params )
+		if ( $params )
 			$params[ 'cntWordlistNameTotal' ]++;
 
 		$result = checkExistedWordlistName( $oldVal );
 
 		/* If selected wordlist name for updating exists */
-		if( $result[ 'errState' ] == 'OK' )
+		if ( $result[ 'errState' ] == 'OK' )
 		{
 			$result = validateWordlistName( $newVal );
 
 			/* If new wordlist name is valid */
-			if( $result[ 'errState' ] == 'OK' )
+			if ( $result[ 'errState' ] == 'OK' )
 			{
 				$result = checkDuplicateWordlistName( $newVal );
 
 				/* New wordlist name is not duplicated */
-				if( $result[ 'errState' ] == 'OK' )
+				if ( $result[ 'errState' ] == 'OK' )
 				{
 					$result = updateWordlistNameToDb( $oldVal, $newVal );
 
 					/* Updating new wordlist name successfully */
-					if( $result[ 'errState' ] == 'OK' )
+					if ( $result[ 'errState' ] == 'OK' )
 						$result[ 'msg' ] = constant( '0053' );
 				}
 				else
 				{
-					if( $params )
+					if ( $params )
 					{
 						$params[ 'cntDuplicatedWordlistName' ]++;
 
-						if( empty( $params['duplicatedWordlistName'] ) )
+						if ( empty( $params['duplicatedWordlistName'] ) )
 							$params['duplicatedWordlistName'] = $newVal;
 						else
 							$params['duplicatedWordlistName'] = $params['duplicatedWordlistName'] . ", " . $newVal;
@@ -120,7 +114,7 @@
 			}
 		}
 
-		if( $params == null )
+		if ( $params == null )
 		{
 			header( 'Content-Type: application/json' );
 			echo json_encode( $result );
@@ -131,8 +125,6 @@
 
 	function updateSelectedWordListNames( $wordlistNamesMap )
 	{
-		global $mysqli;
-
 		$params = array('cntWordlistNameTotal' => 0, 
 						'cntDuplicatedWordlistName' =>0,
 						'duplicatedWordlistName' => '',
@@ -147,15 +139,15 @@
 		$result = $params[ 'result' ];
 
 		/* If there is error cause of duplicated wordlist names */
-		if( ( $result != null &&
+		if ( ( $result != null &&
 			  $result[ 'errState' ] == 'NG' ) ||
 			 $params[ 'cntDuplicatedWordlistName' ] > 0 )
 		{
-			if( $result[ 'errCode' ] == '0001' )
+			if ( $result[ 'errCode' ] == '0001' )
 			{
 				$range = $params['cntWordlistNameTotal'] - $params['cntDuplicatedWordlistName'];
 
-				if( $range == 1 )
+				if ( $range == 1 )
 					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist is updated successfully!";
 				else if ( $range > 1 )
 					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist are updated successfully!";
@@ -165,7 +157,7 @@
 		}
 		else
 		{
-			$result[ 'htmlContent' ] = reloadWordlistViewContent();
+			$result[ 'dataContent' ] = reloadWordlistViewContent();
 			$result[ 'msg' ] = constant( '0054' );
 		}
 
@@ -184,7 +176,7 @@
 							   'data' 		=> ''
 							 );
 
-		if( $wordlistName == '' )
+		if ( $wordlistName == '' )
 		{
 			$responseData[ 'errState' ] = 'NG';
 			$responseData[ 'errCode' ] = '0001';

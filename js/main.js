@@ -1,16 +1,12 @@
 
 $( document ).ready( function() {
 
-    getOptionData();
-
-    //$( this ).bindEventsToControls();
-
     $('.toggleEnabled').on( 'mouseenter mouseleave', function( event ) {
         $( this ).toggleControl( event );
     });
 
     $('#selectAllChkbox').change(function(){
-        if($(this).prop('checked')){
+        if ($(this).prop('checked')){
             $('tbody tr td input[type="checkbox"]').each(function(){
                 $(this).prop('checked', true);
             });
@@ -22,9 +18,9 @@ $( document ).ready( function() {
     });
 
     $.fn.checkServerResponse = function( response, status ) {
-        if( status != "success" || response[ 'errState' ] != 'OK' )
+        if ( status != "success" || response[ 'errState' ] != 'OK' )
         {
-            if( $("#msgDiv").length > 0 )
+            if ( $("#msgDiv").length > 0 )
             {
                 $("#msgDiv").text(response['msg']);
                 $("#msgDiv").css('visibility', 'visible');
@@ -38,7 +34,7 @@ $( document ).ready( function() {
     }
 
     $.fn.errRequestServerData = function( xhr, status, error ) {
-        if( $( '#msgDiv' ).length > 0 )
+        if ( $( '#msgDiv' ).length > 0 )
         {
             $("#msgDiv").text( 'Request for data from server failed!' );
             $("#msgDiv").css('visibility', 'visible');
@@ -48,7 +44,7 @@ $( document ).ready( function() {
 
     $.fn.resetControlInfo = function( msg ) {
         /* Update message information */
-        if( $( '#msgDiv' ).length > 0 )
+        if ( $( '#msgDiv' ).length > 0 )
         {
             $("#msgDiv").text( msg );
             $("#msgDiv").css('visibility', 'visible');
@@ -61,11 +57,11 @@ $( document ).ready( function() {
 
     $.fn.bindEventsToControls = function() {
         /* Bind events to controls of new wordlist rows */
-        if( $( '.toggleEnabled' ).length > 0 )
+        if ( $( '.toggleEnabled' ).length > 0 )
             $( '.toggleEnabled' ).bind( 'mouseenter mouseleave',
                                         function( event ) { $( this ).toggleControl( event ); } );
 
-        if( $( '.updateWordlistNameBtn' ).length > 0 )
+        if ( $( '.updateWordlistNameBtn' ).length > 0 )
             $( '.updateWordlistNameBtn' ).bind( 'click',
                                                 function( event) {
                                                                     var oldWordlist, newWordlist;
@@ -85,7 +81,7 @@ $( document ).ready( function() {
 
     $.fn.err = function( errMsg ) {
         /* Update and show error message */
-        if( $( '#msgDiv' ).length > 0 )
+        if ( $( '#msgDiv' ).length > 0 )
         {
             $("#msgDiv").text( errMsg );
             $("#msgDiv").css('visibility', 'visible');
@@ -143,7 +139,7 @@ $( document ).ready( function() {
         var selectedText = $(this).text();
 
         $.each(this[0].attributes, function(i, attrib){
-            if( attrib.name != 'id' )
+            if ( attrib.name != 'id' )
                 $(selectTag).attr(attrib.name, attrib.value);
         });
 
@@ -189,24 +185,24 @@ $( document ).ready( function() {
         $.each(this[0].attributes, function(i, attrib){
             $(spanTag).attr(attrib.name, attrib.value);
 
-            if(attrib.name == 'class')
+            if (attrib.name == 'class')
             {
-                if( attrib.value.indexOf('wordlist') != -1 )
+                if ( attrib.value.indexOf('wordlist') != -1 )
                     dataSourceName = "data-sourcewordlistname";
 
-                else if( attrib.value.indexOf('word') != -1 )
+                else if ( attrib.value.indexOf('word') != -1 )
                     dataSourceName = "data-sourceword";
 
-                else if( attrib.value.indexOf('partOfSpeech') != -1 )
+                else if ( attrib.value.indexOf('partOfSpeech') != -1 )
                     dataSourceName = "data-sourcepos";
 
-                else if( attrib.value.indexOf('pronunciation') != -1 )
+                else if ( attrib.value.indexOf('pronunciation') != -1 )
                     dataSourceName = "data-sourcepron";
 
-                else if( attrib.value.indexOf('meaning') != -1 )
+                else if ( attrib.value.indexOf('meaning') != -1 )
                     dataSourceName = "data-sourcemeaning";
 
-                else if( attrib.value.indexOf('exampleEntry') != -1 )
+                else if ( attrib.value.indexOf('exampleEntry') != -1 )
                     dataSourceName = "data-sourceexample";
             }
         });
@@ -224,7 +220,7 @@ $( document ).ready( function() {
                 break;
 
             case 'TEXTAREA':
-                if( $(this).attr('class').indexOf('example') == -1 )
+                if ( $(this).attr('class').indexOf('example') == -1 )
                     $(spanTag).attr('data-controltranstype', 'textarea');
                 else
                     $(spanTag).attr('data-controltranstype', 'button');
@@ -236,7 +232,7 @@ $( document ).ready( function() {
                 break;
         }
 
-        if( $(spanTag).attr(dataSourceName).trim() != spanTag.innerHTML.trim() )
+        if ( $(spanTag).attr(dataSourceName).trim() != spanTag.innerHTML.trim() )
         {
             $(spanTag).addClass('modified');
             spanTag.style.color = 'red';
@@ -261,24 +257,24 @@ $( document ).ready( function() {
         $.each(this[0].attributes, function(i, attrib){
             $(divTag).attr(attrib.name, attrib.value);
 
-            if(attrib.name == 'class')
+            if (attrib.name == 'class')
             {
-                if( attrib.value.indexOf('wordlist') != -1 )
+                if ( attrib.value.indexOf('wordlist') != -1 )
                     dataSourceName = "data-sourcewordlistname";
 
-                else if( attrib.value.indexOf('word') != -1 )
+                else if ( attrib.value.indexOf('word') != -1 )
                     dataSourceName = "data-sourceword";
 
-                else if( attrib.value.indexOf('partOfSpeech') != -1 )
+                else if ( attrib.value.indexOf('partOfSpeech') != -1 )
                     dataSourceName = "data-sourcepos";
 
-                else if( attrib.value.indexOf('pronunciation') != -1 )
+                else if ( attrib.value.indexOf('pronunciation') != -1 )
                     dataSourceName = "data-sourcepron";
 
-                else if( attrib.value.indexOf('meaning') != -1 )
+                else if ( attrib.value.indexOf('meaning') != -1 )
                     dataSourceName = "data-sourcemeaning";
 
-                else if( attrib.value.indexOf('exampleEntry') != -1 )
+                else if ( attrib.value.indexOf('exampleEntry') != -1 )
                     dataSourceName = "data-sourceexample";
             }
         });
@@ -287,7 +283,7 @@ $( document ).ready( function() {
 
         $(divTag).attr('data-controltranstype', 'button');
 
-        if( $(this).prop('value') == '' )
+        if ( $(this).prop('value') == '' )
         {
             $(divTag).css('display', 'none');
             $(this).next('br').remove();
@@ -295,7 +291,7 @@ $( document ).ready( function() {
 
         divTag.style.width = $(this).parent().width() - 6 + "px";
 
-        if( $(divTag).attr(dataSourceName) != $(divTag).text() )
+        if ( $(divTag).attr(dataSourceName) != $(divTag).text() )
         {
             $(divTag).addClass('modified');
             divTag.style.color = 'red';
@@ -308,7 +304,7 @@ $( document ).ready( function() {
         }   
 
         $(divTag).bind('mouseenter', function ( event ) { 
-                                                            if( $('textarea.exampleEntry').length == 0 )
+                                                            if ( $('textarea.exampleEntry').length == 0 )
                                                             {
                                                                 $(this).createExampleControlsDiv();
                                                                 $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
@@ -338,10 +334,10 @@ $( document ).ready( function() {
         $(buttonTag).addClass('exampleBtn');
 
         $(buttonTag).bind('click', function ( event ) { 
-                                                        if( buttonId == 'updateExampleBtn' )
+                                                        if ( buttonId == 'updateExampleBtn' )
                                                             $(this).updateExampleBtnClick(event);
 
-                                                        else if( buttonId == 'addExampleBtn' )
+                                                        else if ( buttonId == 'addExampleBtn' )
                                                             $(this).addExampleBtnClick(event);
                                                       });
 
@@ -355,7 +351,7 @@ $( document ).ready( function() {
         var thisPos = $(this).position();
         var topPosBtn, leftPosBtn;
 
-        if($(this).prop("tagName") != 'TD')
+        if ($(this).prop("tagName") != 'TD')
             divTag.append(updateButton);
         
         divTag.append(addButton);
@@ -366,7 +362,7 @@ $( document ).ready( function() {
         $(divTag).css('left', thisPos.left + 'px' );
         $(divTag).css('display', 'none' );
 
-        if($(this).prop("tagName") == 'TD')
+        if ($(this).prop("tagName") == 'TD')
         {
             $(divTag).css('width', $(this).width() + $(this).css('padding-right').replace('px', '') * 2 + 'px' );
             $(divTag).css('height', $(this).height() + $(this).css('padding-bottom').replace('px', '') * 2 + 'px' );
@@ -386,14 +382,14 @@ $( document ).ready( function() {
 
         $(addButton).css('top', topPosBtn + 'px' );
 
-        if($(this).prop("tagName") == 'TD')
+        if ($(this).prop("tagName") == 'TD')
             $(addButton).css('left', $(divTag).css('width').replace('px', '') / 2 - $(addButton).css('width').replace('px', '') / 2 + 10 );
         else
             $(addButton).css('left', $(updateButton).css('width').replace('px', '') + 'px' );
 
         $(divTag).bind('mouseleave', function (event){ $(this).exampleBtnlDivMouseOut(); });
 
-        if($(this).prop("tagName") == 'TD')
+        if ($(this).prop("tagName") == 'TD')
             $(this).append(divTag);
         else
             $(this).parent().append(divTag);
@@ -407,7 +403,7 @@ $( document ).ready( function() {
 
                 var childTag = this.children( '[data-controlTransType]' );
 
-                if( childTag.length > 0 )
+                if ( childTag.length > 0 )
                 {
                     switch( childTag.first().attr( 'data-controlTransType' ) )
                     {
@@ -446,16 +442,16 @@ $( document ).ready( function() {
             case 'TEXTAREA':
             case 'BUTTON':
 
-                if( event.type == 'keypress' && event.which != 13 )
+                if ( event.type == 'keypress' && event.which != 13 )
                     break;
 
-                if( $(this).prop('value') != '' && $(this).attr('class').indexOf('exampleBtn') != -1 )
+                if ( $(this).prop('value') != '' && $(this).attr('class').indexOf('exampleBtn') != -1 )
                 {
                     var divTag = $(this).toDivControl();
                     $(divTag).removeClass('exampleBtn');
                     $(divTag).next('br').remove();
 
-                    if($(this).attr('class').indexOf('exampleTd') != -1)
+                    if ($(this).attr('class').indexOf('exampleTd') != -1)
                     {
                         $(divTag).removeClass('exampleTd');
                         $(divTag).addClass('exampleEntry transEffect');
@@ -472,34 +468,3 @@ $( document ).ready( function() {
     }
 });
 
-
-    function getOptionData() {
-        var sendingData = {
-                          requestType: 'getOptionData'
-                      };
-
-        $.ajax(
-        {
-            url: '/mods/word/wordControl.php',
-            type: 'post',
-            dataType: 'json',
-            cache: false,
-            success: 
-                function( response, status )
-                {
-                    if( status != "success" || response['errState'] != "OK")
-                    {
-                        $("#msg").html(response['msg']);
-                        $("#msg").addClass("err");
-                    }
-                    else
-                    {
-                        Object.keys(response['data']).forEach(function (key) {
-                            var option = '<option value="' + key + '">' + response['data'][key] + '</option>';
-                            $("#hiddenWordlistCb").append(option);
-                        });
-                    }
-                },
-            data: sendingData
-        });
-    }

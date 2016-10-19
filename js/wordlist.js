@@ -8,7 +8,7 @@ $( document ).ready( function() {
         var errMsg = $( this ).validateWordlistName( wordlistName );
 
         /* If input wordlist name is valid */
-        if( errMsg == EMPTY_STRING ) {
+        if ( errMsg == EMPTY_STRING ) {
             var sendingData = {
                 wordlistName: $( '#addNewWordlistTextBox' ).val(),
                 requestType: 'addWordListName'
@@ -26,11 +26,11 @@ $( document ).ready( function() {
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).checkServerResponse( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
-                            $( this ).reloadWordlistViewTbl( response[ 'htmlContent' ] );
+                            $( this ).reloadWordlistViewTbl( response[ 'dataContent' ] );
 
                             $( this ).addNewWordlistTextBoxFocus();
 
@@ -55,7 +55,7 @@ $( document ).ready( function() {
             } );
         } );
 
-        if( selectedWordlistName.length > 0 ) {
+        if ( selectedWordlistName.length > 0 ) {
             var sendingData = {
                 'wordlistNameArr[]': selectedWordlistName,
                 requestType: 'delSelectedWordListNames'
@@ -73,11 +73,11 @@ $( document ).ready( function() {
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).checkServerResponse( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
-                            $( this ).reloadWordlistViewTbl( response[ 'htmlContent' ], true );
+                            $( this ).reloadWordlistViewTbl( response[ 'dataContent' ], true );
 
                             $( this ).addNewWordlistTextBoxFocus();
                         }
@@ -116,7 +116,7 @@ $( document ).ready( function() {
             } );
         } );
 
-        if( Object.keys( selectedWordlistNameMap ).length > 0 ) {
+        if ( Object.keys( selectedWordlistNameMap ).length > 0 ) {
             var sendingData = {
                 'wordlistNamesMap': selectedWordlistNameMap,
                 requestType: 'updateSelectedWordListNames'
@@ -134,11 +134,11 @@ $( document ).ready( function() {
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).checkServerResponse( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
-                            $( this ).reloadWordlistViewTbl( response[ 'htmlContent' ] );
+                            $( this ).reloadWordlistViewTbl( response[ 'dataContent' ] );
 
                             $( this ).addNewWordlistTextBoxFocus();
 
@@ -163,7 +163,6 @@ $( document ).ready( function() {
         $.ajax( {
             url: '/mods/wordlist/wordlist.php',
             type: 'post',
-            cache: false,
             error:
                 function( xhr, status, error ) {
                     $( this ).errRequestServerData( xhr, status, error );
@@ -178,7 +177,7 @@ $( document ).ready( function() {
     } );
 
     $.fn.updateWordlistName = function( oldWordlistName, newWordlistName ) {
-        if( oldWordlistName != EMPTY_STRING &&
+        if ( oldWordlistName != EMPTY_STRING &&
             newWordlistName != EMPTY_STRING &&
             oldWordlistName != newWordlistName ) {
 
@@ -202,7 +201,7 @@ $( document ).ready( function() {
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).checkServerResponse( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -220,9 +219,9 @@ $( document ).ready( function() {
             $( this ).err( ERR_0003 );
     };
 
-    $.fn.reloadWordlistViewTbl = function( htmlContent, isRemoveSelectedItems = false ) {
+    $.fn.reloadWordlistViewTbl = function( dataContent, isRemoveSelectedItems = false ) {
         /* Remove old rows in wordlist table and update new content */
-        if( isRemoveSelectedItems )
+        if ( isRemoveSelectedItems )
         {
             $( '.dynRowWordList' ).filter( function() {
                 return ( $( this ).children().children( 'input[type=checkbox]:checked' ).length != 0 );
@@ -231,7 +230,7 @@ $( document ).ready( function() {
         else
         {
             $( '.dynRowWordList' ).remove();
-            $( '#wordlistViewTbl' ).children().append( htmlContent );
+            $( '#wordlistViewTbl' ).children().append( dataContent );
         }
     }
 
@@ -260,7 +259,7 @@ $( document ).ready( function() {
     }
 
     $.fn.validateWordlistName = function( wordlistName ) {
-        if( wordlistName == EMPTY_STRING )
+        if ( wordlistName == EMPTY_STRING )
             return ERR_0001;
         else
             return EMPTY_STRING;

@@ -10,7 +10,7 @@
 
     $result = $mysqli->query( $query, MYSQLI_STORE_RESULT );
 
-    if( mysqli_num_rows( $result ) )
+    if ( mysqli_num_rows( $result ) )
     {
 		$_SESSION[ "loginSuccess" ] = true;
         $_SESSION[ "username" ] = $username;

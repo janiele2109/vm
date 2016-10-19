@@ -21,6 +21,13 @@ header{
 	margin-top: 10px;
 }
 
+.displayMsg {
+	display: inline-block;
+	visibility: hidden;
+	font-weight: bold;
+	margin-top: 10px;
+}
+
 
 /* ===================== Wordlist styles - START ===================== */
 
@@ -33,13 +40,6 @@ header{
 /* newWordlistForm.php - END */
 
 /* wordlistForm.php - START */
-
-.displayMsg {
-	display: inline-block;
-	visibility: hidden;
-	font-weight: bold;
-	margin-top: 10px;
-}
 
 .wordlistBtnCtrls {
 	margin-top: 20px;
@@ -63,7 +63,7 @@ header{
 
 /* wordlistView.php - START */
 
-.updateWordlistNameBtn {
+#wordlistViewTbl .updateWordlistNameBtn {
 	display: block;
 	margin: auto;
 	height: 50px;
@@ -73,6 +73,103 @@ header{
 /* wordlistView.php - END */
 
 /* ===================== Wordlist styles - END ===================== */
+
+
+/* ===================== Word styles - START ===================== */
+
+/* newWordForm.php - START */
+
+.wordTitle {
+	margin-right: 10px;
+}
+
+.belongToWordlist {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.wordlistCb {
+	width: 200px;
+}
+
+.wordClassSpan {
+	margin-top: 10px;
+	margin-right: 10px;
+}
+
+.wordClassCb {
+	width: 100px;
+	margin-top: 10px;
+}
+
+.pronunciationSpan {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.meaningSpan {
+	margin-right: 10px;
+}
+
+.meaningTextArea {
+	margin-left: 7px;
+	vertical-align: top;
+}
+
+.exampleSpan {
+	margin-right: 10px;
+}
+
+.exampleTextArea {
+	margin-left: 7px;
+	vertical-align: top;
+}
+
+.addNewWordBtn {
+	width:200px;
+	height: 60px;
+	margin-left: 15px;
+	margin-top: 15px;
+}
+
+/* newWordForm.php - END */
+
+
+/* wordForm.php - START */
+
+.wordBtnCtrls {
+	margin-top: 20px;
+	padding: 0;
+}
+
+.hiddenWordlistCbCls {
+	width: 200px;
+	display: none
+}
+
+#wordViewTbl .updateBtn {
+	width: 100px;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+/* wordForm.php - END */
+
+
+/* wordView.php - START */
+
+#wordViewTbl .updateWordBtn {
+	display: block;
+	margin: auto;
+	height: 50px;
+	width: 80px;
+}
+
+/* wordView.php - END */
+
+/* ===================== Word styles - END ===================== */
+
 
 .noselect {
   cursor: default;
@@ -108,7 +205,7 @@ header{
 	margin-top: 30px;
 }
 
-.wordClassSpan {
+.meaningDescription .wordClassSpan {
 	font-style: normal;
 	color: green;
 }
@@ -265,13 +362,6 @@ nav {
 .exampleBtnlDiv {
 	position: absolute;
 	margin: auto;
-}
-
-.btnUpdateWordlist, .btnUpdateWord {
-	display: block;
-	margin: auto;
-	height: 50px;
-	width: 80px;
 }
 
 td.exampleTd

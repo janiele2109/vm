@@ -2,22 +2,505 @@
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/constants.php';
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getOptionData' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getWordlistList' )
 	{
-		getOptionData();
+		getWordlistList();
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWord' )
 	{
-		addWord(
-				 $_POST[ 'wordName' ],
-				 $_POST[ 'partsOfSpeech' ],
-				 $_POST[ 'wordlistId' ],
-				 $_POST[ 'pronunciation' ],
-				 $_POST[ 'wordMeaning' ],
-				 $_POST[ 'wordExample' ]
-			   );
+		addWord (
+					$_POST[ 'word' ],
+					$_POST[ 'partsOfSpeech' ],
+					$_POST[ 'pronunciation' ],
+					$_POST[ 'wordlistId' ],
+					$_POST[ 'wordMeaning' ],
+					$_POST[ 'wordExample' ]
+				);
 	}
+
+	function getWordlistList()
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$data = [];
+
+		$query = 'SELECT *
+				  FROM wordlist';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			while ( $row = mysqli_fetch_row( $result ) )
+			{
+				$data[ $row[ 0 ] ] = $row[ 1 ];
+			}
+		}
+
+		$responseData[ 'errState' ] = 'OK';
+		$responseData[ 'dataContent' ] = $data;
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $responseData );
+	}
+
+	function addWord( $wordTitle,
+					  $partsOfSpeech,
+					  $pronunciation,
+					  $wordlistId,
+					  $wordMeaning,
+					  $wordExample )
+	{
+		$result = validateSendingData( $wordTitle,
+									   $partsOfSpeech,
+									   $pronunciation,
+									   $wordlistId,
+									   $wordMeaning,
+									   $wordExample );
+
+		if ( $result[ 'errState' ] == 'OK' )
+		{
+			$retCode = checkDuplicateWord( $wordTitle,
+										   $wordlistId,
+										   $wordMeaning );
+
+			/* Word is duplicated (includes word meaning) */
+			if ( $retCode == 2 )
+			{
+				$result[ 'errState' ] = 'NG';
+				$result[ 'errCode' ] = '1008';
+				$result[ 'msg' ] = constant( $result[ 'errCode' ] );
+			}
+			else
+			{
+				if ( $retCode == 0 )
+				{
+					$result = addWordToDb( $wordTitle,
+										   $partsOfSpeech,
+										   $pronunciation,
+										   $wordlistId );
+				}
+
+				if ( $result[ 'errState' ] == 'OK' )
+				{
+					$wordId = getWordId( $wordTitle, $wordlistId );
+
+					$result = addWordMeaningToDb( $wordId, $wordMeaning );
+
+					if ( $result[ 'errState' ] == 'OK' )
+					{
+						$wordMeaningId = getWordMeaningId( $wordId, $wordMeaning );
+
+						$result = addWordExampleToDb( $wordMeaningId, $wordExample );
+
+						if ( $result[ 'errState' ] == 'OK' )
+						{
+							$result[ 'dataContent' ] = reloadWordViewContent();
+							$result[ 'msg' ] = constant( '1051' );
+						}
+					}
+				}
+			}
+		}
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	/* ===================== Word helper functions - START ===================== */
+
+	function validateWord( $word )
+	{
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if ( $word == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1001';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function validatePartOfSpeech( $partOfSpeech )
+	{
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if ( $partOfSpeech == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1002';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function validatePronunciation( $pronunciation )
+	{
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if ( $pronunciation == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1003';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function validateWordlistId( $wordlistId )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if ( $wordlistId == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1004';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+		{
+			$query = 'SELECT *
+					  FROM wordlist
+					  WHERE wordlistId = "' . $wordlistId . '"';
+
+			$result = $mysqli->query( $query );
+
+			if ( $result != FALSE &&
+				 $result->num_rows > 0 )
+			{
+				$responseData[ 'errState' ] = 'OK';
+			}
+			else
+			{
+				$responseData[ 'errState' ] = 'NG';
+				$responseData[ 'errCode' ] = '1005';
+				$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+			}
+		}
+
+		return $responseData;
+	}
+
+	function validateMeaning( $meaning )
+	{
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if ( $meaning == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1006';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function validateExample( $example )
+	{
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		if ( $example == '' )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1007';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function validateSendingData( $wordTitle,
+								  $partsOfSpeech,
+								  $pronunciation,
+								  $wordlistId,
+								  $wordMeaning,
+								  $wordExample )
+	{
+		$result = validateWord( $wordTitle );
+
+		if ( $result[ 'errState' ] == 'OK' )
+		{
+			$result = validatePartOfSpeech( $partsOfSpeech );
+
+			if ( $result[ 'errState' ] == 'OK' )
+			{
+				$result = validatePronunciation( $pronunciation );
+
+				if ( $result[ 'errState' ] == 'OK' )
+				{
+					$result = validateWordlistId( $wordlistId );
+
+					if ( $result[ 'errState' ] == 'OK' )
+					{
+						$result = validateMeaning( $wordMeaning );
+
+						if ( $result[ 'errState' ] == 'OK' )
+						{
+							$result = validateExample( $wordExample );
+						}
+					}
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	function checkDuplicateWord( $wordTitle,
+								 $wordlistId,
+								 $wordMeaning )
+	{
+		global $mysqli;
+
+		$query = 'SELECT w.wordId
+				  FROM word w
+				  INNER JOIN wordlist wl
+				  ON w.wordlistId = wl.wordlistId
+				  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			$query = 'SELECT *
+					  FROM wordmeaning wm
+					  INNER JOIN word w
+					  ON w.wordId = wm.wordId
+					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
+
+			$result = $mysqli->query( $query );
+
+			if ( $result != FALSE &&
+				 $result->num_rows > 0 )
+			{
+				return 2;
+			}
+			else
+				return 1;
+		}
+
+		return 0;
+	}
+
+	function getWordId( $wordTitle, $wordlistId )
+	{
+		global $mysqli;
+
+		$query = 'SELECT w.wordId
+				  FROM word w
+				  INNER JOIN wordlist wl
+				  ON w.wordlistId = wl.wordlistId
+				  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			return $result->fetch_object()->wordId;
+		}
+
+		return '';
+	}
+
+	function getWordMeaningId( $wordId, $meaning )
+	{
+		global $mysqli;
+
+		$query = 'SELECT wm.wordMeaningId
+				  FROM wordmeaning wm
+				  INNER JOIN word w
+				  ON wm.wordId = w.wordId
+				  WHERE w.wordId = "' . $wordId . '" AND wm.meaning = "' . $meaning . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			return $result->fetch_object()->wordMeaningId;
+		}
+
+		return '';
+	}
+
+	function addWordToDb( $wordTitle,
+						  $partOfSpeech,
+						  $pronunciation,
+						  $wordlistId )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'INSERT INTO word( word, partOfSpeech, pronunciation, wordlistId )
+				  VALUES ( "' . $wordTitle . '",' .
+				  		 ' "' . $partOfSpeech . '",' .
+				  		 ' "' . $pronunciation . '",' .
+				  		 ' "' . $wordlistId . '")';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1009';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function addWordMeaningToDb( $wordId, $meaning )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'INSERT INTO wordMeaning( meaning, wordId )
+				  VALUES ( "' . $meaning . '",' .
+				         ' "' . $wordId . '")';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1010';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function addWordExampleToDb( $wordMeaningId, $wordExample )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 	=> '',
+							   'errCode' 	=> '',
+						  	   'msg' 		=> '',
+							   'data' 		=> ''
+							 );
+
+		$query = 'INSERT INTO wordexample( example, wordMeaningId )
+				  VALUES ( "' . $wordExample . '",' .
+				         ' "' . $wordMeaningId . '")';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1011';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function reloadWordViewContent()
+	{
+		ob_start();
+		require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/word/wordView.php';
+		$html = ob_get_contents();
+		ob_end_clean();
+
+		return $html;
+	}
+
+	/* ===================== Word helper functions - START ===================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'delSelectedWords' )
 	{
@@ -32,129 +515,6 @@
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateSelectedWords' )
 	{
 		updateSelectedWords( $_POST[ 'modifiedControlsList' ] );
-	}
-
-	function addWord( $wordTitle,
-					  $partsOfSpeech,
-					  $wordlistId,
-					  $pronunciation,
-					  $wordMeaning,
-					  $wordExample )
-	{
-		global $mysqli;
-
-		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
-							 );
-
-		$result = FALSE;
-
-		/* Check for adding duplicated word */
-		if( checkDuplicateWord( $wordTitle,
-								$wordlistId,
-								$wordMeaning ) )
-		{
-			$responseData[ 'errState' ] = 'NG';
-			$responseData[ 'errCode' ] = '1001';
-			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
-		}
-		else
-		{
-			/* Add new word */
-			$query = 'INSERT INTO word( word, partOfSpeech, pronunciation, wordlistId )
-					  VALUES ( "' . $wordTitle . '",' .
-					  		 ' "' . $partsOfSpeech . '",' .
-					  		 ' "' . $pronunciation . '",' .
-					  		 ' "' . $wordlistId . '")';
-
-			if( !execQuery( $query ) )
-			{
-				$responseData[ 'errState' ] = 'NG';
-				$responseData[ 'errCode' ] = '1002';
-				$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
-			}
-			else
-			{
-				/* Get word Id of new added word for adding meaning of word */
-				$query = 'SELECT w.wordId
-						  FROM word w
-						  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
-
-				if( !( $result = execQuery( $query ) ) ||
-				    ( $result && $result->num_rows <= 0 ) )
-				{
-					$responseData[ 'errState' ] = 'NG';
-					$responseData[ 'errCode' ] = '1003';
-					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
-				}
-				else
-				{
-					$wordId = $result->fetch_object()->wordId;
-
-					/* Add meaning of new word */
-					$query = 'INSERT INTO wordMeaning( meaning, wordId )
-							  VALUES ( "' . $wordMeaning . '",' .
-							         ' "' . $wordId . '")';
-
-					if( !execQuery( $query ) )
-					{
-						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1004';
-						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
-					}
-					else
-					{
-						/* Get word meaning Id of new added word meaning for adding example of added word meaning */
-						$query = 'SELECT wm.wordMeaningId
-								  FROM wordmeaning wm
-								  INNER JOIN word w
-								  ON wm.wordId = w.wordId
-								  WHERE w.wordId = "' . $wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
-
-						if( !( $result = execQuery( $query ) ) ||
-						    ( $result && $result->num_rows <= 0 ) )
-						{
-							$responseData[ 'errState' ] = 'NG';
-							$responseData[ 'errCode' ] = '1005';
-							$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
-						}
-						else
-						{
-							$wordMeaningId = $result->fetch_object()->wordMeaningId;
-							
-							/* Add example of new added word meaning */
-							$query = 'INSERT INTO wordexample( example, wordMeaningId )
-									  VALUES ( "' . $wordExample . '",' .
-									         ' "' . $wordMeaningId . '")';
-
-							if( !execQuery( $query ) )
-							{
-								$responseData[ 'errState' ] = 'NG';
-								$responseData[ 'errCode' ] = '1006';
-								$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
-							}
-							else
-							{
-								ob_start();
-								require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/word/wordView.php';
-								$html = ob_get_contents();
-								ob_end_clean();
-
-								$responseData[ 'errState' ] = 'OK';
-								$responseData[ 'htmlContent' ] = $html;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		$data = $responseData;
-		header( 'Content-Type: application/json' );
-		echo json_encode( $data );
 	}
 
 	function delSelectedWords()
@@ -179,7 +539,7 @@
 
 				$query = 'DELETE FROM wordMeaning WHERE wordId="' . $wordId . '" AND meaning="' . $word->meaning . '";';
 
-				if( !execQuery( $query, "Delete selected words meaning failed!" ) )
+				if ( !execQuery( $query, "Delete selected words meaning failed!" ) )
 					return;
 
 				$query = 'SELECT w.wordId
@@ -194,7 +554,7 @@
 				{
 					$query = 'DELETE FROM word WHERE wordId="' . $wordId . '";';
 
-					if( !execQuery( $query, "Delete selected words failed!" ) )
+					if ( !execQuery( $query, "Delete selected words failed!" ) )
 						return;
 				}
 			}
@@ -203,7 +563,7 @@
 				$data = array("errState" => "NG", 
 							  "errCode" => "00002", 
 							  "msg" => "Delete selected words failed!", 
-							  "htmlContent" => ""
+							  "dataContent" => ""
 							 );
 				header("Content-Type: application/json");
 				echo json_encode($data);
@@ -215,7 +575,7 @@
 		$data = array("errState" => "OK", 
 					  "errCode" => "FFFF", 
 				  	  "msg" => "", 
-					  "htmlContent" => ""
+					  "dataContent" => ""
 					 );
 		header("Content-Type: application/json");
 		echo json_encode($data);
@@ -245,10 +605,10 @@
                 case 'word':
                 	$modifiedNewWordVal = $ctrl->newVal;
 
-                    if( !updateWordField( $ctrl->orgVal, $ctrl->newVal ) )
+                    if ( !updateWordField( $ctrl->orgVal, $ctrl->newVal ) )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1010';
+						$responseData[ 'errCode' ] = '10100';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -259,15 +619,15 @@
                 case 'pronunciation':
                 	$result = false;
 
-                	if( $modifiedNewWordVal != '' )
+                	if ( $modifiedNewWordVal != '' )
                     	$result = updatePronunciationField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
                     else
                     	$result = updatePronunciationField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
-                    if( !$result )
+                    if ( !$result )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1011';
+						$responseData[ 'errCode' ] = '10110';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -278,15 +638,15 @@
                 case 'wordlist':
                 	$result = false;
 
-                	if( $modifiedNewWordVal != '' )
+                	if ( $modifiedNewWordVal != '' )
                     	$result = updateWordlistField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
                     else
                     	$result = updateWordlistField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
-                    if( !$result )
+                    if ( !$result )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1012';
+						$responseData[ 'errCode' ] = '10120';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -297,15 +657,15 @@
                 case 'meaning':
                     $result = false;                    
 
-                	if( $modifiedNewWordVal != '' )
+                	if ( $modifiedNewWordVal != '' )
                     	$result = updateMeaningField( $modifiedNewWordVal, $ctrl->orgVal, $ctrl->newVal );
                     else
                     	$result = updateMeaningField( $ctrl->word, $ctrl->orgVal, $ctrl->newVal );
 
-                    if( !$result )
+                    if ( !$result )
                     {
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1013';
+						$responseData[ 'errCode' ] = '10130';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
                     }
                     else
@@ -319,7 +679,7 @@
                     $result = false;
                     $wordVal = '';
 
-                	if( $modifiedNewWordVal != '' )
+                	if ( $modifiedNewWordVal != '' )
                 		$wordVal = $modifiedNewWordVal;
                 	else
                 		$wordVal = $ctrl->word;
@@ -329,7 +689,7 @@
                 		$result = updateExampleField( $wordVal, $ex->meaning, $ex->orgVal, $ex->newVal );
                 	}                    
                 	
-                    if( $result[ 'errState' ] == 'NG' )
+                    if ( $result[ 'errState' ] == 'NG' )
                     {
 						$responseData[ 'errState' ] = $result[ 'errState' ];
 						$responseData[ 'errCode' ] = $result[ 'errCode' ];
@@ -345,7 +705,7 @@
 			}
 		}
 
-		if( $inListFlag == false )
+		if ( $inListFlag == false )
 		{
 			$data = $responseData;
 			header("Content-Type: application/json");
@@ -363,7 +723,7 @@
 
 		foreach( $modifiedCtrlsList as $modifiedCtrls )
 		{
-			if( !updateWord( json_encode( $modifiedCtrls ), true ) )
+			if ( !updateWord( json_encode( $modifiedCtrls ), true ) )
 				return;
 		}
 
@@ -375,7 +735,7 @@
 		$data = array("errState" => "OK", 
 					  "errCode" => "FFFF", 
 					  "msg" => "Updated selected words successfully: ", 
-					  "htmlContent" => $html
+					  "dataContent" => $html
 					 );
 		header("Content-Type: application/json");
 		echo json_encode($data);
@@ -398,7 +758,7 @@
 			$data = array("errState" => "NG", 
 						  "errCode" => "00002", 
 						  "msg" => "Update word field failed!", 
-						  "htmlContent" => ""
+						  "dataContent" => ""
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
@@ -424,7 +784,7 @@
 			$data = array("errState" => "NG", 
 						  "errCode" => "00002", 
 						  "msg" => "Update pronunciation field failed!", 
-						  "htmlContent" => ""
+						  "dataContent" => ""
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
@@ -460,7 +820,7 @@
 				$data = array("errState" => "NG", 
 							  "errCode" => "00002", 
 							  "msg" => "Update wordlist field failed!", 
-							  "htmlContent" => ""
+							  "dataContent" => ""
 							 );
 				header("Content-Type: application/json");
 				echo json_encode($data);
@@ -473,7 +833,7 @@
 			$data = array("errState" => "NG", 
 						  "errCode" => "00002", 
 						  "msg" => "Failed for searching wordlist!", 
-						  "htmlContent" => ""
+						  "dataContent" => ""
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
@@ -509,7 +869,7 @@
 				$data = array("errState" => "NG", 
 							  "errCode" => "00002", 
 							  "msg" => "Update word meaning failed!", 
-							  "htmlContent" => ""
+							  "dataContent" => ""
 							 );
 				header("Content-Type: application/json");
 				echo json_encode($data);
@@ -522,7 +882,7 @@
 			$data = array("errState" => "NG", 
 						  "errCode" => "00002", 
 						  "msg" => "Failed for searching word!", 
-						  "htmlContent" => ""
+						  "dataContent" => ""
 						 );
 			header("Content-Type: application/json");
 			echo json_encode($data);
@@ -566,7 +926,7 @@
 			{				
 				$wordExampleId = $result->fetch_object()->wordExampleId;
 
-				if( $newVal != '' )
+				if ( $newVal != '' )
 				{
 					$query = 'UPDATE wordexample as we
 							  SET we.example = "' . $newVal . '" ' .
@@ -585,7 +945,7 @@
 				else
 				{
 					$responseData[ 'errState' ] = 'NG';
-					$responseData[ 'errCode' ] = '1008';
+					$responseData[ 'errCode' ] = '10080';
 					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 				}
 			}
@@ -601,7 +961,7 @@
 				else
 				{
 					$responseData[ 'errState' ] = 'NG';
-					$responseData[ 'errCode' ] = '1009';
+					$responseData[ 'errCode' ] = '10090';
 					$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 				}
 			}
@@ -609,70 +969,11 @@
 		else
 		{
 			$responseData[ 'errState' ] = 'NG';
-			$responseData[ 'errCode' ] = '1007';
+			$responseData[ 'errCode' ] = '10070';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 
 		return $responseData;
-	}
-
-	function getOptionData()
-	{
-		global $mysqli;
-		$data = []; 
-
-		$query = 'SELECT * FROM wordlist';
-
-		$result = $mysqli->query( $query );
-
-		if ( $result )
-		{
-			while ( $row = mysqli_fetch_row( $result ) )
-			{
-				$data[ $row[0] ] = $row[1];
-			}
-		}
-
-		$data = array("errState" => "OK", 
-					  "errCode" => "FFFF", 
-				  	  "msg" => "", 
-					  "data" => $data
-					 );
-		header("Content-Type: application/json");
-		echo json_encode($data);
-
-		return;
-	}
-
-	function checkDuplicateWord( $wordTitle, 
-								 $wordlistId, 
-								 $wordMeaning )
-	{
-		global $mysqli;
-
-		$query = 'SELECT w.wordId
-				  FROM word w
-				  INNER JOIN wordlist wl
-				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
-
-		$result = $mysqli->query( $query );
-
-		if ( $result->num_rows > 0 ) 
-		{
-			$query = 'SELECT *
-					  FROM wordmeaning wm
-					  INNER JOIN word w
-					  ON w.wordId = wm.wordId
-					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
-
-			$result = $mysqli->query( $query );
-
-			if ( $result->num_rows > 0 ) 
-				return true;
-		}
-
-		return false;
 	}
 
 	function execQuery( $query )
@@ -681,11 +982,14 @@
 
 		$result = $mysqli->query( $query );
 
-		if( !$result )
+		if ( !$result )
 			return 0;
 		else
 			return $result;
 	}
+
+
+
 
 	function deleteExamplesBelongsToWordMeaningId( $wordMeaningId )
 	{
@@ -706,7 +1010,7 @@
 		if ( $result == FALSE )
 		{
 			$responseData[ 'errState' ] = 'NG';
-			$responseData[ 'errCode' ] = '1015';
+			$responseData[ 'errCode' ] = '10150';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 		else
@@ -739,7 +1043,7 @@
 			{
 				$responseData = deleteExamplesBelongsToWordMeaningId( $wordMeaningId[0] );
 
-				if( $responseData[ 'errState' ] == 'OK' )
+				if ( $responseData[ 'errState' ] == 'OK' )
 				{
 					$query = 'DELETE FROM wordmeaning
 							  WHERE wordId = "' . $wordId . '"';
@@ -749,7 +1053,7 @@
 					if ( $result == FALSE )
 					{
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1016';
+						$responseData[ 'errCode' ] = '10160';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 					}
 					else
@@ -789,7 +1093,7 @@
 			{
 				$responseData = deleteWordMeaningsBelongsToWordId( $row[0] );
 
-				if( $responseData[ 'errState' ] == 'OK' )
+				if ( $responseData[ 'errState' ] == 'OK' )
 				{
 					$query = 'DELETE FROM word
 							  WHERE wordId = "' . $row[0] . '"';
@@ -799,7 +1103,7 @@
 					if ( $result == FALSE )
 					{
 						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1014';
+						$responseData[ 'errCode' ] = '10140';
 						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 					}
 					else

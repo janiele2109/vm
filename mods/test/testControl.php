@@ -73,7 +73,7 @@
 
 			mysqli_free_result( $result );
 		}
-		else if( $result == FALSE )
+		else if ( $result == FALSE )
 		{
 			$responseData[ 'errState' ] = 'NG';
 			$responseData[ 'errCode' ] = '2001';

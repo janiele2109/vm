@@ -3,11 +3,10 @@
 
 	function checkActive( $menuItem ) {
 
-		if( $menuItem == constant( 'menuItemTest' ) )
-			if( ( !isset( $_POST[ 'menuItem' ] ) || $_POST[ 'menuItem' ] == constant( 'menuItemTest' ) ) )
-				echo 'class="active"';
+		if ( !isset( $_POST[ 'menuItem' ] ) && $menuItem == constant( 'menuItemTest' ) )
+			echo 'class="active"';
 
-		else if( isset( $_POST[ 'menuItem' ] ) && $_POST[ 'menuItem' ] == $menuItem )
-				echo 'class="active"';
+		else if ( isset( $_POST[ 'menuItem' ] ) && $_POST[ 'menuItem' ] == $menuItem )
+			echo 'class="active"';
 	}
 ?>

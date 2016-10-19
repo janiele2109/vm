@@ -12,7 +12,7 @@
 			<span id='wordClassSpan' class='wordClassSpan'></span>:
 			<span id='meaningSpan' data-wordId='' data-word='' data-partOfSpeech='' data-wordlistName='' data-pronunciation=''></span>
 		</div>
-		<input id="inputWord" type="text" autocomplete="off" size="50" maxlength="50" class='inputWord'></input><br/>
+		<input id="inputWord" type="text" autocomplete="off" size="50" maxlength="50" class='inputWord'/><br/>
 		<span id='pronunciationSpan' class='pronunciationSpan'></span><br/>		
 		<button type="submit" id="checkWordBtn">Check</button>
 		<button id="showWordBtn">Show word</button>

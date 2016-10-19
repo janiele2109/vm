@@ -21,7 +21,7 @@ $(document).ready(function() {
 
         $( '#exampleDiv' ).find('p.exampleP').remove();
 
-        for(var i = 0; i < testData[ index ][ 'examples' ].length; i++ )
+        for (var i = 0; i < testData[ index ][ 'examples' ].length; i++ )
         {
             var pTag = document.createElement('P');
             $(pTag).html( testData[ index ][ 'examples' ][ i ] );
@@ -35,18 +35,18 @@ $(document).ready(function() {
     }
 
     function eleAppearControl(behavior, controlId=null) {
-        if(controlId != null)
+        if (controlId != null)
             $('#' + controlId).css('visibility', behavior);
         else
         {
-            if(behavior == 'visible')
+            if (behavior == 'visible')
             {
                 $("#resultSpan").css('visibility', behavior);
                 
-                if( $('#displayPron').prop('checked') )
+                if ( $('#displayPron').prop('checked') )
                     $("#pronunciationSpan").css('visibility', behavior);
 
-                if( $('#displayExample').prop('checked') )
+                if ( $('#displayExample').prop('checked') )
                     $("#exampleDiv").css('visibility', behavior);
             }
             else
@@ -72,7 +72,7 @@ $(document).ready(function() {
             cache: false,
             success: 
                 function(response,status){
-                    if( status != "success" || response['errState'] != "OK")
+                    if ( status != "success" || response['errState'] != "OK")
                     {
                         $('#msg').css('display', 'inline').html("Error getting test data");
                     }
@@ -86,11 +86,11 @@ $(document).ready(function() {
                             unCheckDataArr[cnt] = cnt++;
                         });
 
-                        if( Object.keys(testData).length > 0 )
+                        if ( Object.keys(testData).length > 0 )
                         {
                             $("#testBtn").css('display', 'none');
 
-                            if( Object.keys(testData).length == 1 )
+                            if ( Object.keys(testData).length == 1 )
                             {
                                 $("#retestBtn").css('display', 'inline');
                                 $("#nextWordBtn").css('display', 'none');
@@ -124,7 +124,7 @@ $(document).ready(function() {
 
         eleAppearControl('visible', 'resultSpan');
 
-        if( $('#inputWord').prop('value') == '' )
+        if ( $('#inputWord').prop('value') == '' )
         {
             $('#resultSpan').html( 'No word is input!' );
             $("#resultSpan").css('color','red');
@@ -134,16 +134,16 @@ $(document).ready(function() {
             return;
         }
 
-        if( $('#inputWord').prop('value') == $('#meaningSpan').attr('data-word') )
+        if ( $('#inputWord').prop('value') == $('#meaningSpan').attr('data-word') )
         {   
             eleAppearControl('visible');
         
             $('#resultSpan').html('Correct!');
             $("#resultSpan").css('color','green');
 
-            if( $("#nextWordBtn").css('display') != 'none' )
+            if ( $("#nextWordBtn").css('display') != 'none' )
                 $("#nextWordBtn").focus();
-            else if( $("#retestBtn").css('display') != 'none' )
+            else if ( $("#retestBtn").css('display') != 'none' )
                 $("#retestBtn").focus();
         }
         else
@@ -163,9 +163,9 @@ $(document).ready(function() {
         $('#resultSpan').html($('#meaningSpan').attr('data-word'));
         $("#resultSpan").css('color','blue');
     
-        if( $("#nextWordBtn").css('display') != 'none' )
+        if ( $("#nextWordBtn").css('display') != 'none' )
             $("#nextWordBtn").focus();
-        else if( $("#retestBtn").css('display') != 'none' )
+        else if ( $("#retestBtn").css('display') != 'none' )
             $("#retestBtn").focus();
 
         $("#checkWordBtn").attr('disabled', true);
@@ -183,7 +183,7 @@ $(document).ready(function() {
 
         genNewWord();
 
-        if( unCheckDataArr.length == 0 )
+        if ( unCheckDataArr.length == 0 )
         {
             $("#retestBtn").css('display', 'inline');
             $("#nextWordBtn").css('display', 'none');
@@ -197,7 +197,7 @@ $(document).ready(function() {
 
         $("#checkWordBtn").attr('disabled', false);
 
-        if( Object.keys(testData).length == 1 )
+        if ( Object.keys(testData).length == 1 )
         {
             $("#retestBtn").css('display', 'inline');
             $("#nextWordBtn").css('display', 'none');
@@ -221,7 +221,7 @@ $(document).ready(function() {
     });
 
     $("#displayPron").click(function(event) {
-        if( $(this).prop('checked') && 
+        if ( $(this).prop('checked') && 
             $("#resultSpan").css('visibility') == 'visible' &&
             $("#resultSpan").css('color') != 'rgb(255, 0, 0)' )
         {
@@ -234,7 +234,7 @@ $(document).ready(function() {
     });
 
     $("#displayExample").click(function(event) {
-        if( $(this).prop('checked') && 
+        if ( $(this).prop('checked') && 
             $("#resultSpan").css('visibility') == 'visible' &&
             $("#resultSpan").css('color') != 'rgb(255, 0, 0)' )
         {
@@ -247,25 +247,28 @@ $(document).ready(function() {
     });
 
     $("#test").click(function(event) {
-        event.preventDefault(); // not show hashtag in url
-        history.pushState("", document.title, "/test");
+        event.preventDefault();
 
-        $.post("/mods/test/test.php",
-        {
-            menuItem: "test",
-            userName: $("#userName").text()
-        },
+        history.pushState( '', document.title, '/test' );
 
-        function(response,status){
-            if( status != "success" )
-            {
-                alert("Request failed!");
-            }
-            else
-            {
-                document.write(response);
-                document.close();
-            }
-        });
+        var sendingData = {
+            menuItem: 'test',
+            userName: $( '#userName' ).text()
+        }
+
+        $.ajax( {
+            url: '/mods/test/test.php',
+            type: 'post',
+            error:
+                function( xhr, status, error ) {
+                    $( this ).errRequestServerData( xhr, status, error );
+                },
+            success:
+                function( response, status ) {
+                    document.write( response );
+                    document.close();
+                },
+            data: sendingData
+        } );
     });
 });

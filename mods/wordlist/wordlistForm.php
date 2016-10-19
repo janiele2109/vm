@@ -7,7 +7,7 @@
 	<button id = 'updateSelectedWordListsBtn'>Update selected wordlists</button>
 </div>
 
-<div id='msgDiv' class='displayMsg'>&nbsp;</div>
+<div id = 'msgDiv' class = 'displayMsg'>&nbsp;</div>
 
 <table id = 'wordlistViewTbl'>
 	<tr>
@@ -17,6 +17,6 @@
 	</tr>
 
 	<?php
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php'; 
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/wordlistView.php';
 	?>
 </table>
