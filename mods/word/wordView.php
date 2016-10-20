@@ -33,7 +33,7 @@
 					  FROM wordexample we
 					  INNER JOIN wordmeaning wm
 					  ON we.wordMeaningId = wm.wordMeaningId
-					  WHERE wm.meaning = "' . $row[ 4 ] . '"
+					  WHERE wm.wordMeaningId = "' . $row[ 5 ] . '"
 					  ORDER BY we.example';
 
 			if ( $wordExamples = $mysqli->query( $query ) )

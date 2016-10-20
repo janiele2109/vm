@@ -65,6 +65,10 @@ $(document).ready(function() {
             type: 'post',
             dataType: 'json',
             cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).errRequestServerData( xhr, status, error );
+                },
             success: 
                 function(response,status){
                     if ( status != "success" || response['errState'] != "OK")
@@ -74,31 +78,17 @@ $(document).ready(function() {
                     }
                     else
                     {
-                        document.getElementById("addNewWordTextBox").setSelectionRange(0, $("#addNewWordTextBox").val().length);
-                        $(".dynRowWord").remove();
-                        
-                        $("#msgDiv").removeClass("Err");
-                        $("#msgDiv").html(response['msg']);
-                        $("#wordViewTbl").children().append(response['dataContent']);
-                        $("#selectAllChkbox").prop('checked', false);
-                        $("#addNewWordTextBox").focus();  
+                        /* In case response from server is successful */
+                        if ( $( this ).checkServerResponse( response, status ) )
+                        {
+                            $( this ).resetControlInfo( response[ 'msg' ] );
 
-                        $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
-                        $(".exampleEntry").bind('mouseenter', function() {
-                                                                            if ( $('textarea.exampleEntry').length == 0 )
-                                                                            {
-                                                                                $(this).createExampleControlsDiv();
-                                                                                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-                                                                                $(this).addClass('transEffectHover');
-                                                                            }
-                                                                         } );
-                        $(".updateWordBtn").bind('click', 
-                                                  function (event) { 
-                                                                        var rowEle = $(this).parent().parent();
-                                                                        var modifiedControls = rowEle.find('span.modified');
+                            $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
 
-                                                                        $(this).updateWord( event, modifiedControls );
-                                                                    } );
+                            $( this ).addNewWordTextBoxFocus();
+
+                            $( this ).bindEventsToControls();
+                        }
                     }
                 },
             data: sendingData
@@ -141,7 +131,7 @@ $(document).ready(function() {
         });
 
         var sendingData = {
-            'wordArr': JSON.stringify(selectedWord),
+            'selectedWordArr': JSON.stringify(selectedWord),
             requestType: "delSelectedWords"
         }
 
@@ -174,87 +164,73 @@ $(document).ready(function() {
         });
     });
 
-    $('.updateWordBtn').on( 'click', function( event ) {
-        var rowEle = $(this).parent().parent();
-        var modifiedControls = rowEle.find('.modified');
+    $( '.updateWordBtn' ).on( 'click', function( event ) {
+        var rowEle = $( this ).parent().parent();
 
-        $(this).updateWord( event, modifiedControls );
+        $( this ).updateWord( event, rowEle );
     });
 
-    $.fn.updateWord = function(event, modifiedControls)
-    {
+    $.fn.updateWord = function( event, rowEle ) {
         event.preventDefault();
 
-        var rowEle = $(this).parent().parent();
-        var modifiedEle = [];
+        var modifiedRow = [];
+        var exampleList = [];
+        var data = {};
 
-        $.each( modifiedControls, function() { 
-            var exampleList = [];
-            var data = {};
-            var dataSourceName = '';
+        $.each( rowEle.find( 'span[data-controltranstype]' ), function() {
+            var classString = $( this ).attr( 'class' );
+            var ctrlType = '';
+            var valObj = {};
 
-            var classString = $(this).attr('class');
-            var orgVal = '';
-            var newVal = '';
-            var controlType = '';
-
-            if ( classString.indexOf('word') != -1 )
+            if ( classString.search( /\bword\b/ ) != -1 )
             {
-                dataSourceName = "data-sourceword";
-                controlType = 'word';
+                ctrlType = 'word';
+                valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
             }
 
-            else if ( classString.indexOf('pronunciation') != -1 )
+            else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
             {
-                dataSourceName = "data-sourcepron";
-                controlType = 'pronunciation';
+                ctrlType = 'partOfSpeech';
+                valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepos' );
             }
 
-            else if ( classString.indexOf('wordlist') != -1 )
+            else if ( classString.search( /\bpronunciation\b/ ) != -1 )
             {
-                dataSourceName = "data-sourcewordlistname";
-                controlType = 'wordlist';
+                ctrlType = 'pronunciation';
+                valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
             }
 
-            else if ( classString.indexOf('meaning') != -1 )
+            else if ( classString.search( /\bwordlist\b/ ) != -1 )
             {
-                dataSourceName = "data-sourcemeaning";
-                controlType = 'meaning';
+                ctrlType = 'wordlist';
+                valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcewordlistname' );
             }
 
-            else if ( classString.indexOf('exampleEntry') != -1 )
+            else if ( classString.search( /\bmeaning\b/ ) != -1 )
             {
-                dataSourceName = "data-sourceexample";
-                controlType = 'example';
+                ctrlType = 'meaning';
+                valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
             }
 
-            if ( controlType != 'example' )
-            {
-                orgVal = $(this).attr(dataSourceName);
-                newVal = $(this).text();
-            }
-            else
-            {
-                var ex = {};
+            valObj[ 'newVal' ] = $( this ).text();
+            data[ ctrlType ] = valObj;
+        } );
 
-                ex['meaning'] = $(this).parent().parent().find('span.meaning').first().text();
-                ex['orgVal'] = $(this).attr(dataSourceName);
-                ex['newVal'] = $(this).text();
+        $.each( rowEle.find( 'div.exampleEntry' ), function() {
+            var ex = {};
 
-                exampleList.push(ex);
-            }        
+            ex[ 'orgVal' ] = $( this ).attr( 'data-sourceexample' );
+            ex[ 'newVal' ] = $( this ).text();
 
-            data[ "word" ] = rowEle.find('span.word').attr('data-sourceword');
-            data[ "controlType" ] = controlType;
-            data[ "orgVal" ] = orgVal;
-            data[ "newVal" ] = newVal;
-            data[ "exampleList"] = exampleList;
+            exampleList.push( ex );
+        } );
 
-            modifiedEle.push( data );
-        });
+        data[ 'exampleList' ] = exampleList;
+
+        modifiedRow.push( data );
 
         var sendingData = {
-            'modifiedControls': JSON.stringify( modifiedEle ),
+            'modifiedRow': JSON.stringify( modifiedRow ),
             requestType: "updateWord"
         }
 
@@ -263,188 +239,127 @@ $(document).ready(function() {
             type: 'post',
             dataType: 'json',
             cache: false,
-            success: 
+            error:
+                function( xhr, status, error ) {
+                    $( this ).errRequestServerData( xhr, status, error );
+                },
+            success:
                 function(response,status){
-                    if ( status != "success" || response['errState'] != "OK")
+                    /* In case response from server is successful */
+                    if ( $( this ).checkServerResponse( response, status ) )
                     {
-                        $("#msgDiv").html(response['msg']);
-                        $("#msgDiv").addClass("err");
-                    }
-                    else
-                    {
-                        $("#msgDiv").removeClass("Err");
-                        $("#msgDiv").html(response['msg']);
-                        $("#selectAllChkbox").prop('checked', false);
-                        $("#addNewWordTextBox").focus();  
+                        $( this ).resetControlInfo( response[ 'msg' ] );
 
-                        $.each( modifiedControls, function() { 
-                            dataSourceName = '';
+                        $( this ).updateModifiedWordRow( rowEle );
 
-                            classString = $(this).attr('class');
-                            controlType = '';
-                            newVal = $(this).text();
+                        $( this ).resetCheckboxOfRow( rowEle );
 
-                            if ( classString.indexOf('word') != -1 )
-                            {
-                                dataSourceName = "data-sourceword";
-                                controlType = 'word';
-                            }
-
-                            else if ( classString.indexOf('pronunciation') != -1 )
-                            {
-                                dataSourceName = "data-sourcepron";
-                                controlType = 'pronunciation';
-                            }
-
-                            else if ( classString.indexOf('wordlist') != -1 )
-                            {
-                                dataSourceName = "data-sourcewordlistname";
-                                controlType = 'wordlist';
-                            }
-
-                            else if ( classString.indexOf('meaning') != -1 )
-                            {
-                                dataSourceName = "data-sourcemeaning";
-                                controlType = 'meaning';
-                            }
-
-                            else if ( classString.indexOf('exampleEntry') != -1 )
-                            {
-                                dataSourceName = "data-sourceexample";
-                                controlType = 'example';
-                            }
-
-                            $(this).attr(dataSourceName, newVal);
-                            $(this).css('color', 'black');
-                            $(this).removeClass('modified');
-
-                            var chkboxEle = rowEle.find('input[type="checkbox"]');
-                            chkboxEle.first().prop('checked', false);
-                        });
+                        $( this ).addNewWordlistTextBoxFocus();
                     }
                 },
             data: sendingData
         });
-    };
+    }
 
     $("#updateSelectedWordsBtn").click(function(event) {
         event.preventDefault();
-        var modifiedEleList = [];
 
-        $("input[name='word[]']:checked").each(function() {
-            var rowEle = $(this).parent().parent();
-            var modifiedEle = [];
+        var modifiedWordRowList = new Array();
 
-            var modifiedControls = rowEle.find('.modified');
+        $.each( $( 'input[name="word[]"]:checked' ), function() {
+            var rowEle = $( this ).parent().parent();
 
-            $.each( modifiedControls, function() { 
-                var exampleList = [];
-                var data = {};
-                var dataSourceName = '';
+            var modifiedRow = [];
+            var exampleList = [];
+            var data = {};
 
-                var classString = $(this).attr('class');
-                var orgVal = '';
-                var newVal = '';
-                var controlType = '';
+            $.each( rowEle.find( 'span[data-controltranstype]' ), function() {
+                var classString = $( this ).attr( 'class' );
+                var ctrlType = '';
+                var valObj = {};
 
-                if ( classString.indexOf('word') != -1 )
+                if ( classString.search( /\bword\b/ ) != -1 )
                 {
-                    dataSourceName = "data-sourceword";
-                    controlType = 'word';
+                    ctrlType = 'word';
+                    valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
                 }
 
-                else if ( classString.indexOf('pronunciation') != -1 )
+                else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
                 {
-                    dataSourceName = "data-sourcepron";
-                    controlType = 'pronunciation';
+                    ctrlType = 'partOfSpeech';
+                    valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepos' );
                 }
 
-                else if ( classString.indexOf('wordlist') != -1 )
+                else if ( classString.search( /\bpronunciation\b/ ) != -1 )
                 {
-                    dataSourceName = "data-sourcewordlistname";
-                    controlType = 'wordlist';
+                    ctrlType = 'pronunciation';
+                    valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
                 }
 
-                else if ( classString.indexOf('meaning') != -1 )
+                else if ( classString.search( /\bwordlist\b/ ) != -1 )
                 {
-                    dataSourceName = "data-sourcemeaning";
-                    controlType = 'meaning';
+                    ctrlType = 'wordlist';
+                    valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcewordlistname' );
                 }
 
-                else if ( classString.indexOf('exampleEntry') != -1 )
+                else if ( classString.search( /\bmeaning\b/ ) != -1 )
                 {
-                    dataSourceName = "data-sourceexample";
-                    controlType = 'example';
+                    ctrlType = 'meaning';
+                    valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
                 }
 
-                if ( controlType != 'example' )
-                {
-                    orgVal = $(this).attr(dataSourceName);
-                    newVal = $(this).text();
-                }
-                else
-                {
-                    var ex = {};
+                valObj[ 'newVal' ] = $( this ).text();
+                data[ ctrlType ] = valObj;
+            } );
 
-                    ex['meaning'] = $(this).parent().parent().find('span.meaning').first().text();
-                    ex['orgVal'] = $(this).attr(dataSourceName);
-                    ex['newVal'] = $(this).text();
+            $.each( rowEle.find( 'div.exampleEntry' ), function() {
+                var ex = {};
 
-                    exampleList.push(ex);
-                }        
+                ex[ 'orgVal' ] = $( this ).attr( 'data-sourceexample' );
+                ex[ 'newVal' ] = $( this ).text();
 
-                data[ "word" ] = rowEle.find('span.word').attr('data-sourceword');
-                data[ "controlType" ] = controlType;
-                data[ "orgVal" ] = orgVal;
-                data[ "newVal" ] = newVal;
-                data[ "exampleList"] = exampleList;
+                exampleList.push( ex );
+            } );
 
-                modifiedEle.push( data );
+            data[ 'exampleList' ] = exampleList;
+
+            modifiedRow.push( data );
+
+            modifiedWordRowList.push( modifiedRow );
+        } );
+
+        if ( modifiedWordRowList.length > 0 ) {
+            var sendingData = {
+                'modifiedWordRowList': JSON.stringify( modifiedWordRowList ),
+                requestType: "updateSelectedWords"
+            }
+
+            $.ajax({
+                url: '/mods/word/wordControl.php',
+                type: 'post',
+                dataType: 'json',
+                cache: false,
+                error:
+                    function( xhr, status, error ) {
+                        $( this ).errRequestServerData( xhr, status, error );
+                    },
+                success:
+                    function(response,status){
+                        /* In case response from server is successful */
+                        if ( $( this ).checkServerResponse( response, status ) )
+                        {
+                            $( this ).resetControlInfo( response[ 'msg' ] );
+
+                            $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
+
+                            $( this ).addNewWordTextBoxFocus();
+
+                            $( this ).bindEventsToControls();
+                        }
+                    },
+                data: sendingData
             });
-
-            modifiedEleList.push(modifiedEle);
-        });
-
-        var sendingData = {
-            'modifiedControlsList': JSON.stringify( modifiedEleList ),
-            requestType: "updateSelectedWords"
         }
-
-        $.ajax({
-            url: '/mods/word/wordControl.php',
-            type: 'post',
-            dataType: 'json',
-            cache: false,
-            success: 
-                function(response,status){
-                    if ( status != "success" || response['errState'] != "OK")
-                    {
-                        $("#msgDiv").html(response['msg']);
-                        $("#msgDiv").addClass("err");
-                    }
-                    else
-                    {
-                        document.getElementById("addNewWordTextBox").setSelectionRange(0, $("#addNewWordTextBox").val().length);
-                        $(".dynRowWord").remove();
-                        
-                        $("#msgDiv").removeClass("Err");
-                        $("#msgDiv").html(response['msg']);
-                        $("#wordViewTbl").children().append(response['dataContent']);
-                        $("#selectAllChkbox").prop('checked', false);
-                        $("#addNewWordTextBox").focus();  
-
-                        $(".toggleEnabled").bind('mouseenter mouseleave', function (event) { $(this).toggleControl(event); } );
-                        $(".updateWordBtn").bind('click', 
-                                                  function (event) { 
-                                                                        var rowEle = $(this).parent().parent();
-                                                                        var modifiedControls = rowEle.find('.modified');
-
-                                                                        $(this).updateWord( event, modifiedControls );
-                                                                    } );
-                    }
-                },
-            data: sendingData
-        });
     });
 
     $('html').click(function(event){
@@ -584,4 +499,58 @@ $(document).ready(function() {
             data: sendingData
         } );
     });
+
+
+
+
+    $.fn.reloadWordViewTbl = function( dataContent, isRemoveSelectedItems = false ) {
+        /* Remove old rows in wordlist table and update new content */
+        if ( isRemoveSelectedItems )
+        {
+            $( '.dynRowWord' ).filter( function() {
+                return ( $( this ).children().children( 'input[type=checkbox]:checked' ).length != 0 );
+            } ).remove();
+        }
+        else
+        {
+            $( '.dynRowWord' ).remove();
+            $( '#wordViewTbl' ).children().append( dataContent );
+        }
+    }
+
+    $.fn.addNewWordTextBoxFocus = function() {
+        /* Set focus to the add new word text box with whole text is selected */
+        $( '#addNewWordTextBox' ).focus();
+        document.getElementById( 'addNewWordTextBox' ).setSelectionRange( 0, $( '#addNewWordTextBox' ).val().length );
+    }
+
+    $.fn.updateModifiedWordRow = function( rowObj ) {
+        var modifiedControls = rowObj.find( '.modified' );
+
+        $.each( modifiedControls, function() {
+            var classString = $( this ).attr( 'class' );
+
+            if ( classString.search( /\bword\b/ ) != -1 )
+                $( this ).attr( 'data-sourceword', $( this ).text() );
+
+            else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
+                $( this ).attr( 'data-sourcepos', $( this ).text() );
+
+            else if ( classString.search( /\bpronunciation\b/ ) != -1 )
+                $( this ).attr( 'data-sourcepron', $( this ).text() );
+
+            else if ( classString.search( /\bwordlist\b/ ) != -1 )
+                $( this ).attr( 'data-sourcewordlistname', $( this ).text() );
+
+            else if ( classString.search( /\bmeaning\b/ ) != -1 )
+                $( this ).attr( 'data-sourcemeaning', $( this ).text() );
+
+            $( this ).css( 'color', 'black' );
+            $( this ).removeClass( 'modified' );
+        } );
+
+        $.each( rowEle.find( 'div.exampleEntry.modified' ), function() {
+            $( this ).attr( 'data-sourceexample', $( this ).text() );
+        } );
+    }
 });

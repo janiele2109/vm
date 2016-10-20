@@ -51,13 +51,13 @@
 
 	function delSelectedWordListNames( $wordlistNameArr )
 	{
-		foreach( $wordlistNameArr as $wordlistName ) {
-
+		foreach( $wordlistNameArr as $wordlistName )
+		{
 			$result = checkExistedWordlistName( $wordlistName );
 
 			if ( $result[ 'errState' ] == 'OK' )
 			{
-				$result = deleteWordsBelongToWordlistName( $wordlistName );
+				$result = deleteWordsBelongToWordlistNameInDb( $wordlistName );
 
 				if ( $result[ 'errState' ] == 'OK' )
 				{
@@ -170,10 +170,10 @@
 	function validateWordlistName( $wordlistName )
 	{
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
 							 );
 
 		if ( $wordlistName == '' )
@@ -193,10 +193,10 @@
 		global $mysqli;
 
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
 							 );
 
 		$query = 'SELECT wordlistName
@@ -223,10 +223,10 @@
 		global $mysqli;
 
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
 							 );
 
 		$query = 'SELECT wordlistName
@@ -255,10 +255,10 @@
 		global $mysqli;
 
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
 							 );
 
 		$query = 'INSERT INTO wordlist( wordlistName )
@@ -283,10 +283,10 @@
 		global $mysqli;
 
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
 							 );
 
 		$query = 'DELETE FROM wordlist
@@ -311,10 +311,10 @@
 		global $mysqli;
 
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
 							 );
 
 		$query = 'UPDATE wordlist

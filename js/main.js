@@ -77,6 +77,26 @@ $( document ).ready( function() {
 
                                                                     $( this ).updateWordlistName( oldWordlist, newWordlist );
                                                                 } );
+
+        if ( $( '.exampleEntry' ).length > 0 )
+            $( '.exampleEntry' ).bind( 'mouseenter',
+                                        function() {
+                                                      if ( $( 'textarea.exampleEntry' ).length == 0 )
+                                                      {
+                                                          $( this ).createExampleControlsDiv();
+                                                          $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
+                                                          $( this ).addClass( 'transEffectHover' );
+                                                      }
+                                                   } );
+
+        if ( $( '.updateWordBtn' ).length > 0 )
+            $( '.updateWordBtn' ).bind( 'click',
+                                        function ( event ) {
+                                                               var rowEle = $( this ).parent().parent();
+                                                               var modifiedControls = rowEle.find( 'span.modified' );
+
+                                                               $( this ).updateWord( event, modifiedControls );
+                                                           } );
     }
 
     $.fn.err = function( errMsg ) {
@@ -187,7 +207,7 @@ $( document ).ready( function() {
 
             if (attrib.name == 'class')
             {
-                if ( attrib.value.indexOf('wordlist') != -1 )
+                if ( attrib.value.search('wordlist') != -1 )
                     dataSourceName = "data-sourcewordlistname";
 
                 else if ( attrib.value.indexOf('word') != -1 )

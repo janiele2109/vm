@@ -78,7 +78,7 @@ $(document).ready(function() {
                     }
                     else
                     {
-                        testData = response['data'];
+                        testData = response['dataContent'];
 
                         var cnt = 0;
 

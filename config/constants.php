@@ -52,8 +52,19 @@ define( '1008'		, 'Word is duplicated!' );
 define( '1009'		, 'Add new word failed!' );
 define( '1010'		, 'Add new word meaning failed!' );
 define( '1011'		, 'Add new word example failed!' );
-
-
+define( '1012'		, 'Cannot find word belongs to specified wordlist has given meaning!' );
+define( '1013'		, 'Cannot find word belongs to specified wordlist!' );
+define( '1014'		, 'Delete word failed!' );
+define( '1015'		, 'Deleting examples belong to word meaning failed!' );
+define( '1016'		, 'Deleting meanings belong to word meaning failed!' );
+define( '1017'		, 'Deleting words belong to wordlist name failed!' );
+define( '1018'		, 'Deleting word meaning failed!' );
+define( '1019'		, 'Updating word title failed!' );
+define( '1020'		, 'Updating word class failed!' );
+define( '1021'		, 'Updating word pronunciation failed!' );
+define( '1022'		, 'Updating wordlist of word failed!' );
+define( '1023'		, 'Updating word meaning of word failed!' );
+define( '1024'		, 'Updating word example of word meaning failed!' );
 
 
 
@@ -66,13 +77,10 @@ define( '10060'		, 'Adding example of new added word meaning failed!' );
 define( '10070'		, 'Searching for meaning of updated/added example fail!' );
 define( '10080'		, 'Updating example failed!' );
 define( '10090'		, 'Adding example failed!' );
-define( '10100'		, 'Updating word failed!' );
+
 define( '10110'		, 'Updating pronunciation failed!' );
 define( '10120'		, 'Updating wordlist failed!' );
 define( '10130'		, 'Updating meaning failed!' );
-define( '10140'		, 'Deleting words belong to wordlist name failed!' );
-define( '10150'		, 'Deleting examples belong to word meaning failed!' );
-define( '10160'		, 'Deleting meanings belong to word meaning failed!' );
 
 /* =========== For word errors - END =========== */
 
@@ -80,6 +88,9 @@ define( '10160'		, 'Deleting meanings belong to word meaning failed!' );
 /* =========== For word successful code - START =========== */
 
 define( '1051'		, 'Word added successfully!' );
+define( '1052'		, 'Word deleted successfully!' );
+define( '1053'		, 'Word updated successfully!' );
+define( '1054'		, 'Selected word updated successfully!' );
 
 /* =========== For word successful code - END =========== */
 

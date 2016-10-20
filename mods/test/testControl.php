@@ -12,10 +12,10 @@
 		global $mysqli;
 
 		$responseData = array(
-					           'errState' 	=> '',
-							   'errCode' 	=> '',
-						  	   'msg' 		=> '',
-							   'data' 		=> ''
+					           'errState' 	 => '',
+							   'errCode' 	 => '',
+						  	   'msg' 		 => '',
+							   'dataContent' => ''
 							 );
 
 		$wordsList = [];
@@ -69,7 +69,7 @@
 			}
 
 			$responseData[ 'errState' ] = 'OK';
-			$responseData[ 'data' ] = $wordsList;
+			$responseData[ 'dataContent' ] = $wordsList;
 
 			mysqli_free_result( $result );
 		}
