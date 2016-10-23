@@ -50,15 +50,16 @@
 					  $wordExample )
 	{
 		$result = validateClientData( $wordTitle,
-									   $partsOfSpeech,
-									   $pronunciation,
-									   $wordlistId,
-									   $wordMeaning,
-									   $wordExample );
+									  $partsOfSpeech,
+									  $pronunciation,
+									  $wordlistId,
+									  $wordMeaning,
+									  $wordExample );
 
 		if ( $result[ 'errState' ] == 'OK' )
 		{
 			$result = checkDuplicateWord( $wordTitle,
+										  $partsOfSpeech,
 										  $wordlistId,
 										  $wordMeaning );
 
@@ -458,6 +459,7 @@
 	}
 
 	function checkDuplicateWord( $wordTitle,
+								 $partsOfSpeech,
 								 $wordlistId,
 								 $wordMeaning )
 	{
@@ -474,7 +476,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partsOfSpeech . '" AND w.wordlistId = "' . $wordlistId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -847,8 +849,8 @@
 	}
 
 	function deleteWordInDb( $wordTitle,
-						 $wordlistName,
-						 $wordMeaning )
+							 $wordlistName,
+							 $wordMeaning )
 	{
 		global $mysqli;
 
@@ -1055,7 +1057,9 @@
 		return $responseData;
 	}
 
-	function updateWordExampleFieldInDb( $wordMeaningId, $exOldVal, $exNewVal )
+	function updateWordExampleFieldInDb( $wordMeaningId,
+										 $exOldVal,
+										 $exNewVal )
 	{
 		global $mysqli;
 

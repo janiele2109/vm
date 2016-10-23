@@ -56,7 +56,7 @@
 	<p>
 		<span class = 'exampleSpan'>Example</span>
 
-		<textarea id = 'exampleTextArea' placeholder = 'Example...'' rows = '4' cols = '50' class = 'exampleTextArea'></textarea>
+		<textarea id = 'exampleTextArea' placeholder = 'Example...' rows = '4' cols = '50' class = 'exampleTextArea'></textarea>
 	</p>
 
 </form>

@@ -185,7 +185,7 @@ header{
 }
 
 /* Test page - START */
-.testForm {
+.toggleTestForm {
 	position: relative; 
 	display: none; 
 	margin: auto; 

@@ -1,6 +1,6 @@
 $( document ).ready( function() {
 
-    $( '#addNewWordlistBtn' ).click( function( event ) {
+    $.fn.addNewWordlistBtnClicked = function( event ) {
         event.preventDefault();
 
         var wordlistName = $( '#addNewWordlistTextBox' ).val().trim();
@@ -42,9 +42,11 @@ $( document ).ready( function() {
         }
         else
             $( this ).err( errMsg );
-    } );
+    }
 
-    $( '#delSelectedWordListsBtn' ).click( function( event ) {
+    $.fn.delSelectedWordListsBtnClicked = function( event ) {
+        event.preventDefault();
+
         var selectedWordlistName = new Array();
 
         $.each( $( 'input[name="wordList[]"]:checked' ), function() {
@@ -87,9 +89,9 @@ $( document ).ready( function() {
         }
         else
             $( this ).err( ERR_0002 );
-    } );
+    }
 
-    $( '.updateWordlistNameBtn' ).click( function( event ) {
+    $.fn.updateWordlistNameBtnClicked = function( event ) {
         var oldWordlistName, newWordlistName, wordlistNameSpanObj;
         var rowObj = $( this ).parent().parent();
 
@@ -101,9 +103,9 @@ $( document ).ready( function() {
         } );
 
         $( this ).updateWordlistName( oldWordlistName, newWordlistName );
-    } );
+    }
 
-    $( '#updateSelectedWordListsBtn' ).click( function( event ) {
+    $.fn.updateSelectedWordListsBtnClicked = function( event ) {
         event.preventDefault();
 
         var selectedWordlistNameMap = {};
@@ -141,40 +143,12 @@ $( document ).ready( function() {
                             $( this ).reloadWordlistViewTbl( response[ 'dataContent' ] );
 
                             $( this ).addNewWordlistTextBoxFocus();
-
-                            $( this ).bindEventsToControls();
                         }
                     },
                 data: sendingData
             } );
         }
-    } );
-
-    $( '#myWordListMenuItem' ).click( function( event ) {
-        event.preventDefault();
-
-        history.pushState( '', document.title, '/wordlist' );
-
-        var sendingData = {
-            menuItem: 'wordList',
-            userName: $( '#userName' ).text()
-        }
-
-        $.ajax( {
-            url: '/mods/wordlist/wordlist.php',
-            type: 'post',
-            error:
-                function( xhr, status, error ) {
-                    $( this ).errRequestServerData( xhr, status, error );
-                },
-            success:
-                function( response, status ) {
-                    document.write( response );
-                    document.close();
-                },
-            data: sendingData
-        } );
-    } );
+    }
 
     $.fn.updateWordlistName = function( oldWordlistName, newWordlistName ) {
         if ( oldWordlistName != EMPTY_STRING &&
@@ -210,6 +184,8 @@ $( document ).ready( function() {
                             $( this ).resetCheckboxOfRow( rowObj );
 
                             $( this ).addNewWordlistTextBoxFocus();
+
+                            $( this ).bindEventsToControls();
                         }
                     },
                 data: sendingData

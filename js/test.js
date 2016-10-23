@@ -58,7 +58,7 @@ $(document).ready(function() {
         }
     }
 
-    $("#testBtn").click(function(event) {
+    $.fn.testBtnClicked = function( event ) {
         event.preventDefault();
 
         var sendingData = {
@@ -102,7 +102,7 @@ $(document).ready(function() {
                             }
 
                             eleAppearControl('hidden');
-                            $(".testForm").css('display', 'inline');
+                            $(".toggleTestForm").css('display', 'inline');
 
                             genNewWord();
 
@@ -117,7 +117,7 @@ $(document).ready(function() {
                 },
             data: sendingData
         });
-    });
+    }
 
     $("#checkWordBtn").click(function(event) {
         event.preventDefault(); 
@@ -244,31 +244,5 @@ $(document).ready(function() {
         {
             $("#exampleDiv").css('visibility', 'hidden');
         }
-    });
-
-    $("#test").click(function(event) {
-        event.preventDefault();
-
-        history.pushState( '', document.title, '/test' );
-
-        var sendingData = {
-            menuItem: 'test',
-            userName: $( '#userName' ).text()
-        }
-
-        $.ajax( {
-            url: '/mods/test/test.php',
-            type: 'post',
-            error:
-                function( xhr, status, error ) {
-                    $( this ).errRequestServerData( xhr, status, error );
-                },
-            success:
-                function( response, status ) {
-                    document.write( response );
-                    document.close();
-                },
-            data: sendingData
-        } );
     });
 });
