@@ -23,6 +23,7 @@ $( document ).ready( function() {
                 },
             success:
                 function( response, status ) {
+                        $( '#hiddenWordlistCb' ).empty();
                         Object.keys( response[ 'dataContent' ] ).forEach( function ( key ) {
                             var option = '<option value="' + key + '">' + response[ 'dataContent' ][ key ] + '</option>';
                             $( '#hiddenWordlistCb' ).append( option );
@@ -143,9 +144,16 @@ $( document ).ready( function() {
             }
 
             if ( $( '.toggleEnabled' ).length > 0 )
-                $( '.toggleEnabled' ).bind( 'mouseenter mouseleave',
-                                            function( event ) { $( this ).toggleControl( event ); 
-                } );
+            {
+                var ev = $._data( $( '.toggleEnabled' )[ 0 ], 'events' );
+
+                if ( typeof ev === 'undefined' || ( !ev.mouseenter && !ev.mouseleave ) )
+                {
+                    $( '.toggleEnabled' ).bind( 'mouseenter mouseleave',
+                                                function( event ) { $( this ).toggleControl( event ); 
+                    } );
+                }
+            }
         }
 
         /* General events - END */
@@ -213,10 +221,15 @@ $( document ).ready( function() {
 
             if ( $( '.updateWordlistNameBtn' ).length > 0 )
             {
-                $( '.updateWordlistNameBtn' ).bind( 'click',
-                                                    function( event) {
-                                                        $( this ).updateWordlistNameBtnClicked( event );
-                                                    } );
+                var ev = $._data( $( '.updateWordlistNameBtn' )[ 0 ], 'events' );
+
+                if ( typeof ev === 'undefined' || !ev.click )
+                {
+                    $( '.updateWordlistNameBtn' ).bind( 'click',
+                                                        function( event) {
+                                                            $( this ).updateWordlistNameBtnClicked( event );
+                                                        } );
+                }
             }
 
             if ( $( '#updateSelectedWordListsBtn' ).length > 0 )
@@ -253,36 +266,46 @@ $( document ).ready( function() {
         {
             if ( $( '.exampleEntry' ).length > 0 )
             {
-                $( '.exampleEntry' ).bind( 'mouseenter',
-                                            function() {
-                                                            if ( $( 'textarea.exampleEntry' ).length == 0 )
-                                                            {
-                                                                $( this ).createExampleControlsDiv();
-                                                                $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
-                                                                $( this ).addClass( 'transEffectHover' );
-                                                            }
+                var ev = $._data( $( '.exampleEntry' )[ 0 ], 'events' );
 
-                                                            if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
-                                                            {
-                                                                $(this).createExampleControlsDiv();
-                                                                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-                                                                $(this).addClass('transEffectHover');
-                                                            }
-                                                       } );
+                if ( typeof ev === 'undefined' || !ev.mouseenter )
+                {
+                    $( '.exampleEntry' ).bind( 'mouseenter',
+                                                function() {
+                                                                if ( $( 'textarea.exampleEntry' ).length == 0 )
+                                                                {
+                                                                    $( this ).createExampleControlsDiv();
+                                                                    $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
+                                                                    $( this ).addClass( 'transEffectHover' );
+                                                                }
+
+                                                                if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
+                                                                {
+                                                                    $(this).createExampleControlsDiv();
+                                                                    $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+                                                                    $(this).addClass('transEffectHover');
+                                                                }
+                                                           } );
+                }
             }
 
             if ( $( '.exampleTd' ).length > 0 )
             {
-                $( '.exampleTd' ).bind( 'mouseenter',
-                                        function() {
-                                            var div = $(this).find('div.exampleEntry');
+                var ev = $._data( $( '.exampleTd' )[ 0 ], 'events' );
 
-                                            if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 && $('textarea.exampleTd').length == 0 && div.length == 0 )
-                                            {
-                                                $(this).createExampleControlsDiv();
-                                                $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-                                            }
-                                        } );
+                if ( typeof ev === 'undefined' || !ev.mouseenter )
+                {
+                    $( '.exampleTd' ).bind( 'mouseenter',
+                                            function() {
+                                                var div = $(this).find('div.exampleEntry');
+
+                                                if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 && $('textarea.exampleTd').length == 0 && div.length == 0 )
+                                                {
+                                                    $(this).createExampleControlsDiv();
+                                                    $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+                                                }
+                                            } );
+                }
             }
 
             if ( $( '#addNewWordBtn' ).length > 0 )
@@ -312,12 +335,19 @@ $( document ).ready( function() {
             }
 
             if ( $( '.updateWordBtn' ).length > 0 )
-                $( '.updateWordBtn' ).bind( 'click',
-                                            function ( event ) {
-                                                                   var rowObj = $( this ).parent().parent();
+            {
+                var ev = $._data( $( '.updateWordBtn' )[ 0 ], 'events' );
 
-                                                                   $( this ).updateWord( event, rowObj );
-                                                               } );
+                if ( typeof ev === 'undefined' || !ev.click )
+                {
+                    $( '.updateWordBtn' ).bind( 'click',
+                                                function ( event ) {
+                                                                       var rowObj = $( this ).parent().parent();
+
+                                                                       $( this ).updateWord( event, rowObj );
+                                                                   } );
+                }
+            }
 
             if ( $( '#updateSelectedWordsBtn' ).length > 0 )
             {
@@ -717,7 +747,7 @@ $( document ).ready( function() {
                 if ( event.type == 'keypress' && event.which != 13 )
                     break;
 
-                if ( $(this).prop('value') != '' && $(this).attr('class').indexOf('exampleBtn') != -1 )
+                if ( $(this).attr('class').indexOf('exampleBtn') != -1 )
                 {
                     var divTag = $(this).toDivControl();
                     $(divTag).removeClass('exampleBtn');

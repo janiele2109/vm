@@ -64,11 +64,15 @@ $( document ).ready( function() {
 
         $.each( $( 'input[name="word[]"]:checked' ), function() {
             var rowObj = $( this ).parent().parent();
-            var word, pron, wordlistName, meaning;
+            var word, partOfSpeech, pron, wordlistName, meaning;
             var wordMap = {};
 
             rowObj.find( '.word[data-controltranstype]' ).each( function() {
                 word = $( this ).attr( 'data-sourceword' );
+            } );
+
+            rowObj.find( '.partOfSpeech[data-controltranstype]' ).each( function() {
+                partOfSpeech = $( this ).attr( 'data-sourcepos' );
             } );
 
             rowObj.find( '.pronunciation[data-controltranstype]' ).each( function() {
@@ -84,6 +88,7 @@ $( document ).ready( function() {
             });
 
             wordMap[ 'word' ] = word;
+            wordMap[ 'partOfSpeech' ] = partOfSpeech;
             wordMap[ 'pron' ] = pron;
             wordMap[ 'wordlistName' ] = wordlistName;
             wordMap[ 'meaning' ] = meaning;

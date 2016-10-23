@@ -65,22 +65,8 @@ define( '1021'		, 'Updating word pronunciation failed!' );
 define( '1022'		, 'Updating wordlist of word failed!' );
 define( '1023'		, 'Updating word meaning of word failed!' );
 define( '1024'		, 'Updating word example of word meaning failed!' );
-
-
-
-define( '10010'		, 'Duplicated word found!' );
-define( '10020'		, 'Adding word failed!' );
-define( '10030'		, 'Searching for added word failed!' );
-define( '10040'		, 'Adding meaning of word failed!' );
-define( '10050'		, 'Searching for added meaning of word failed!' );
-define( '10060'		, 'Adding example of new added word meaning failed!' );
-define( '10070'		, 'Searching for meaning of updated/added example fail!' );
-define( '10080'		, 'Updating example failed!' );
-define( '10090'		, 'Adding example failed!' );
-
-define( '10110'		, 'Updating pronunciation failed!' );
-define( '10120'		, 'Updating wordlist failed!' );
-define( '10130'		, 'Updating meaning failed!' );
+define( '1025'		, 'Get remaining word meanings of word failed!' );
+define( '1026'		, 'Adding word example failed!' );
 
 /* =========== For word errors - END =========== */
 

@@ -143,6 +143,8 @@ $( document ).ready( function() {
                             $( this ).reloadWordlistViewTbl( response[ 'dataContent' ] );
 
                             $( this ).addNewWordlistTextBoxFocus();
+
+                            $( this ).bindEventsToControls();
                         }
                     },
                 data: sendingData

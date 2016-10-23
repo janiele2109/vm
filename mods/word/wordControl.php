@@ -76,7 +76,9 @@
 
 				if ( $result[ 'errState' ] == 'OK' )
 				{
-					$wordId = getWordId( $wordTitle, $wordlistId );
+					$wordId = getWordId( $wordTitle,
+										 $wordlistId,
+										 $partsOfSpeech );
 
 					$result = addWordMeaningToDb( $wordId, $wordMeaning );
 
@@ -107,12 +109,14 @@
 		foreach( $decodedSelectedWordArr as $word )
 		{
 			$result = checkExistedWord( $word->word,
+										$word->partOfSpeech,
 										$word->wordlistName,
 										$word->meaning );
 
 			if ( $result[ 'errState' ] == 'OK' )
 			{
 				$result = deleteWordInDb( $word->word,
+										  $word->partOfSpeech,
 										  $word->wordlistName,
 										  $word->meaning );
 
@@ -135,13 +139,17 @@
 			$decodedModifiedRow = json_decode( $modifiedRow );
 
 		$result = checkExistedWord( $decodedModifiedRow[ 0 ]->word->orgVal,
+									$decodedModifiedRow[ 0 ]->partOfSpeech->orgVal,
 									$decodedModifiedRow[ 0 ]->wordlist->orgVal,
 									$decodedModifiedRow[ 0 ]->meaning->orgVal );
 
 		if ( $result[ 'errState' ] == 'OK' )
 		{
 			$wordlistId = getWordlistId( $decodedModifiedRow[ 0 ]->wordlist->orgVal );
-			$wordId = getWordId( $decodedModifiedRow[ 0 ]->word->orgVal, $wordlistId );
+			$wordId = getWordId( $decodedModifiedRow[ 0 ]->word->orgVal,
+								 $wordlistId,
+								 $decodedModifiedRow[ 0 ]->partOfSpeech->orgVal );
+
 			$wordMeaningId = getWordMeaningId( $wordId, $decodedModifiedRow[ 0 ]->meaning->orgVal );
 
 			/* Update word title */
@@ -172,7 +180,18 @@
 			/* Update examples */
 			foreach( $decodedModifiedRow[ 0 ]->exampleList as $ex )
 			{
-				if ( $ex->orgVal != $ex->newVal )
+				if ( $ex->orgVal != $ex->newVal && $ex->orgVal == '' )
+					$result = addWordExampleToDb( $wordMeaningId,
+												  $ex->newVal );
+
+				else if ( $ex->orgVal != $ex->newVal && $ex->newVal == '' )
+				{
+					$wordExampleId = getWordExampleId( $wordMeaningId,
+													   $ex->orgVal );
+
+					$result = deleteWordExampleInDb( $wordExampleId );
+				}
+				else if ( $ex->orgVal != $ex->newVal && $ex->orgVal != '' )
 					$result = updateWordExampleFieldInDb( $wordMeaningId,
 														  $ex->orgVal,
 														  $ex->newVal );
@@ -237,7 +256,7 @@
 		return '';
 	}
 
-	function getWordId( $wordTitle, $wordlistId )
+	function getWordId( $wordTitle, $wordlistId, $partsOfSpeech )
 	{
 		global $mysqli;
 
@@ -245,7 +264,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.wordlistId = "' . $wordlistId . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partsOfSpeech . '" AND w.wordlistId = "' . $wordlistId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -277,6 +296,59 @@
 		}
 
 		return '';
+	}
+
+	function getWordExampleId( $wordMeaningId, $example )
+	{
+		global $mysqli;
+
+		$query = 'SELECT we.wordExampleId
+				  FROM wordexample we
+				  WHERE we.wordMeaningId = "' . $wordMeaningId . '" AND we.example = "' . $example . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			return $result->fetch_object()->wordExampleId;
+		}
+
+		return '';
+	}
+
+	function hasRemainingMeaningOfWord( $wordId )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
+							 );
+
+		$query = 'SELECT wm.wordMeaningId
+				  FROM wordmeaning wm
+				  INNER JOIN word w
+				  ON w.wordId = wm.wordId
+				  WHERE w.wordId = "' . $wordId . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != FALSE &&
+			 $result->num_rows > 0 )
+		{
+			$responseData[ 'errState' ] = 'OK';
+		}
+		else
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1025';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+
+		return $responseData;
 	}
 
 	function validateWord( $word )
@@ -514,6 +586,7 @@
 	}
 
 	function checkExistedWord( $wordTitle,
+							   $partOfSpeech,
 							   $wordlistName,
 							   $wordMeaning )
 	{
@@ -530,7 +603,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND wl.wordlistName = "' . $wordlistName . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -650,6 +723,34 @@
 		{
 			$responseData[ 'errState' ] = 'NG';
 			$responseData[ 'errCode' ] = '1018';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+			$responseData[ 'errState' ] = 'OK';
+
+		return $responseData;
+	}
+
+	function deleteWordExampleInDb( $wordExampleId )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
+							 );
+
+		$query = 'DELETE FROM wordexample
+				  WHERE wordExampleId = "' . $wordExampleId . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result == FALSE )
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '1026';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
 		}
 		else
@@ -849,6 +950,7 @@
 	}
 
 	function deleteWordInDb( $wordTitle,
+							 $partOfSpeech,
 							 $wordlistName,
 							 $wordMeaning )
 	{
@@ -867,7 +969,7 @@
 				  ON w.wordlistId = wl.wordlistId
 				  INNER JOIN wordmeaning wm
 				  ON w.wordId = wm.wordId
-				  WHERE w.word = "' . $wordTitle . '" AND wl.wordlistName = "' . $wordlistName . '" AND wm.meaning = "' . $wordMeaning . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '" AND wm.meaning = "' . $wordMeaning . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -884,19 +986,24 @@
 
 				if ( $responseData[ 'errState' ] == 'OK' )
 				{
-					$query = 'DELETE FROM word
-							  WHERE wordId = "' . $resultObj->wordId . '"';
+					$responseData = hasRemainingMeaningOfWord( $resultObj->wordId );
 
-					$result = $mysqli->query( $query );
-
-					if ( $result == FALSE )
+					if ( $responseData[ 'errState' ] == 'NG' )
 					{
-						$responseData[ 'errState' ] = 'NG';
-						$responseData[ 'errCode' ] = '1014';
-						$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+						$query = 'DELETE FROM word
+								  WHERE wordId = "' . $resultObj->wordId . '" AND partOfSpeech = "' . $partOfSpeech . '"';
+
+						$result = $mysqli->query( $query );
+
+						if ( $result == FALSE )
+						{
+							$responseData[ 'errState' ] = 'NG';
+							$responseData[ 'errCode' ] = '1014';
+							$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+						}
+						else
+							$responseData[ 'errState' ] = 'OK';
 					}
-					else
-						$responseData[ 'errState' ] = 'OK';
 				}
 			}
 		}
