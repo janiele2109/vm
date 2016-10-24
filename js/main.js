@@ -172,6 +172,26 @@ $( document ).ready( function() {
         $( this ).checkAndBindEvent( 'input[type=text]',
                                      new Array( 'blur' ),
                                      $.fn.toSpanControl );
+
+        $( this ).checkAndBindEvent( 'input[type=text][data-controltranstype]',
+                                     new Array( 'keypress' ),
+                                     $.fn.editableControlOnKeyPress );
+
+        $( this ).checkAndBindEvent( 'select[data-controltranstype]',
+                                     new Array( 'blur' ),
+                                     $.fn.toSpanControl );
+
+        $( this ).checkAndBindEvent( 'select[data-controltranstype]',
+                                     new Array( 'keypress' ),
+                                     $.fn.editableControlOnKeyPress );
+
+        $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
+                                     new Array( 'blur' ),
+                                     $.fn.toSpanControl );
+
+        $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
+                                     new Array( 'keypress' ),
+                                     $.fn.editableControlOnKeyPress );
     }
 
     $.fn.bindTestEvents = function() {
@@ -247,6 +267,149 @@ $( document ).ready( function() {
         $( this ).bindWordEvents();
     }
 
+    $.fn.getTagDisplayVal = function() {
+        var returnVal = '';
+
+        switch( $( this ).prop('tagName') )
+        {
+            case 'SPAN':
+            case 'DIV':
+            case 'TEXTAREA':
+            case 'BUTTON':
+                returnVal = $( this ).text();
+                break;
+
+            case 'SELECT':
+                $( this ).find( ':selected' ).text();
+                break;
+
+            default:
+                break;
+        }
+
+        return returnVal;
+    }
+
+    $.fn.toInputTextControl = function( displayVal, controlTranstype ) {
+        var inputTag = document.createElement( 'INPUT' );
+        var parentPadding = $( this ).parent().css( 'padding-right' ).replace( 'px', '' );
+        var parentWidth = $( this ).parent().width();
+
+        $.each( this[ 0 ].attributes, function( i, attrib ) {
+            if ( attrib.name != 'id' )
+                $( inputTag ).attr( attrib.name, attrib.value );
+        } );
+
+        inputTag.type = 'text';
+
+        $( inputTag ).attr( 'data-controltranstype', controlTranstype );
+
+        inputTag.style.width = parentWidth - parentPadding - 1 + 'px';
+
+        $( this ).replaceWith( inputTag );
+
+        $( inputTag ).focus();
+        $( inputTag ).val( displayVal );
+
+        $( this ).bindEventsToControls();
+
+        return inputTag;
+    }
+
+    $.fn.toSelectControl = function( displayVal,
+                                     controlTranstype,
+                                     dataSource ) {
+        var selectTag = document.createElement( 'SELECT' );
+
+        $.each( this[ 0 ].attributes, function( i, attrib ) {
+            if ( attrib.name != 'id' )
+                $( selectTag ).attr( attrib.name, attrib.value );
+        } );
+
+        $( selectTag ).attr( 'data-controltranstype', controlTranstype );
+
+        selectTag.style.width = $( this ).parent().width() + 'px';
+
+        dataSource.clone().appendTo( selectTag );
+
+        $.each( $( selectTag ).children().filter( function() {
+                                                      return $( this ).text() == displayVal;
+                                                  } ),
+                function() { $( this ).prop( 'selected', true ) } );
+
+        $( selectTag ).css( 'display', 'block' );
+        
+        $( selectTag ).find( 'option' ).css( 'color', 'black' );
+        $( selectTag ).find( 'option:selected' ).css( 'color', $( this ).css( 'color' ) );
+
+        $( this ).replaceWith( selectTag );
+
+        $( selectTag  ).focus();
+
+        $( this ).bindEventsToControls();
+
+        return selectTag;
+    }
+
+    $.fn.toTextAreaControl = function( displayVal, controlTranstype ) {
+        var textarea = document.createElement( 'TEXTAREA' );
+        var parentPadding = $( this ).parent().css( 'padding-right' ).replace( 'px', '' );
+        var parentWidth = $( this ).parent().width();
+
+        $.each( this[ 0 ].attributes, function( i, attrib ) {
+            if ( attrib.name != 'id' )
+                $( textarea ).attr( attrib.name, attrib.value );
+        } );
+
+        $( textarea ).attr( 'data-controltranstype', controlTranstype );
+
+        textarea.style.width = parentWidth - parentPadding - 1 + 'px';
+
+        $( this ).replaceWith( textarea );
+
+        $( textarea ).focus();
+        $( textarea ).val( displayVal );
+
+        $( this ).bindEventsToControls();
+
+        return textarea;
+    }
+
+    $.fn.toEditableControls = function() {
+        switch( $( this ).attr( 'data-controlTransType' ) )
+        {
+            case 'input-text':
+                $( this ).toInputTextControl( $( this ).getTagDisplayVal(), 'span' );
+                break;
+
+            case 'select':
+                var dataSource = null;
+
+                if ( $( this ).attr( 'class' ).indexOf( 'partOfSpeech' ) != -1 )
+                    dataSource = $( '#wordClassCb option' );
+
+                else if ( $( this ).attr( 'class' ).indexOf( 'wordlist' ) != -1 )
+                    dataSource = $( '#hiddenWordlistCb option' );
+
+                $( this ).toSelectControl( $( this ).getTagDisplayVal(),
+                                           'span',
+                                           dataSource );
+                break;
+
+            case 'textarea':
+                var controlTranstype = 'span';
+
+                if ( $( this ).attr( 'class' ).indexOf( 'exampleEntry' ) != -1 )
+                    controlTranstype = 'div';
+
+                $( this ).toTextAreaControl( $( this ).getTagDisplayVal(), controlTranstype );
+                break;
+
+            default:
+                break;
+        }
+    }
+
     $.fn.getWordlistListOnSuccess = function( response, status ) {
         $( '#hiddenWordlistCb' ).empty();
 
@@ -282,52 +445,9 @@ $( document ).ready( function() {
                                                         } );
     }
 
-    $.fn.getTagDisplayVal = function() {
-        var returnVal = '';
-
-        switch( $( this ).prop('tagName') )
-        {
-            case 'SPAN':
-            case 'DIV':
-            case 'TEXTAREA':
-            case 'BUTTON':
-                returnVal = $( this ).text();
-                break;
-
-            case 'SELECT':
-                $( this ).find( ':selected' ).text();
-                break;
-
-            default:
-                break;
-        }
-
-        return returnVal;
-    }
-
-    $.fn.toInputTextControl = function( displayVal, controlTranstype ) {
-        var inputTag = document.createElement( 'INPUT' );
-        var parentPadding = $( this ).parent().css( 'padding-right' ).replace( 'px', '' );
-        var parentWidth = $( this ).parent().width();
-
-        $.each( this[ 0 ].attributes, function( i, attrib ) {
-            $( inputTag ).attr( attrib.name, attrib.value );
-        } );
-
-        inputTag.type = 'text';
-        inputTag.value = displayVal;
-
-        $( inputTag ).attr( 'data-controltranstype', controlTranstype );
-
-        inputTag.style.width = parentWidth - parentPadding - 1 + 'px';
-
-        $( inputTag ).bind( 'blur', function ( event ) { $( this ).toggleControlOnHover( event ); } );
-
-        $( inputTag ).bind( 'keypress', function ( event ) { $( this ).toggleControlOnHover( event ); } );
-
-        $( this ).replaceWith( inputTag );
-
-        return inputTag;
+    $.fn.editableControlOnKeyPress = function( event ) {
+        if ( event.which == 13 )
+            $( this ).toSpanControl();
     }
 
     /* =========================== Helper functions - END =========================== */
@@ -336,76 +456,12 @@ $( document ).ready( function() {
 
 
 
-    $.fn.toTextAreaControl = function(text) {
-        var textarea = document.createElement('TEXTAREA');
-
-        $.each(this[0].attributes, function(i, attrib){
-            $(textarea).attr(attrib.name, attrib.value);
-        });
-
-        textarea.value = text;
-
-        $(textarea).attr('data-controltranstype', 'span');
-
-        textarea.style.width = $(this).parent().width() - 6 + "px";
-        textarea.style.color = $(this).css("color");
-
-        $(textarea).bind('blur', function ( event ) { $(this).toggleControlOnHover( event ); } );
-
-        $(textarea).bind('keypress', function ( event ) { $(this).toggleControlOnHover( event ); } );
-
-        return textarea;
-    }
-
-    $.fn.toSelectControl = function() {
-        var selectTag = document.createElement('SELECT');
-        var selectedText = $(this).text();
-
-        $.each(this[0].attributes, function(i, attrib){
-            if ( attrib.name != 'id' )
-                $(selectTag).attr(attrib.name, attrib.value);
-        });
-
-        switch( $(selectTag).attr('class').replace('modified', '').trim() )
-        {
-            case 'wordlist':
-                $('#hiddenWordlistCb option').clone().appendTo(selectTag);
-                break;
-
-            case 'partOfSpeech':
-                $('#wordClassCb option').clone().appendTo(selectTag);
-                break;
-
-            default:
-                break;
-        }
-
-        $(selectTag).children().filter(function() { return $(this).text() == selectedText; } ).prop('selected', true);
-
-        $(selectTag).attr('data-controltranstype', 'span');
-
-        $(selectTag).css('display', 'block');
-
-        selectTag.style.width = $(this).parent().width() + "px";
-
-        $(selectTag).find('option').css('color', 'black');
-        $(selectTag).find('option:selected').css('color', $(this).css("color"));
-
-        $(selectTag).bind('blur', function ( event ) { $(this).toggleControlOnHover( event ); } );
-
-        $(selectTag).bind('keypress', function ( event ) { $(this).toggleControlOnHover( event ); } );
-
-        $(this).replaceWith(selectTag);
-
-        return selectTag;
-    }
-
     $.fn.toSpanControl = function() {
         var dataSourceName = "";
         var spanTag = document.createElement('SPAN');
         var chkboxEle = $(this).parent().parent().find('input[type="checkbox"]');
 
-        $.each(this[0].attributes, function(i, attrib){
+        $.each($(this)[0].attributes, function(i, attrib){
             $(spanTag).attr(attrib.name, attrib.value);
 
             if (attrib.name == 'class')
@@ -430,7 +486,7 @@ $( document ).ready( function() {
             }
         });
 
-        switch( this.prop('tagName') )
+        switch( $(this).prop('tagName') )
         {
             case 'SELECT':
                 $(spanTag).attr('data-controltranstype', 'select');
@@ -623,41 +679,7 @@ $( document ).ready( function() {
         switch( $( this ).prop('tagName') )
         {
             case 'TD':
-
-                var childTag = $( this ).children( '[data-controlTransType]' );
-
-                if ( childTag.length > 0 )
-                {
-                    switch( childTag.first().attr( 'data-controlTransType' ) )
-                    {
-                        case 'input-text':
-                            var textbox = childTag.toInputTextControl( childTag.getTagDisplayVal(), 'span' );
-                            $(textbox).focus();
-
-                            var tmpStr = $(textbox).val();
-                            $(textbox).val( "" );
-                            $(textbox).val( tmpStr );
-
-                            break;
-
-                        case 'select':
-                            var select = childTag.toSelectControl();
-                            $(select).focus();
-
-                            break;
-
-                        case 'textarea':
-                            var textarea = childTag.toTextAreaControl($(this).text());
-                            $(childTag).replaceWith(textarea);
-                            $(textarea).focus();
-
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-
+                $.each( $( this ).find( '[data-controlTransType]' ), $.fn.toEditableControls );
                 break;
 
             case 'INPUT':
