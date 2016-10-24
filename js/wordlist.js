@@ -1,6 +1,6 @@
 $( document ).ready( function() {
 
-    $.fn.addNewWordlistBtnClicked = function( event ) {
+    $.fn.addNewWordlistBtnOnClick = function( event ) {
         event.preventDefault();
 
         var wordlistName = $( '#addNewWordlistTextBox' ).val().trim();
@@ -21,12 +21,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -41,10 +41,10 @@ $( document ).ready( function() {
             } );
         }
         else
-            $( this ).err( errMsg );
+            $( this ).displayErrMsg( errMsg );
     }
 
-    $.fn.delSelectedWordListsBtnClicked = function( event ) {
+    $.fn.delSelectedWordListsBtnOnClick = function( event ) {
         event.preventDefault();
 
         var selectedWordlistName = new Array();
@@ -70,12 +70,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -88,10 +88,10 @@ $( document ).ready( function() {
             } );
         }
         else
-            $( this ).err( ERR_0002 );
+            $( this ).displayErrMsg( ERR_0002 );
     }
 
-    $.fn.updateWordlistNameBtnClicked = function( event ) {
+    $.fn.updateWordlistNameBtnOnClick = function( event ) {
         var oldWordlistName, newWordlistName, wordlistNameSpanObj;
         var rowObj = $( this ).parent().parent();
 
@@ -105,7 +105,7 @@ $( document ).ready( function() {
         $( this ).updateWordlistName( oldWordlistName, newWordlistName );
     }
 
-    $.fn.updateSelectedWordListsBtnClicked = function( event ) {
+    $.fn.updateSelectedWordListsBtnOnClick = function( event ) {
         event.preventDefault();
 
         var selectedWordlistNameMap = {};
@@ -131,12 +131,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -150,6 +150,11 @@ $( document ).ready( function() {
                 data: sendingData
             } );
         }
+    }
+
+    $.fn.menuItemWordlistOnClick = function( event ) {
+        $( this ).toggleActiveMenuItem( MENU_ITEM_WORDLIST );
+        $( this ).switchMenuItem( event, MENU_ITEM_WORDLIST );
     }
 
     $.fn.updateWordlistName = function( oldWordlistName, newWordlistName ) {
@@ -172,12 +177,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -194,7 +199,7 @@ $( document ).ready( function() {
             } );
         }
         else
-            $( this ).err( ERR_0003 );
+            $( this ).displayErrMsg( ERR_0003 );
     };
 
     $.fn.reloadWordlistViewTbl = function( dataContent, isRemoveSelectedItems = false ) {

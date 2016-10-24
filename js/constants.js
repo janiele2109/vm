@@ -18,6 +18,10 @@ const ERR_1004 = 'Word example is empty!';
 
 /* Word constants - END */
 
+/* Common error constants - START */
+
+/* Common error constants - END */
+
 /* Error constants - END */
 
 

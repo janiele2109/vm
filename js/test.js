@@ -1,4 +1,78 @@
 $(document).ready(function() {
+
+    $.fn.testBtnOnClick = function( event ) {
+        event.preventDefault();
+
+        var sendingData = {
+            requestType: 'testDataRequest'
+        }
+
+        $.ajax( {
+            url: '/mods/test/testControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success: 
+                function( response, status ) {
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        testData = response[ 'dataContent' ];
+
+                        var cnt = 0;
+
+                        $.each( testData, function() {
+                            unCheckDataArr[ cnt ] = cnt++;
+                        } );
+
+                        if ( Object.keys( testData ).length > 0 )
+                        {
+                            $( '#testBtn' ).css( 'display', 'none' );
+
+                            if ( Object.keys( testData ).length == 1 )
+                            {
+                                $( '#retestBtn' ).css( 'display', 'inline' );
+                                $( '#nextWordBtn' ).css( 'display', 'none' );
+                            }
+                            else
+                            {
+                                $( '#retestBtn' ).css( 'display', 'none' );
+                                $( '#nextWordBtn' ).css( 'display', 'inline' );
+                            }
+
+                            eleAppearControl( 'hidden' );
+                            $( '.toggleTestForm' ).css( 'display', 'inline' );
+
+                            genNewWord();
+
+                            $( '#inputWord' ).focus();
+                        }
+                        else
+                        {
+                            $( '#msg' ).css( 'display', 'inline-block' ).html( 'There is no data for testing' );
+                            $( '#testBtn' ).css( 'display', 'none' );
+                        }
+                    }
+                },
+            data: sendingData
+        } );
+    }
+
+    $.fn.menuItemTestOnClick = function( event ) {
+        $( this ).toggleActiveMenuItem( MENU_ITEM_TEST );
+        $( this ).switchMenuItem( event, MENU_ITEM_TEST );
+    }
+
+
+
+
+
+
+
+
     var unCheckDataArr = new Array();
     var testData = null;
 
@@ -56,67 +130,6 @@ $(document).ready(function() {
                 $("#exampleDiv").css('visibility', behavior);
             }
         }
-    }
-
-    $.fn.testBtnClicked = function( event ) {
-        event.preventDefault();
-
-        var sendingData = {
-            requestType: "testDataRequest"
-        }
-
-        $.ajax({
-            url: '/mods/test/testControl.php',
-            type: 'post',
-            dataType: 'json',
-            cache: false,
-            success: 
-                function(response,status){
-                    if ( status != "success" || response['errState'] != "OK")
-                    {
-                        $('#msg').css('display', 'inline').html("Error getting test data");
-                    }
-                    else
-                    {
-                        testData = response['dataContent'];
-
-                        var cnt = 0;
-
-                        $.each( testData, function() {
-                            unCheckDataArr[cnt] = cnt++;
-                        });
-
-                        if ( Object.keys(testData).length > 0 )
-                        {
-                            $("#testBtn").css('display', 'none');
-
-                            if ( Object.keys(testData).length == 1 )
-                            {
-                                $("#retestBtn").css('display', 'inline');
-                                $("#nextWordBtn").css('display', 'none');
-                            }
-                            else
-                            {
-                                $("#retestBtn").css('display', 'none');
-                                $("#nextWordBtn").css('display', 'inline');
-                            }
-
-                            eleAppearControl('hidden');
-                            $(".toggleTestForm").css('display', 'inline');
-
-                            genNewWord();
-
-                            $("#inputWord").focus();
-                        }
-                        else
-                        {
-                            $('#msg').css('display', 'inline-block').html("There is no data for testing");
-                            $("#testBtn").css('display', 'none');
-                        }
-                    }
-                },
-            data: sendingData
-        });
     }
 
     $("#checkWordBtn").click(function(event) {

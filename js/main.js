@@ -1,5 +1,6 @@
-
 $( document ).ready( function() {
+
+    /* =========================== Event functions - START =========================== */
 
     $( window ).on( 'load', function( event ) {
         $( this ).bindEventsToControls();
@@ -7,7 +8,13 @@ $( document ).ready( function() {
         $( this ).toggleActiveMenuItem( MENU_ITEM_TEST );
     } );
 
-    $.fn.getWordlistList = function( event ) {
+    /* =========================== Event functions - END =========================== */
+
+
+
+    /* =========================== Ajax functions - START =========================== */
+
+    $.fn.fillHiddenWordlistCb = function( event ) {
         var sendingData = {
             requestType: 'getWordlistList'
         };
@@ -19,401 +26,315 @@ $( document ).ready( function() {
             cache: false,
             error:
                 function( xhr, status, error ) {
-                    $( this ).errRequestServerData( xhr, status, error );
+                    $( this ).displayErrMsg( xhr.responseText );
                 },
             success:
                 function( response, status ) {
-                        $( '#hiddenWordlistCb' ).empty();
-                        Object.keys( response[ 'dataContent' ] ).forEach( function ( key ) {
-                            var option = '<option value="' + key + '">' + response[ 'dataContent' ][ key ] + '</option>';
-                            $( '#hiddenWordlistCb' ).append( option );
-                        } );
+                    $( this ).getWordlistListOnSuccess( response, status );
                 },
             data: sendingData
-        });
+        } );
     }
 
-    $.fn.checkServerResponse = function( response, status ) {
-        if ( status != "success" || response[ 'errState' ] != 'OK' )
-        {
-            if ( $("#msgDiv").length > 0 )
-            {
-                $("#msgDiv").text(response['msg']);
-                $("#msgDiv").css('visibility', 'visible');
-                $("#msgDiv").addClass("err");
-            }
+    $.fn.switchMenuItem = function( event, requestMenuItem ) {
+        event.preventDefault();
 
+        var currentUri = window.location.pathname.split( '/' )[ 1 ];
+        var requestUri = '';
+
+        if ( requestMenuItem == MENU_ITEM_TEST )
+            requestUri = '/mods/test/testForm.php';
+
+        else if ( requestMenuItem == MENU_ITEM_WORD )
+            requestUri = '/mods/word/wordForm.php';
+
+        else if ( requestMenuItem == MENU_ITEM_WORDLIST )
+            requestUri = '/mods/wordlist/wordlistForm.php';
+
+        history.pushState( '', document.title, '/' + requestMenuItem );
+
+        var sendingData = {
+            requestType: 'getPageContent'
+        };
+
+        $.ajax( {
+            url: requestUri,
+            type: 'post',
+            success:
+                function( response, status ) {
+                    $( this ).getPageContentOnSuccess( response, status, currentUri );
+
+                    if ( requestMenuItem == MENU_ITEM_WORD )
+                        $( this ).fillHiddenWordlistCb();
+                },
+            data: sendingData
+        } );
+    }
+
+    /* =========================== Ajax functions - END =========================== */
+
+
+
+    /* =========================== Helper functions - START =========================== */
+
+    $.fn.displayErrMsg = function( errMsg ) {
+        if ( $( '#msgDiv' ).length > 0 )
+        {
+            $( '#msgDiv' ).text( errMsg );
+            $( '#msgDiv' ).css( 'visibility', 'visible' );
+            $( '#msgDiv' ).addClass( 'err' );
+        }
+    }
+
+    $.fn.toggleActiveMenuItem = function( menuItem ) {
+        $( '.menuItem' ).removeClass( 'active' );
+
+        if ( menuItem == MENU_ITEM_TEST )
+            $( '#menuItemTest' ).addClass( 'active' );
+        else if ( menuItem == MENU_ITEM_WORD )
+            $( '#menuItemWord' ).addClass( 'active' );
+        else if ( menuItem == MENU_ITEM_WORDLIST )
+            $( '#menuItemWordlist' ).addClass( 'active' );
+    }
+
+    $.fn.isServerResponseOk = function( response, status ) {
+        if ( status != 'success' || response[ 'errState' ] != 'OK' )
+        {
+            $( this ).displayErrMsg( response[ 'msg' ] );
             return false;
         }
         else
             return true;
     }
 
-    $.fn.errRequestServerData = function( xhr, status, error ) {
-        if ( $( '#msgDiv' ).length > 0 )
-        {
-            $("#msgDiv").text( 'Request for data from server failed!' );
-            $("#msgDiv").css('visibility', 'visible');
-            $("#msgDiv").addClass("err");
-        }
-    }
-
     $.fn.resetControlInfo = function( msg ) {
         /* Update message information */
         if ( $( '#msgDiv' ).length > 0 )
         {
-            $("#msgDiv").text( msg );
-            $("#msgDiv").css('visibility', 'visible');
-            $("#msgDiv").removeClass("err");
+            $( '#msgDiv' ).text( msg );
+            $( '#msgDiv' ).css( 'visibility', 'visible' );
+            $( '#msgDiv' ).removeClass( 'err' );
         }
 
         /* Reset checkbox 'Select all' */
         $( '#selectAllChkbox' ).prop( 'checked', false );
     }
 
-    $.fn.switchMenuItem = function( event, menuItem ) {
-        event.preventDefault();
+    $.fn.checkAndBindEvent = function( controlId,
+                                       requestEvents,
+                                       bindFunction ) {
+        if ( $( controlId ).length > 0 )
+        {
+            var bindedEvents = undefined;
+            var keysArr = null;
 
-        var currentUriVal = window.location.pathname.split( '/' )[ 1 ];
-        var newUriVal = '';
-        var userName = $( '#userName' ).text();
+            if ( controlId.indexOf( '#' ) != -1 )
+            {
+                var eleId = controlId.replace( '#', '' );
+                bindedEvents = $._data( document.getElementById( eleId ), 'events');
+            }
 
-        if ( menuItem == MENU_ITEM_TEST )
-            newUriVal = '/mods/test/testForm.php';
-        else if ( menuItem == MENU_ITEM_WORD )
-            newUriVal = '/mods/word/wordForm.php';
-        else if ( menuItem == MENU_ITEM_WORDLIST )
-            newUriVal = '/mods/wordlist/wordlistForm.php';
+            else if ( controlId.indexOf( '.' ) != -1 )
+                bindedEvents = $._data( $( controlId )[ 0 ], 'events' );
 
-        history.pushState( '', document.title, '/' + menuItem );
+            for ( var i = 0; i < requestEvents.length; i++ )
+            {
+                var exist = false;
 
-        var sendingData = {
-            menuItem: menuItem,
-            userName: userName
+                if( bindedEvents !== undefined )
+                {
+                    keysArr = Object.keys( bindedEvents );
+
+                    keysArr.forEach( function( curVal ) {
+                                         if ( curVal == requestEvents[ i ] )
+                                             exist = true;
+                                     }
+                                   );
+
+                    if ( exist )
+                        continue;
+                }
+                else
+                    $( controlId ).bind( requestEvents[ i ], bindFunction );
+            }
         }
+    }
 
-        $.ajax( {
-            url: newUriVal,
-            type: 'post',
-            success:
-                function( response, status ) {
-                    var pageType = '';
+    $.fn.bindGeneralEvents = function() {
+        $( this ).checkAndBindEvent( '#selectAllChkbox',
+                                     new Array( 'change' ),
+                                     $.fn.selectAllChkboxOnChange );
 
-                    if ( currentUriVal == MENU_ITEM_TEST )
-                        pageType = 'testForm';
-                    else if ( currentUriVal == MENU_ITEM_WORD )
-                        pageType = 'wordForm';
-                    else if ( currentUriVal == MENU_ITEM_WORDLIST )
-                        pageType = 'wordlistForm';
+        $( this ).checkAndBindEvent( '.toggleEnabled',
+                                     new Array( 'mouseenter', 'mouseleave' ),
+                                     $.fn.toggleControlOnHover );
 
-                    if ( $( '#' + pageType ).length > 0 )
-                        $( '#' + pageType ).replaceWith( response );
+        $( this ).checkAndBindEvent( 'input[type=text]',
+                                     new Array( 'blur' ),
+                                     $.fn.toSpanControl );
+    }
 
-                    $( this ).bindEventsToControls();
-                },
-            data: sendingData
-        } );
+    $.fn.bindTestEvents = function() {
+        $( this ).checkAndBindEvent( '#testBtn',
+                                     new Array( 'click' ),
+                                     $.fn.testBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#menuItemTest',
+                                     new Array( 'click' ),
+                                     $.fn.menuItemTestOnClick );
+    }
+
+    $.fn.bindWordlistEvents = function() {
+        $( this ).checkAndBindEvent( '#addNewWordlistBtn',
+                                     new Array( 'click' ),
+                                     $.fn.addNewWordlistBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#delSelectedWordListsBtn',
+                                     new Array( 'click' ),
+                                     $.fn.delSelectedWordListsBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#updateSelectedWordListsBtn',
+                                     new Array( 'click' ),
+                                     $.fn.updateSelectedWordListsBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#menuItemWordlist',
+                                     new Array( 'click' ),
+                                     $.fn.menuItemWordlistOnClick );
+
+        $( this ).checkAndBindEvent( '.updateWordlistNameBtn',
+                                     new Array( 'click' ),
+                                     $.fn.updateWordlistNameBtnOnClick );
+    }
+
+    $.fn.bindWordEvents = function() {
+        $( this ).checkAndBindEvent( '#addNewWordBtn',
+                                     new Array( 'click' ),
+                                     $.fn.addNewWordBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#delSelectedWordsBtn',
+                                     new Array( 'click' ),
+                                     $.fn.delSelectedWordsBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#updateSelectedWordsBtn',
+                                     new Array( 'click' ),
+                                     $.fn.updateSelectedWordsBtnOnClick );
+
+        $( this ).checkAndBindEvent( '#menuItemWord',
+                                     new Array( 'click' ),
+                                     $.fn.menuItemWordOnClick );
+
+        $( this ).checkAndBindEvent( '.updateWordBtn',
+                                     new Array( 'click' ),
+                                     $.fn.updateWordBtnOnClick );
+
+        $( this ).checkAndBindEvent( '.exampleEntry',
+                                     new Array( 'mouseenter' ),
+                                     $.fn.exampleEntryOnMouseEnter );
+
+        $( this ).checkAndBindEvent( '.exampleTd',
+                                     new Array( 'mouseenter' ),
+                                     $.fn.exampleTdOnMouseEnter );
     }
 
     $.fn.bindEventsToControls = function() {
         /* Bind events to controls of new wordlist rows */
+        $( this ).bindGeneralEvents();
 
-        /* General events - START */
-        {
-            if ( $( '#selectAllChkbox' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'selectAllChkbox' ), 'events');
+        $( this ).bindTestEvents();
 
-                if ( typeof ev === 'undefined' || !ev.change )
-                {
-                    $( '#selectAllChkbox' ).bind( 'change',
-                                                  function ( event ) {
-                                                  if ( $( this ).prop( 'checked' ) ) {
-                                                      $( 'tbody tr td input[type="checkbox"]' ).each( function() {
-                                                                                                          $(this).prop('checked', true);
-                                                                                                      } );
-                                                  }
-                                                  else
-                                                  {
-                                                      $( 'tbody tr td input[type="checkbox"]' ).each( function() {
-                                                                                                          $(this).prop('checked', false);
-                                                                                                      } );
-                                                  }
-                    } );
-                }
-            }
+        $( this ).bindWordlistEvents();
 
-            if ( $( '.toggleEnabled' ).length > 0 )
-            {
-                var ev = $._data( $( '.toggleEnabled' )[ 0 ], 'events' );
+        $( this ).bindWordEvents();
+    }
 
-                if ( typeof ev === 'undefined' || ( !ev.mouseenter && !ev.mouseleave ) )
-                {
-                    $( '.toggleEnabled' ).bind( 'mouseenter mouseleave',
-                                                function( event ) { $( this ).toggleControl( event ); 
-                    } );
-                }
-            }
-        }
+    $.fn.getWordlistListOnSuccess = function( response, status ) {
+        $( '#hiddenWordlistCb' ).empty();
 
-        /* General events - END */
-
-
-        /* Test events - START */
-        {
-            if ( $( '#testBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'testBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#testBtn' ).bind( 'click',
-                                          function( event) {
-                                            $( this ).testBtnClicked( event );
-                                          } );
-                }
-            }
-
-            if ( $( '#menuItemTest' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'menuItemTest' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#menuItemTest' ).bind( 'click',
-                                               function ( event ) {
-                                                    $( this ).toggleActiveMenuItem( MENU_ITEM_TEST );
-                                                    $( this ).switchMenuItem( event, MENU_ITEM_TEST );
-                                               } );
-                }
-            }
-        }
-        /* Test events - END */
-
-
-        /* Wordlist events - START */
-        {
-            if ( $( '#addNewWordlistBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'addNewWordlistBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#addNewWordlistBtn' ).bind( 'click',
-                                                    function( event) {
-                                                        $( this ).addNewWordlistBtnClicked( event );
-                                                    } );
-                }
-            }
-
-            if ( $( '#delSelectedWordListsBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'delSelectedWordListsBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#delSelectedWordListsBtn' ).bind( 'click',
-                                                          function( event) {
-                                                              $( this ).delSelectedWordListsBtnClicked( event );
+        Object.keys( response[ 'dataContent' ] ).forEach( function ( key ) {
+                                                              var option = '<option value="' + key + '">' + response[ 'dataContent' ][ key ] + '</option>';
+                                                              $( '#hiddenWordlistCb' ).append( option );
                                                           } );
-                }
-            }
+    }
 
-            if ( $( '.updateWordlistNameBtn' ).length > 0 )
-            {
-                var ev = $._data( $( '.updateWordlistNameBtn' )[ 0 ], 'events' );
+    $.fn.getPageContentOnSuccess = function( response, status, currentUri ) {
+        var pageType = '';
 
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '.updateWordlistNameBtn' ).bind( 'click',
-                                                        function( event) {
-                                                            $( this ).updateWordlistNameBtnClicked( event );
+        if ( currentUri == MENU_ITEM_TEST )
+            pageType = 'testForm';
+
+        else if ( currentUri == MENU_ITEM_WORD )
+            pageType = 'wordForm';
+
+        else if ( currentUri == MENU_ITEM_WORDLIST )
+            pageType = 'wordlistForm';
+
+        if ( $( '#' + pageType ).length > 0 )
+            $( '#' + pageType ).replaceWith( response );
+
+        $( this ).bindEventsToControls();
+    }
+
+    $.fn.selectAllChkboxOnChange = function( event ) {
+        var checkedStatus = $( this ).prop( 'checked' );
+
+        $( 'tbody tr td input[type="checkbox"]' ).each( function() {
+                                                            $( this ).prop( 'checked', checkedStatus );
                                                         } );
-                }
-            }
-
-            if ( $( '#updateSelectedWordListsBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'updateSelectedWordListsBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#updateSelectedWordListsBtn' ).bind( 'click',
-                                                              function( event) {
-                                                                  $( this ).updateSelectedWordListsBtnClicked( event );
-                                                              } );
-                }
-            }
-
-            if ( $( '#menuItemWordlist' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'menuItemWordlist' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#menuItemWordlist' ).bind( 'click',
-                                                    function ( event ) {
-                                                        $( this ).toggleActiveMenuItem( MENU_ITEM_WORDLIST );
-                                                        $( this ).switchMenuItem( event, MENU_ITEM_WORDLIST );
-                                                    } );
-                }
-            }
-        }
-        /* Wordlist events - END */
-
-
-        /* Word events - START */
-        {
-            if ( $( '.exampleEntry' ).length > 0 )
-            {
-                var ev = $._data( $( '.exampleEntry' )[ 0 ], 'events' );
-
-                if ( typeof ev === 'undefined' || !ev.mouseenter )
-                {
-                    $( '.exampleEntry' ).bind( 'mouseenter',
-                                                function() {
-                                                                if ( $( 'textarea.exampleEntry' ).length == 0 )
-                                                                {
-                                                                    $( this ).createExampleControlsDiv();
-                                                                    $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
-                                                                    $( this ).addClass( 'transEffectHover' );
-                                                                }
-
-                                                                if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
-                                                                {
-                                                                    $(this).createExampleControlsDiv();
-                                                                    $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-                                                                    $(this).addClass('transEffectHover');
-                                                                }
-                                                           } );
-                }
-            }
-
-            if ( $( '.exampleTd' ).length > 0 )
-            {
-                var ev = $._data( $( '.exampleTd' )[ 0 ], 'events' );
-
-                if ( typeof ev === 'undefined' || !ev.mouseenter )
-                {
-                    $( '.exampleTd' ).bind( 'mouseenter',
-                                            function() {
-                                                var div = $(this).find('div.exampleEntry');
-
-                                                if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 && $('textarea.exampleTd').length == 0 && div.length == 0 )
-                                                {
-                                                    $(this).createExampleControlsDiv();
-                                                    $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-                                                }
-                                            } );
-                }
-            }
-
-            if ( $( '#addNewWordBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'addNewWordBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#addNewWordBtn' ).bind( 'click',
-                                                function ( event ) {
-                                                    $( this ).addNewWord( event );
-                                                } );
-                }
-            }
-
-            if ( $( '#delSelectedWordsBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'delSelectedWordsBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#delSelectedWordsBtn' ).bind( 'click',
-                                                      function ( event ) {
-                                                          $( this ).delSelectedWords( event );
-                                                      } );
-                }
-            }
-
-            if ( $( '.updateWordBtn' ).length > 0 )
-            {
-                var ev = $._data( $( '.updateWordBtn' )[ 0 ], 'events' );
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '.updateWordBtn' ).bind( 'click',
-                                                function ( event ) {
-                                                                       var rowObj = $( this ).parent().parent();
-
-                                                                       $( this ).updateWord( event, rowObj );
-                                                                   } );
-                }
-            }
-
-            if ( $( '#updateSelectedWordsBtn' ).length > 0 )
-            {
-                var ev = $._data( document.getElementById( 'updateSelectedWordsBtn' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#updateSelectedWordsBtn' ).bind( 'click',
-                                                         function ( event ) {
-                                                            $( this ).updateSelectedWords( event );
-                                                         } );
-                }
-            }
-
-            if ( $( '#menuItemWord' ).length > 0 )
-            {
-                $( this ).getWordlistList();
-
-                var ev = $._data( document.getElementById( 'menuItemWord' ), 'events');
-
-                if ( typeof ev === 'undefined' || !ev.click )
-                {
-                    $( '#menuItemWord' ).bind( 'click',
-                                               function ( event ) {
-                                                  $( this ).toggleActiveMenuItem( MENU_ITEM_WORD );
-                                                  $( this ).switchMenuItem( event, MENU_ITEM_WORD );
-                                               } );
-                }
-            }
-        }
-        /* Word events - END */
     }
 
-    $.fn.err = function( errMsg ) {
-        /* Update and show error message */
-        if ( $( '#msgDiv' ).length > 0 )
+    $.fn.getTagDisplayVal = function() {
+        var returnVal = '';
+
+        switch( $( this ).prop('tagName') )
         {
-            $("#msgDiv").text( errMsg );
-            $("#msgDiv").css('visibility', 'visible');
-            $("#msgDiv").addClass("err");
+            case 'SPAN':
+            case 'DIV':
+            case 'TEXTAREA':
+            case 'BUTTON':
+                returnVal = $( this ).text();
+                break;
+
+            case 'SELECT':
+                $( this ).find( ':selected' ).text();
+                break;
+
+            default:
+                break;
         }
+
+        return returnVal;
     }
 
-    $.fn.toInputTextControl = function() {
-        var inputTag = document.createElement('INPUT');
+    $.fn.toInputTextControl = function( displayVal, controlTranstype ) {
+        var inputTag = document.createElement( 'INPUT' );
+        var parentPadding = $( this ).parent().css( 'padding-right' ).replace( 'px', '' );
+        var parentWidth = $( this ).parent().width();
 
-        $.each(this[0].attributes, function(i, attrib){
-            $(inputTag).attr(attrib.name, attrib.value);
-        });
+        $.each( this[ 0 ].attributes, function( i, attrib ) {
+            $( inputTag ).attr( attrib.name, attrib.value );
+        } );
 
         inputTag.type = 'text';
-        inputTag.value = $(this).text();
+        inputTag.value = displayVal;
 
-        $(inputTag).attr('data-controltranstype', 'span');
+        $( inputTag ).attr( 'data-controltranstype', controlTranstype );
 
-        inputTag.style.width = $(this).parent().width() - 6 + "px";
-        inputTag.style.color = $(this).css("color");
+        inputTag.style.width = parentWidth - parentPadding - 1 + 'px';
 
-        $(inputTag).bind('blur', function ( event ) { $(this).toggleControl( event ); } );
+        $( inputTag ).bind( 'blur', function ( event ) { $( this ).toggleControlOnHover( event ); } );
 
-        $(inputTag).bind('keypress', function ( event ) { $(this).toggleControl( event ); } );
+        $( inputTag ).bind( 'keypress', function ( event ) { $( this ).toggleControlOnHover( event ); } );
 
-        $(this).replaceWith(inputTag);
+        $( this ).replaceWith( inputTag );
 
         return inputTag;
     }
+
+    /* =========================== Helper functions - END =========================== */
+
+
+
+
 
     $.fn.toTextAreaControl = function(text) {
         var textarea = document.createElement('TEXTAREA');
@@ -429,9 +350,9 @@ $( document ).ready( function() {
         textarea.style.width = $(this).parent().width() - 6 + "px";
         textarea.style.color = $(this).css("color");
 
-        $(textarea).bind('blur', function ( event ) { $(this).toggleControl( event ); } );
+        $(textarea).bind('blur', function ( event ) { $(this).toggleControlOnHover( event ); } );
 
-        $(textarea).bind('keypress', function ( event ) { $(this).toggleControl( event ); } );
+        $(textarea).bind('keypress', function ( event ) { $(this).toggleControlOnHover( event ); } );
 
         return textarea;
     }
@@ -470,9 +391,9 @@ $( document ).ready( function() {
         $(selectTag).find('option').css('color', 'black');
         $(selectTag).find('option:selected').css('color', $(this).css("color"));
 
-        $(selectTag).bind('blur', function ( event ) { $(this).toggleControl( event ); } );
+        $(selectTag).bind('blur', function ( event ) { $(this).toggleControlOnHover( event ); } );
 
-        $(selectTag).bind('keypress', function ( event ) { $(this).toggleControl( event ); } );
+        $(selectTag).bind('keypress', function ( event ) { $(this).toggleControlOnHover( event ); } );
 
         $(this).replaceWith(selectTag);
 
@@ -697,20 +618,20 @@ $( document ).ready( function() {
             $(this).parent().append(divTag);
     }
 
-    $.fn.toggleControl = function( event ) {
+    $.fn.toggleControlOnHover = function( event ) {
 
-        switch( this.prop('tagName') )
+        switch( $( this ).prop('tagName') )
         {
             case 'TD':
 
-                var childTag = this.children( '[data-controlTransType]' );
+                var childTag = $( this ).children( '[data-controlTransType]' );
 
                 if ( childTag.length > 0 )
                 {
                     switch( childTag.first().attr( 'data-controlTransType' ) )
                     {
                         case 'input-text':
-                            var textbox = childTag.toInputTextControl();
+                            var textbox = childTag.toInputTextControl( childTag.getTagDisplayVal(), 'span' );
                             $(textbox).focus();
 
                             var tmpStr = $(textbox).val();
@@ -760,7 +681,7 @@ $( document ).ready( function() {
                     }
                 }
                 else
-                    this.toSpanControl();
+                    $( this ).toSpanControl();
 
                 break;
 
@@ -768,16 +689,4 @@ $( document ).ready( function() {
                 break;
         }
     }
-
-    $.fn.toggleActiveMenuItem = function( menuItem ) {
-        $( '.menuItem' ).removeClass( 'active' );
-
-        if ( menuItem == MENU_ITEM_TEST )
-            $( '#menuItemTest' ).addClass( 'active' );
-        else if ( menuItem == MENU_ITEM_WORD )
-            $( '#menuItemWord' ).addClass( 'active' );
-        else if ( menuItem == MENU_ITEM_WORDLIST )
-            $( '#menuItemWordlist' ).addClass( 'active' );
-    }
 });
-

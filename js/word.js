@@ -1,6 +1,6 @@
 $( document ).ready( function() {
 
-    $.fn.addNewWord = function( event ) {
+    $.fn.addNewWordBtnOnClick = function( event ) {
         event.preventDefault();
 
         var wordTitle = $( '#addNewWordTextBox' ).val().trim();
@@ -34,12 +34,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -54,10 +54,10 @@ $( document ).ready( function() {
             } );
         }
         else
-            $( this ).err( errMsg );
+            $( this ).displayErrMsg( errMsg );
     }
 
-    $.fn.delSelectedWords = function( event ) {
+    $.fn.delSelectedWordsBtnOnClick = function( event ) {
         event.preventDefault();
 
         var selectedWord = new Array();
@@ -109,12 +109,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status ) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -128,7 +128,13 @@ $( document ).ready( function() {
         }
     }
 
-    $.fn.updateSelectedWords = function( event ) {
+    $.fn.updateWordBtnOnClick = function( event ) {
+        var rowObj = $( this ).parent().parent();
+
+        $( this ).updateWord( event, rowObj );
+    }
+
+    $.fn.updateSelectedWordsBtnOnClick = function( event ) {
         event.preventDefault();
 
         var modifiedWordRowList = new Array();
@@ -208,12 +214,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function( response, status) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -226,6 +232,37 @@ $( document ).ready( function() {
                     },
                 data: sendingData
             } );
+        }
+    }
+
+    $.fn.menuItemWordOnClick = function( event ) {
+        $( this ).toggleActiveMenuItem( MENU_ITEM_WORD );
+        $( this ).switchMenuItem( event, MENU_ITEM_WORD );
+    }
+
+    $.fn.exampleEntryOnMouseEnter = function( event ) {
+        if ( $( 'textarea.exampleEntry' ).length == 0 )
+        {
+            $( this ).createExampleControlsDiv();
+            $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
+            $( this ).addClass( 'transEffectHover' );
+        }
+
+        if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
+        {
+            $(this).createExampleControlsDiv();
+            $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+            $(this).addClass('transEffectHover');
+        }
+    }
+
+    $.fn.exampleTdOnMouseEnter = function( event ) {
+        var div = $(this).find('div.exampleEntry');
+
+        if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 && $('textarea.exampleTd').length == 0 && div.length == 0 )
+        {
+            $(this).createExampleControlsDiv();
+            $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
         }
     }
 
@@ -302,12 +339,12 @@ $( document ).ready( function() {
                 cache: false,
                 error:
                     function( xhr, status, error ) {
-                        $( this ).errRequestServerData( xhr, status, error );
+                        $( this ).displayErrMsg( xhr.responseText );
                     },
                 success:
                     function(response,status) {
                         /* In case response from server is successful */
-                        if ( $( this ).checkServerResponse( response, status ) )
+                        if ( $( this ).isServerResponseOk( response, status ) )
                         {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
