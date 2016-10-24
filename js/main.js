@@ -154,106 +154,136 @@ $( document ).ready( function() {
                     if ( exist )
                         continue;
                 }
-                else
+                
+                if ( bindedEvents === undefined || !exist )
                     $( controlId ).bind( requestEvents[ i ], bindFunction );
             }
         }
     }
 
     $.fn.bindGeneralEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'change' );
         $( this ).checkAndBindEvent( '#selectAllChkbox',
-                                     new Array( 'change' ),
+                                     eventArr,
                                      $.fn.selectAllChkboxOnChange );
 
+        ( eventArr = [] ).push( 'mouseenter', 'mouseleave' );
         $( this ).checkAndBindEvent( '.toggleEnabled',
-                                     new Array( 'mouseenter', 'mouseleave' ),
+                                     eventArr,
                                      $.fn.toggleControlOnHover );
 
+        ( eventArr = [] ).push( 'blur', 'mouseleave' );
+        $( this ).checkAndBindEvent( 'select[data-controltranstype]',
+                                     eventArr,
+                                     $.fn.toSpanControl );
+
+        ( eventArr = [] ).push( 'blur' );
         $( this ).checkAndBindEvent( 'input[type=text]',
-                                     new Array( 'blur' ),
+                                     eventArr,
                                      $.fn.toSpanControl );
 
+        $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
+                                     eventArr,
+                                     $.fn.toSpanControl );
+
+        ( eventArr = [] ).push( 'keypress' );
         $( this ).checkAndBindEvent( 'input[type=text][data-controltranstype]',
-                                     new Array( 'keypress' ),
+                                     eventArr,
                                      $.fn.editableControlOnKeyPress );
 
         $( this ).checkAndBindEvent( 'select[data-controltranstype]',
-                                     new Array( 'blur' ),
-                                     $.fn.toSpanControl );
-
-        $( this ).checkAndBindEvent( 'select[data-controltranstype]',
-                                     new Array( 'keypress' ),
+                                     eventArr,
                                      $.fn.editableControlOnKeyPress );
 
         $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
-                                     new Array( 'blur' ),
-                                     $.fn.toSpanControl );
-
-        $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
-                                     new Array( 'keypress' ),
+                                     eventArr,
                                      $.fn.editableControlOnKeyPress );
+
+        eventArr = null;
     }
 
     $.fn.bindTestEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'click' );
         $( this ).checkAndBindEvent( '#testBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.testBtnOnClick );
 
         $( this ).checkAndBindEvent( '#menuItemTest',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.menuItemTestOnClick );
+
+        eventArr = null;
     }
 
     $.fn.bindWordlistEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'click' );
         $( this ).checkAndBindEvent( '#addNewWordlistBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.addNewWordlistBtnOnClick );
 
         $( this ).checkAndBindEvent( '#delSelectedWordListsBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.delSelectedWordListsBtnOnClick );
 
         $( this ).checkAndBindEvent( '#updateSelectedWordListsBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.updateSelectedWordListsBtnOnClick );
 
         $( this ).checkAndBindEvent( '#menuItemWordlist',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.menuItemWordlistOnClick );
 
         $( this ).checkAndBindEvent( '.updateWordlistNameBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.updateWordlistNameBtnOnClick );
+
+        eventArr = null;
     }
 
     $.fn.bindWordEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'click' );
         $( this ).checkAndBindEvent( '#addNewWordBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.addNewWordBtnOnClick );
 
         $( this ).checkAndBindEvent( '#delSelectedWordsBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.delSelectedWordsBtnOnClick );
 
         $( this ).checkAndBindEvent( '#updateSelectedWordsBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.updateSelectedWordsBtnOnClick );
 
         $( this ).checkAndBindEvent( '#menuItemWord',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.menuItemWordOnClick );
 
+        $( this ).checkAndBindEvent( '#addExampleBtn',
+                                     eventArr,
+                                     $.fn.addExampleBtnClick );
+
+        $( this ).checkAndBindEvent( '#updateExampleBtn',
+                                     eventArr,
+                                     $.fn.updateExampleBtnClick );
+
         $( this ).checkAndBindEvent( '.updateWordBtn',
-                                     new Array( 'click' ),
+                                     eventArr,
                                      $.fn.updateWordBtnOnClick );
 
+        ( eventArr = [] ).push( 'mouseenter' );
         $( this ).checkAndBindEvent( '.exampleEntry',
-                                     new Array( 'mouseenter' ),
+                                     eventArr,
                                      $.fn.exampleEntryOnMouseEnter );
 
-        $( this ).checkAndBindEvent( '.exampleTd',
-                                     new Array( 'mouseenter' ),
-                                     $.fn.exampleTdOnMouseEnter );
+        eventArr = null;
     }
 
     $.fn.bindEventsToControls = function() {
@@ -267,10 +297,15 @@ $( document ).ready( function() {
         $( this ).bindWordEvents();
     }
 
+    $.fn.unbindAllEventsOfToggleFieldsInViewTable = function() {
+        $( 'td.toggleEnabled' ).unbind();
+        $( '.exampleEntry' ).unbind();
+    }
+
     $.fn.getTagDisplayVal = function() {
         var returnVal = '';
 
-        switch( $( this ).prop('tagName') )
+        switch( $( this ).prop( 'tagName' ) )
         {
             case 'SPAN':
             case 'DIV':
@@ -410,6 +445,25 @@ $( document ).ready( function() {
         }
     }
 
+    $.fn.toButtonControl = function( buttonId, buttonLabel ) {
+        var buttonTag = document.createElement( 'BUTTON' );
+
+        $.each( this[ 0 ].attributes, function( i, attrib ) {
+            if ( attrib.name != 'id' )
+                $( buttonTag ).attr( attrib.name, attrib.value );
+        } );
+
+        $( buttonTag ).prop( 'id', buttonId );
+        $( buttonTag ).html( buttonLabel );
+
+        $( buttonTag ).removeAttr( 'style' );
+        $( buttonTag ).removeClass( 'transEffect' );
+
+        $( buttonTag ).addClass( 'exampleBtn' );
+
+        return buttonTag;
+    }
+
     $.fn.getWordlistListOnSuccess = function( response, status ) {
         $( '#hiddenWordlistCb' ).empty();
 
@@ -451,8 +505,6 @@ $( document ).ready( function() {
     }
 
     /* =========================== Helper functions - END =========================== */
-
-
 
 
 
@@ -594,33 +646,6 @@ $( document ).ready( function() {
         $(this).replaceWith(divTag);
 
         return divTag;
-    }
-
-    $.fn.toButtonControl = function(buttonId, buttonLabel) {
-        var buttonTag = document.createElement('BUTTON');
-
-        $.each(this[0].attributes, function(i, attrib){
-            $(buttonTag).attr(attrib.name, attrib.value);
-        });
-
-        $(buttonTag).prop('id', buttonId);
-        $(buttonTag).html(buttonLabel);
-
-        $(buttonTag).removeAttr('style');
-        $(buttonTag).removeClass('transEffect');
-        $(buttonTag).attr('data-controltranstype', 'textarea');
-
-        $(buttonTag).addClass('exampleBtn');
-
-        $(buttonTag).bind('click', function ( event ) { 
-                                                        if ( buttonId == 'updateExampleBtn' )
-                                                            $(this).updateExampleBtnClick(event);
-
-                                                        else if ( buttonId == 'addExampleBtn' )
-                                                            $(this).addExampleBtnClick(event);
-                                                      });
-
-        return buttonTag;
     }
 
     $.fn.createExampleControlsDiv = function() {
