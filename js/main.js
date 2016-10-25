@@ -120,22 +120,31 @@ $( document ).ready( function() {
         $( '#selectAllChkbox' ).prop( 'checked', false );
     }
 
-    $.fn.checkAndBindEvent = function( controlId,
-                                       requestEvents,
-                                       bindFunction ) {
-        if ( $( controlId ).length > 0 )
+    $.fn.getBindedEvents = function( control) {
+    }
+
+    $.fn.checkAndBindEventForEle = function( control,
+                                             requestEvents,
+                                             bindFunction,
+                                             param = null ) {
+        if ( control != null && control != undefined )
         {
             var bindedEvents = undefined;
             var keysArr = null;
 
-            if ( controlId.indexOf( '#' ) != -1 )
+            /* If passing control is element ID */
+            if ( typeof control == 'string' )
             {
-                var eleId = controlId.replace( '#', '' );
-                bindedEvents = $._data( document.getElementById( eleId ), 'events');
-            }
+                var eleId = control.replace( '#', '' );
+                var eleObj = document.getElementById( eleId );
 
-            else if ( controlId.indexOf( '.' ) != -1 )
-                bindedEvents = $._data( $( controlId )[ 0 ], 'events' );
+                if ( eleObj != null )
+                    bindedEvents = $._data( eleObj, 'events');
+            }
+            else if ( typeof control == 'object' )
+            {
+                bindedEvents = $._data( control, 'events');
+            }
 
             for ( var i = 0; i < requestEvents.length; i++ )
             {
@@ -156,50 +165,98 @@ $( document ).ready( function() {
                 }
                 
                 if ( bindedEvents === undefined || !exist )
-                    $( controlId ).bind( requestEvents[ i ], bindFunction );
+                    if ( param )
+                        $( control ).bind( requestEvents[ i ], param, bindFunction );
+                    else
+                        $( control ).bind( requestEvents[ i ], bindFunction );
             }
         }
+    }
+
+    $.fn.checkAndbindEventsForSelectors = function( selectors,
+                                                    requestEvents,
+                                                    bindFunction,
+                                                    param = null ) {
+        $.each( $( selectors ), function() {
+                                                $( this ).checkAndBindEventForEle( $( this ),
+                                                                                   requestEvents,
+                                                                                   bindFunction,
+                                                                                   param );
+                                           } );
+    }
+
+    $.fn.bindInputTextEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'blur' );
+        $( this ).checkAndbindEventsForSelectors( 'input[type=text]',
+                                                   eventArr,
+                                                   $.fn.toSpanControl,
+                                                   { controlTranstype: 'input-text' } );
+
+        ( eventArr = [] ).push( 'keypress' );
+        $( this ).checkAndbindEventsForSelectors( 'input[type=text][data-controltranstype]',
+                                                   eventArr,
+                                                   $.fn.editableControlOnKeyPress );
+
+        eventArr = null;
+    }
+
+    $.fn.bindSelectEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'blur', 'mouseleave' );
+        $( this ).checkAndbindEventsForSelectors( 'select[data-controltranstype]',
+                                                  eventArr,
+                                                  $.fn.toSpanControl,
+                                                  { controlTranstype: 'select' } );
+
+        $( this ).checkAndbindEventsForSelectors( 'select[data-controltranstype]',
+                                                   eventArr,
+                                                   $.fn.editableControlOnKeyPress );
+
+        eventArr = null;
+    }
+
+    $.fn.bindTextAreaEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'blur' );
+        $( this ).checkAndbindEventsForSelectors( 'textarea[data-controltranstype]',
+                                                   eventArr,
+                                                   $.fn.toSpanControl,
+                                                   { controlTranstype: 'textarea' } );
+
+        $( this ).checkAndbindEventsForSelectors( 'textarea[data-controltranstype]',
+                                                   eventArr,
+                                                   $.fn.editableControlOnKeyPress );
+
+        eventArr = null;
+    }
+
+    $.fn.bindSpanEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'mouseenter' );
+        $( this ).checkAndbindEventsForSelectors( 'span[data-controltranstype]',
+                                                   eventArr,
+                                                   $.fn.toggleControlOnHover );
+
+        eventArr = null;
     }
 
     $.fn.bindGeneralEvents = function() {
         var eventArr = new Array();
 
         ( eventArr = [] ).push( 'change' );
-        $( this ).checkAndBindEvent( '#selectAllChkbox',
-                                     eventArr,
-                                     $.fn.selectAllChkboxOnChange );
+        $( this ).checkAndBindEventForEle( '#selectAllChkbox',
+                                           eventArr,
+                                           $.fn.selectAllChkboxOnChange );
 
         ( eventArr = [] ).push( 'mouseenter', 'mouseleave' );
-        $( this ).checkAndBindEvent( '.toggleEnabled',
-                                     eventArr,
-                                     $.fn.toggleControlOnHover );
-
-        ( eventArr = [] ).push( 'blur', 'mouseleave' );
-        $( this ).checkAndBindEvent( 'select[data-controltranstype]',
-                                     eventArr,
-                                     $.fn.toSpanControl );
-
-        ( eventArr = [] ).push( 'blur' );
-        $( this ).checkAndBindEvent( 'input[type=text]',
-                                     eventArr,
-                                     $.fn.toSpanControl );
-
-        $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
-                                     eventArr,
-                                     $.fn.toSpanControl );
-
-        ( eventArr = [] ).push( 'keypress' );
-        $( this ).checkAndBindEvent( 'input[type=text][data-controltranstype]',
-                                     eventArr,
-                                     $.fn.editableControlOnKeyPress );
-
-        $( this ).checkAndBindEvent( 'select[data-controltranstype]',
-                                     eventArr,
-                                     $.fn.editableControlOnKeyPress );
-
-        $( this ).checkAndBindEvent( 'textarea[data-controltranstype]',
-                                     eventArr,
-                                     $.fn.editableControlOnKeyPress );
+        $( this ).checkAndbindEventsForSelectors( '.toggleEnabled',
+                                                  eventArr,
+                                                  $.fn.toggleControlOnHover );
 
         eventArr = null;
     }
@@ -208,13 +265,13 @@ $( document ).ready( function() {
         var eventArr = new Array();
 
         ( eventArr = [] ).push( 'click' );
-        $( this ).checkAndBindEvent( '#testBtn',
-                                     eventArr,
-                                     $.fn.testBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#testBtn',
+                                           eventArr,
+                                           $.fn.testBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#menuItemTest',
-                                     eventArr,
-                                     $.fn.menuItemTestOnClick );
+        $( this ).checkAndBindEventForEle( '#menuItemTest',
+                                           eventArr,
+                                           $.fn.menuItemTestOnClick );
 
         eventArr = null;
     }
@@ -223,25 +280,25 @@ $( document ).ready( function() {
         var eventArr = new Array();
 
         ( eventArr = [] ).push( 'click' );
-        $( this ).checkAndBindEvent( '#addNewWordlistBtn',
-                                     eventArr,
-                                     $.fn.addNewWordlistBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#addNewWordlistBtn',
+                                           eventArr,
+                                           $.fn.addNewWordlistBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#delSelectedWordListsBtn',
-                                     eventArr,
-                                     $.fn.delSelectedWordListsBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#delSelectedWordListsBtn',
+                                           eventArr,
+                                           $.fn.delSelectedWordListsBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#updateSelectedWordListsBtn',
-                                     eventArr,
-                                     $.fn.updateSelectedWordListsBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#updateSelectedWordListsBtn',
+                                           eventArr,
+                                           $.fn.updateSelectedWordListsBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#menuItemWordlist',
-                                     eventArr,
-                                     $.fn.menuItemWordlistOnClick );
+        $( this ).checkAndBindEventForEle( '#menuItemWordlist',
+                                           eventArr,
+                                           $.fn.menuItemWordlistOnClick );
 
-        $( this ).checkAndBindEvent( '.updateWordlistNameBtn',
-                                     eventArr,
-                                     $.fn.updateWordlistNameBtnOnClick );
+        $( this ).checkAndbindEventsForSelectors( '.updateWordlistNameBtn',
+                                                  eventArr,
+                                                  $.fn.updateWordlistNameBtnOnClick );
 
         eventArr = null;
     }
@@ -250,38 +307,38 @@ $( document ).ready( function() {
         var eventArr = new Array();
 
         ( eventArr = [] ).push( 'click' );
-        $( this ).checkAndBindEvent( '#addNewWordBtn',
-                                     eventArr,
-                                     $.fn.addNewWordBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#addNewWordBtn',
+                                           eventArr,
+                                           $.fn.addNewWordBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#delSelectedWordsBtn',
-                                     eventArr,
-                                     $.fn.delSelectedWordsBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#delSelectedWordsBtn',
+                                           eventArr,
+                                           $.fn.delSelectedWordsBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#updateSelectedWordsBtn',
-                                     eventArr,
-                                     $.fn.updateSelectedWordsBtnOnClick );
+        $( this ).checkAndBindEventForEle( '#updateSelectedWordsBtn',
+                                           eventArr,
+                                           $.fn.updateSelectedWordsBtnOnClick );
 
-        $( this ).checkAndBindEvent( '#menuItemWord',
-                                     eventArr,
-                                     $.fn.menuItemWordOnClick );
+        $( this ).checkAndBindEventForEle( '#menuItemWord',
+                                           eventArr,
+                                           $.fn.menuItemWordOnClick );
 
-        $( this ).checkAndBindEvent( '#addExampleBtn',
-                                     eventArr,
-                                     $.fn.addExampleBtnClick );
+        $( this ).checkAndBindEventForEle( '#addExampleBtn',
+                                           eventArr,
+                                           $.fn.addExampleBtnClick );
 
-        $( this ).checkAndBindEvent( '#updateExampleBtn',
-                                     eventArr,
-                                     $.fn.updateExampleBtnClick );
+        $( this ).checkAndBindEventForEle( '#updateExampleBtn',
+                                           eventArr,
+                                           $.fn.updateExampleBtnClick );
 
-        $( this ).checkAndBindEvent( '.updateWordBtn',
-                                     eventArr,
-                                     $.fn.updateWordBtnOnClick );
+        $( this ).checkAndbindEventsForSelectors( '.updateWordBtn',
+                                                   eventArr,
+                                                   $.fn.updateWordBtnOnClick );
 
         ( eventArr = [] ).push( 'mouseenter' );
-        $( this ).checkAndBindEvent( '.exampleEntry',
-                                     eventArr,
-                                     $.fn.exampleEntryOnMouseEnter );
+        $( this ).checkAndbindEventsForSelectors( '.exampleEntry',
+                                                   eventArr,
+                                                   $.fn.exampleEntryOnMouseEnter );
 
         eventArr = null;
     }
@@ -309,13 +366,17 @@ $( document ).ready( function() {
         {
             case 'SPAN':
             case 'DIV':
-            case 'TEXTAREA':
             case 'BUTTON':
                 returnVal = $( this ).text();
                 break;
 
             case 'SELECT':
-                $( this ).find( ':selected' ).text();
+                returnVal = $( this ).find( ':selected' ).text();
+                break;
+
+            case 'INPUT':
+            case 'TEXTAREA':
+                returnVal = $( this ).val();
                 break;
 
             default:
@@ -346,7 +407,7 @@ $( document ).ready( function() {
         $( inputTag ).focus();
         $( inputTag ).val( displayVal );
 
-        $( this ).bindEventsToControls();
+        $( this ).bindInputTextEvents();
 
         return inputTag;
     }
@@ -381,7 +442,7 @@ $( document ).ready( function() {
 
         $( selectTag  ).focus();
 
-        $( this ).bindEventsToControls();
+        $( this ).bindSelectEvents();
 
         return selectTag;
     }
@@ -405,7 +466,7 @@ $( document ).ready( function() {
         $( textarea ).focus();
         $( textarea ).val( displayVal );
 
-        $( this ).bindEventsToControls();
+        $( this ).bindTextAreaEvents();
 
         return textarea;
     }
@@ -464,6 +525,56 @@ $( document ).ready( function() {
         return buttonTag;
     }
 
+    $.fn.toSpanControl = function( param ) {
+        var spanTag = document.createElement( 'SPAN' );
+        var chkboxObj = $( this ).parent().parent().find( 'input[type="checkbox"]' );
+        var displayVal = $( this ).getTagDisplayVal().trim();
+        var classString = $( this ).attr( 'class' );
+        var dataSourceName = '';
+
+        $.each( $( this )[ 0 ].attributes, function( i, attrib ) {
+            if ( attrib.name != 'id' )
+                $( spanTag ).attr( attrib.name, attrib.value );
+        } );
+
+        $( spanTag ).attr( 'data-controltranstype', param.data.controlTranstype );
+
+        if ( classString.search( 'partOfSpeech' ) != -1 )
+            dataSourceName = 'data-sourcepos';
+
+        else if ( classString.search( 'pronunciation' ) != -1 )
+            dataSourceName = 'data-sourcepron';
+
+        else if ( classString.search( 'wordlist' ) != -1 )
+            dataSourceName = 'data-sourcewordlistname';
+
+        else if ( classString.search( 'meaning' ) != -1 )
+            dataSourceName = 'data-sourcemeaning';
+
+        else if ( classString.search( 'word' ) != -1 )
+            dataSourceName = 'data-sourceword';
+
+        if ( $( spanTag ).attr( dataSourceName ).trim() != displayVal )
+        {
+            $( spanTag ).addClass( 'modified' );
+            spanTag.style.color = 'red';
+            chkboxObj.first().prop( 'checked', true );
+        }    
+        else
+        {
+            $( spanTag ).removeClass( 'modified' );
+            spanTag.style.color = 'black';
+        }
+
+        spanTag.innerHTML = displayVal;
+
+        $( this ).replaceWith( spanTag );
+
+        $( this ).bindSpanEvents();
+
+        return spanTag;
+    }
+
     $.fn.getWordlistListOnSuccess = function( response, status ) {
         $( '#hiddenWordlistCb' ).empty();
 
@@ -501,84 +612,12 @@ $( document ).ready( function() {
 
     $.fn.editableControlOnKeyPress = function( event ) {
         if ( event.which == 13 )
-            $( this ).toSpanControl();
+            $( this ).toSpanControl( 'input-text' );
     }
 
     /* =========================== Helper functions - END =========================== */
 
 
-
-    $.fn.toSpanControl = function() {
-        var dataSourceName = "";
-        var spanTag = document.createElement('SPAN');
-        var chkboxEle = $(this).parent().parent().find('input[type="checkbox"]');
-
-        $.each($(this)[0].attributes, function(i, attrib){
-            $(spanTag).attr(attrib.name, attrib.value);
-
-            if (attrib.name == 'class')
-            {
-                if ( attrib.value.search('wordlist') != -1 )
-                    dataSourceName = "data-sourcewordlistname";
-
-                else if ( attrib.value.indexOf('word') != -1 )
-                    dataSourceName = "data-sourceword";
-
-                else if ( attrib.value.indexOf('partOfSpeech') != -1 )
-                    dataSourceName = "data-sourcepos";
-
-                else if ( attrib.value.indexOf('pronunciation') != -1 )
-                    dataSourceName = "data-sourcepron";
-
-                else if ( attrib.value.indexOf('meaning') != -1 )
-                    dataSourceName = "data-sourcemeaning";
-
-                else if ( attrib.value.indexOf('exampleEntry') != -1 )
-                    dataSourceName = "data-sourceexample";
-            }
-        });
-
-        switch( $(this).prop('tagName') )
-        {
-            case 'SELECT':
-                $(spanTag).attr('data-controltranstype', 'select');
-                spanTag.innerHTML = $(this).find(":selected").text().trim();
-                break;
-
-            case 'INPUT':
-                $(spanTag).attr('data-controltranstype', 'input-text');
-                spanTag.innerHTML = $(this).prop('value').trim();                
-                break;
-
-            case 'TEXTAREA':
-                if ( $(this).attr('class').indexOf('example') == -1 )
-                    $(spanTag).attr('data-controltranstype', 'textarea');
-                else
-                    $(spanTag).attr('data-controltranstype', 'button');
-
-                spanTag.innerHTML = $(this).prop('value').trim();                
-                break;
-
-            default:
-                break;
-        }
-
-        if ( $(spanTag).attr(dataSourceName).trim() != spanTag.innerHTML.trim() )
-        {
-            $(spanTag).addClass('modified');
-            spanTag.style.color = 'red';
-            chkboxEle.first().prop('checked', true);
-        }    
-        else
-        {
-            $(spanTag).removeClass('modified');
-            spanTag.style.color = 'black';
-        }    
-
-        $(this).replaceWith(spanTag);
-
-        return spanTag;
-    }
 
     $.fn.toDivControl = function() {
         var divTag = document.createElement('DIV');
@@ -701,39 +740,45 @@ $( document ).ready( function() {
 
     $.fn.toggleControlOnHover = function( event ) {
 
-        switch( $( this ).prop('tagName') )
-        {
-            case 'TD':
-                $.each( $( this ).find( '[data-controlTransType]' ), $.fn.toEditableControls );
-                break;
+        if ( event.type == 'mouseenter' && $( this ).prop( 'tagName' ) == 'TD' )
+            $.each( $( this ).find( '[data-controlTransType]' ), $.fn.toEditableControls );
 
-            case 'INPUT':
-            case 'SELECT':
-            case 'TEXTAREA':
-            case 'BUTTON':
+        if ( $( this ).prop( 'tagName' ) == 'SPAN' )
+            $( this ).toEditableControls();
 
-                if ( event.type == 'keypress' && event.which != 13 )
-                    break;
+        // switch( $( this ).prop('tagName') )
+        // {
+        //     case 'TD':
+        //         $.each( $( this ).find( '[data-controlTransType]' ), $.fn.toEditableControls );
+        //         break;
 
-                if ( $(this).attr('class').indexOf('exampleBtn') != -1 )
-                {
-                    var divTag = $(this).toDivControl();
-                    $(divTag).removeClass('exampleBtn');
-                    $(divTag).next('br').remove();
+            // case 'INPUT':
+            // case 'SELECT':
+            // case 'TEXTAREA':
+            // case 'BUTTON':
 
-                    if ($(this).attr('class').indexOf('exampleTd') != -1)
-                    {
-                        $(divTag).removeClass('exampleTd');
-                        $(divTag).addClass('exampleEntry transEffect');
-                    }
-                }
-                else
-                    $( this ).toSpanControl();
+            //     if ( event.type == 'keypress' && event.which != 13 )
+            //         break;
 
-                break;
+            //     if ( $(this).attr('class').indexOf('exampleBtn') != -1 )
+            //     {
+            //         var divTag = $(this).toDivControl();
+            //         $(divTag).removeClass('exampleBtn');
+            //         $(divTag).next('br').remove();
 
-            default:
-                break;
-        }
+            //         if ($(this).attr('class').indexOf('exampleTd') != -1)
+            //         {
+            //             $(divTag).removeClass('exampleTd');
+            //             $(divTag).addClass('exampleEntry transEffect');
+            //         }
+            //     }
+            //     else
+            //         $( this ).toSpanControl();
+
+            //     break;
+
+            // default:
+            //     break;
+        //}
     }
-});
+} );
