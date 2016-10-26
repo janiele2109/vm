@@ -84,10 +84,13 @@
 
 					if ( $result[ 'errState' ] == 'OK' )
 					{
-						$wordMeaningId = getWordMeaningId( $wordId, $wordMeaning );
+						if ( $wordExample != '' )
+						{
+							$wordMeaningId = getWordMeaningId( $wordId, $wordMeaning );
 
-						$result = addWordExampleToDb( $wordMeaningId, $wordExample );
-
+							$result = addWordExampleToDb( $wordMeaningId, $wordExample );
+						}
+						
 						if ( $result[ 'errState' ] == 'OK' )
 						{
 							$result[ 'dataContent' ] = reloadWordViewContent();

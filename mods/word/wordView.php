@@ -38,9 +38,16 @@
 
 			if ( $wordExamples = $mysqli->query( $query ) )
 			{
+				$rowCnt = $wordExamples->num_rows;
+				$curIndex = 0;
+
 				while ( $example = mysqli_fetch_row( $wordExamples ) )
 				{
-					echo '<div class = "exampleEntry transEffect" data-exId = "ex_' . $example[ 0 ] . '" data-controltranstype = "button" data-sourceexample = "' . $example[ 1 ] . '">' . $example[ 1 ] . '</div><br/>';
+					$curIndex++;
+					echo '<div class = "exampleEntry transEffect" data-exId = "ex_' . $example[ 0 ] . '" data-controltranstype = "button" data-sourceexample = "' . $example[ 1 ] . '">' . $example[ 1 ] . '</div>';
+
+					if ( $curIndex < $rowCnt )
+						echo '<br/>';
 				}
 
 				mysqli_free_result( $wordExamples );

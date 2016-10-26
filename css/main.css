@@ -116,12 +116,14 @@ header{
 	vertical-align: top;
 }
 
-.exampleSpan {
-	margin-right: 10px;
-}
-
 .exampleTextArea {
 	margin-left: 7px;
+	vertical-align: top;
+}
+
+td.exampleTd .exampleTextArea {
+	margin-left: 7px;
+	margin-right: 7px;
 	vertical-align: top;
 }
 
@@ -292,7 +294,7 @@ header{
 	width: 150px;
 }
 
-.wordlist, .meaning, .example, .exampleEntry {
+.wordlist, .meaning, .example {
 	width: 300px;
 }
 
@@ -355,8 +357,8 @@ nav {
 	position: relative;
 	margin: 0;
 	padding: 0;
-	height: 40px;
-	width: 80px;
+	height: 30px;
+	width: 50px;
 }
 
 .exampleBtnlDiv {

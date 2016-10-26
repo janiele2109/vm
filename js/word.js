@@ -12,8 +12,7 @@ $( document ).ready( function() {
 
         var result = $( this ).validateInputData( wordTitle,
                                                   pronunciation,
-                                                  meaning,
-                                                  example );
+                                                  meaning );
 
         if ( result == EMPTY_STRING )
         {
@@ -54,7 +53,7 @@ $( document ).ready( function() {
             } );
         }
         else
-            $( this ).displayErrMsg( errMsg );
+            $( this ).displayErrMsg( result );
     }
 
     $.fn.delSelectedWordsBtnOnClick = function( event ) {
@@ -148,13 +147,18 @@ $( document ).ready( function() {
 
             $.each( rowObj.find( 'span[data-controltranstype]' ), function() {
                 var classString = $( this ).attr( 'class' );
-                var ctrlType = '';
+                var ctrlType = EMPTY_STRING;
+                var result = EMPTY_STRING;
                 var valObj = {};
 
                 if ( classString.search( /\bword\b/ ) != -1 )
                 {
                     ctrlType = 'word';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
+
+                    if ( ( result = validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
+                        $( this ).displayErrMsg( result );
+                        return;
                 }
 
                 else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
@@ -167,6 +171,10 @@ $( document ).ready( function() {
                 {
                     ctrlType = 'pronunciation';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
+
+                    if ( ( result = validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
+                        $( this ).displayErrMsg( result );
+                        return;
                 }
 
                 else if ( classString.search( /\bwordlist\b/ ) != -1 )
@@ -179,6 +187,10 @@ $( document ).ready( function() {
                 {
                     ctrlType = 'meaning';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
+
+                    if ( ( result = validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                        $( this ).displayErrMsg( result );
+                        return;
                 }
 
                 valObj[ 'newVal' ] = $( this ).text();
@@ -240,29 +252,50 @@ $( document ).ready( function() {
         $( this ).switchMenuItem( event, MENU_ITEM_WORD );
     }
 
-    $.fn.exampleEntryOnMouseEnter = function( event ) {
-        if ( $( 'textarea.exampleEntry' ).length == 0 )
+    $.fn.exampleEntryOnMouseEvents = function( event ) {
+        if ( event.type == 'mouseenter' )
         {
             $( this ).createExampleControlsDiv();
             $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
             $( this ).addClass( 'transEffectHover' );
-        }
 
-        if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
-        {
-            $(this).createExampleControlsDiv();
-            $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-            $(this).addClass('transEffectHover');
+            $( this ).bindExampleDivEvents();
+            $( this ).bindExampleButtonEvents();
         }
+        // else if ( event.type == 'mouseleave' )
+        // {
+        //     $( '.exampleBtnlDiv' ).remove();
+        //     $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
+        // }
+        // if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
+        // {
+        //     $(this).createExampleControlsDiv();
+        //     $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+        //     $(this).addClass('transEffectHover');
+        // }
     }
 
-    $.fn.exampleTdOnMouseEnter = function( event ) {
-        var div = $(this).find('div.exampleEntry');
-
-        if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 && $('textarea.exampleTd').length == 0 && div.length == 0 )
+    $.fn.exampleTdOnMouseEvents = function( event ) {
+        if ( event.type == 'mouseenter' )
         {
-            $(this).createExampleControlsDiv();
+            var exampleEntry = $( this ).find( 'div.exampleEntry' );
+
+            if ( exampleEntry.length > 0 )
+            {
+                $( this ).unbind( 'mouseenter' );
+                return;
+            }
+
+            $( this ).createExampleControlsDiv();
             $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+
+            $( this ).bindExampleDivEvents();
+            $( this ).bindExampleButtonEvents();
+        }
+        else if ( event.type == 'mouseleave' )
+        {
+            $( '.exampleBtnlDiv' ).remove();
+            $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
         }
     }
 
@@ -275,13 +308,18 @@ $( document ).ready( function() {
 
         $.each( rowObj.find( 'span[data-controltranstype]' ), function() {
             var classString = $( this ).attr( 'class' );
-            var ctrlType = '';
+            var ctrlType = EMPTY_STRING;
+            var result = EMPTY_STRING;
             var valObj = {};
 
             if ( classString.search( /\bword\b/ ) != -1 )
             {
                 ctrlType = 'word';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
+
+                if ( ( result = validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
+                    $( this ).displayErrMsg( result );
+                    return;
             }
 
             else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
@@ -294,6 +332,10 @@ $( document ).ready( function() {
             {
                 ctrlType = 'pronunciation';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
+
+                if ( ( result = validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
+                    $( this ).displayErrMsg( result );
+                    return;
             }
 
             else if ( classString.search( /\bwordlist\b/ ) != -1 )
@@ -306,6 +348,10 @@ $( document ).ready( function() {
             {
                 ctrlType = 'meaning';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
+
+                if ( ( result = validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                    $( this ).displayErrMsg( result );
+                    return;
             }
 
             valObj[ 'newVal' ] = $( this ).text();
@@ -390,8 +436,7 @@ $( document ).ready( function() {
 
     $.fn.validateInputData = function( wordTitle,
                                        pronunciation,
-                                       wordMeaning,
-                                       wordExample ) {
+                                       wordMeaning ) {
         var result = $( this ).validateWordTitle( wordTitle );
 
         if ( result != EMPTY_STRING )
@@ -403,11 +448,6 @@ $( document ).ready( function() {
             return result;
 
         result = $( this ).validateWordMeaning( wordMeaning );
-
-        if ( result != EMPTY_STRING )
-            return result;
-
-        result = $( this ).validateWordExample( wordExample );
 
         if ( result != EMPTY_STRING )
             return result;
@@ -497,7 +537,8 @@ $( document ).ready( function() {
     };
 
     $.fn.addExampleBtnClick = function( event ) {
-        var textarea = $( this ).toTextAreaControl( '' );
+        console.dir('asd');
+        var textarea = $( this ).toTextAreaControl( '', 'div' );
         var tdTag = null;
 
         if ( $( this ).is( '[data-exId]' ) )
@@ -507,6 +548,8 @@ $( document ).ready( function() {
 
         $( textarea ).removeAttr( 'id' );
         $( textarea ).removeAttr( 'style' );
+
+        $( textarea ).removeClass( 'exampleBtn' );
 
         textarea.style.width = $( this ).parent().width() - 6 + 'px';
         textarea.style.color = 'red';
@@ -519,15 +562,20 @@ $( document ).ready( function() {
 
         $( tdTag ).append( textarea );
 
-        $( '<br/>' ).insertAfter( textarea );
+        $( '<br/>' ).insertBefore( textarea );
 
         $( '<br/>' ).insertAfter( textarea );
 
-        $( textarea ).focus(); 
+        $( '<br/>' ).insertAfter( textarea );
+
+        $( textarea ).focus();
 
         $( '.exampleBtnlDiv' ).remove();
 
         if ( $( 'div.exampleEntry' ).length > 0 )
             $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
+    };
+
+    $.fn.deleteExampleBtnClick = function( event ) {
     };
 } );
