@@ -679,6 +679,12 @@ $( document ).ready( function() {
 		if ( classString.search( 'example' ) != -1 )
 			dataSourceName = 'data-sourceexample';
 
+		if ( classString.search( 'exampleTd' ) != -1 )
+		{
+			$( divTag ).addClass( 'exampleEntry' );
+			$( divTag ).removeClass( 'exampleTd' );
+		}
+
 		if ( $( divTag ).attr( dataSourceName ).trim() != displayVal )
 		{
 			$( divTag ).addClass( 'modified' );

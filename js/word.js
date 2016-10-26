@@ -156,7 +156,7 @@ $( document ).ready( function() {
                     ctrlType = 'word';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
 
-                    if ( ( result = validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
+                    if ( ( result = $( this ).validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
                         $( this ).displayErrMsg( result );
                         return;
                 }
@@ -172,7 +172,7 @@ $( document ).ready( function() {
                     ctrlType = 'pronunciation';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
 
-                    if ( ( result = validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
+                    if ( ( result = $( this ).validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
                         $( this ).displayErrMsg( result );
                         return;
                 }
@@ -188,7 +188,7 @@ $( document ).ready( function() {
                     ctrlType = 'meaning';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
 
-                    if ( ( result = validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                    if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
                         $( this ).displayErrMsg( result );
                         return;
                 }
@@ -308,9 +308,11 @@ $( document ).ready( function() {
                 ctrlType = 'word';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
 
-                if ( ( result = validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
+                if ( ( result = $( this ).validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
+                {
                     $( this ).displayErrMsg( result );
                     return;
+                }
             }
 
             else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
@@ -324,9 +326,11 @@ $( document ).ready( function() {
                 ctrlType = 'pronunciation';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
 
-                if ( ( result = validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
+                if ( ( result = $( this ).validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
+                {
                     $( this ).displayErrMsg( result );
                     return;
+                }
             }
 
             else if ( classString.search( /\bwordlist\b/ ) != -1 )
@@ -340,9 +344,11 @@ $( document ).ready( function() {
                 ctrlType = 'meaning';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
 
-                if ( ( result = validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                {
                     $( this ).displayErrMsg( result );
                     return;
+                }
             }
 
             valObj[ 'newVal' ] = $( this ).text();
