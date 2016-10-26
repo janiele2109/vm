@@ -123,11 +123,17 @@ $( document ).ready( function() {
 	$.fn.removeRedundantBrTag = function() {
 		var tempObj = null;
 
-		while ( ( tempObj = $( this ).prev() ) && tempObj.prop( 'tagName' ) == 'BR' )
-			tempObj.remove();
+		while ( ( tempObj = $( this ).prev() ) )
+			if ( tempObj.length > 0 && tempObj.prop( 'tagName' ) == 'BR' )
+				tempObj.remove();
+			else
+				break;
 
-		while ( ( tempObj = $( this ).next() ) && tempObj.prop( 'tagName' ) == 'BR' )
-			tempObj.remove();
+		while ( ( tempObj = $( this ).next() ) )
+			if ( tempObj.length > 0 && tempObj.prop( 'tagName' ) == 'BR' )
+				tempObj.remove();
+			else
+				break;
 	}
 
 	$.fn.checkAndBindEventForEle = function( control,
@@ -163,6 +169,9 @@ $( document ).ready( function() {
 					keysArr = Object.keys( bindedEvents );
 
 					keysArr.forEach( function( curVal ) {
+										if ( requestEvents[ i ] == 'mouseenter' )
+											requestEvents[ i ] = 'mouseover';
+
 										if ( curVal == requestEvents[ i ] )
 											exist = true;
 									 } );
@@ -252,19 +261,22 @@ $( document ).ready( function() {
 		eventArr = null;
 	}
 
-	$.fn.bindExampleDivEvents = function() {
+	$.fn.bindExampleEvents = function() {
 		var eventArr = new Array();
+
+		( eventArr = [] ).push( 'mouseenter' );
+		$( this ).checkAndbindEventsForSelectors( '.exampleEntry',
+												  eventArr,
+												  $.fn.exampleEntryOnMouseEnter );
+
+		$( this ).checkAndbindEventsForSelectors( '.exampleTd',
+												  eventArr,
+												  $.fn.exampleTdOnMouseEnter );
 
 		( eventArr = [] ).push( 'mouseleave' );
 		$( this ).checkAndbindEventsForSelectors( 'div.exampleBtnlDiv',
 												  eventArr,
 												  $.fn.exampleBtnlDivMouseOut );
-
-		eventArr = null;
-	}
-
-	$.fn.bindExampleButtonEvents = function() {
-		var eventArr = new Array();
 
 		( eventArr = [] ).push( 'click' );
 		$( this ).checkAndBindEventForEle( '#addExampleBtn',
@@ -360,26 +372,11 @@ $( document ).ready( function() {
 										   eventArr,
 										   $.fn.menuItemWordOnClick );
 
-		// $( this ).checkAndBindEventForEle( '#addExampleBtn',
-		// 								   eventArr,
-		// 								   $.fn.addExampleBtnClick );
-
-		// $( this ).checkAndBindEventForEle( '#updateExampleBtn',
-		// 								   eventArr,
-		// 								   $.fn.updateExampleBtnClick );
-
 		$( this ).checkAndbindEventsForSelectors( '.updateWordBtn',
 												  eventArr,
 												  $.fn.updateWordBtnOnClick );
 
-		// ( eventArr = [] ).push( 'mouseenter', 'mouseleave' );
-		// $( this ).checkAndbindEventsForSelectors( '.exampleEntry',
-		// 										  eventArr,
-		// 										  $.fn.exampleEntryOnMouseEvents );
-
-		// $( this ).checkAndbindEventsForSelectors( '.exampleTd',
-		// 										  eventArr,
-		// 										  $.fn.exampleTdOnMouseEvents );
+		$( this ).bindExampleEvents();
 
 		eventArr = null;
 	}
@@ -408,10 +405,9 @@ $( document ).ready( function() {
 		var topPosBtn, leftPosBtn;
 
 		/* Add buttons into div */
-		/* Word already has examples */
-
 		divTag.append( addButton );
 
+		/* Word already has examples */
 		if ( $( this ).prop( 'tagName' ) != 'TD' )
 		{
 			divTag.append( updateButton );
@@ -680,7 +676,7 @@ $( document ).ready( function() {
 		$( divTag ).addClass( 'transEffect' );
 		$( divTag ).removeClass( 'exampleTextArea ' );
 
-		if ( classString.search( 'exampleEntry' ) != -1 )
+		if ( classString.search( 'example' ) != -1 )
 			dataSourceName = 'data-sourceexample';
 
 		if ( $( divTag ).attr( dataSourceName ).trim() != displayVal )
@@ -699,7 +695,7 @@ $( document ).ready( function() {
 
 		$( this ).replaceWith( divTag );
 
-		$( this ).bindWordEvents();
+		$( this ).bindExampleEvents();
 
 		return divTag;
 	}
@@ -746,13 +742,22 @@ $( document ).ready( function() {
 				$( this ).toSpanControl( param );
 				break;
 
-			// case 'div':
-			// 	var divTag = $( this ).toDivControl( param );
-			// 	$( divTag ).removeRedundantBrTag();
+			case 'div':
+				var divTag = $( this ).toDivControl( param );
 
-			// 	if ( $( this ).getTagDisplayVal().trim() != '' )
-			// 		$( '<br/>' ).insertBefore( divTag );
-			// 	break;
+				$( divTag ).removeRedundantBrTag();
+
+				var nextEle = $( divTag ).next();
+				var prevEle = $( divTag ).prev();
+
+				if ( prevEle.length > 0 &&
+					 prevEle.prop( 'tagName' ) == 'DIV' )
+					$( '<br/>' ).insertBefore( divTag );
+
+				if ( nextEle.length > 0 &&
+					 nextEle.prop( 'tagName' ) == 'DIV' )
+					$( '<br/>' ).insertAfter( divTag );
+				break;
 
 			default:
 				break;

@@ -252,52 +252,43 @@ $( document ).ready( function() {
         $( this ).switchMenuItem( event, MENU_ITEM_WORD );
     }
 
-    // $.fn.exampleEntryOnMouseEvents = function( event ) {
-    //     if ( event.type == 'mouseenter' )
-    //     {
-    //         $( this ).createExampleControlsDiv();
-    //         $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
-    //         $( this ).addClass( 'transEffectHover' );
+    $.fn.exampleEntryOnMouseEnter = function( event ) {
+        if ( event.type == 'mouseenter' &&
+             $( 'textarea.exampleEntry' ).length == 0 &&
+             $( '.exampleBtnlDiv' ).length == 0 )
+        {
+            $( this ).createExampleControlsDiv();
+            $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
+            $( this ).addClass( 'transEffectHover' );
 
-    //         $( this ).bindExampleDivEvents();
-    //         $( this ).bindExampleButtonEvents();
-    //     }
-    //     // else if ( event.type == 'mouseleave' )
-    //     // {
-    //     //     $( '.exampleBtnlDiv' ).remove();
-    //     //     $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
-    //     // }
-    //     // if ( $('.exampleBtnlDiv').length == 0 && $('textarea.exampleEntry').length == 0 )
-    //     // {
-    //     //     $(this).createExampleControlsDiv();
-    //     //     $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
-    //     //     $(this).addClass('transEffectHover');
-    //     // }
-    // }
+            $( this ).bindExampleEvents();
+        }
+    }
 
-    // $.fn.exampleTdOnMouseEvents = function( event ) {
-    //     if ( event.type == 'mouseenter' )
-    //     {
-    //         var exampleEntry = $( this ).find( 'div.exampleEntry' );
+    $.fn.exampleTdOnMouseEnter = function( event ) {
+        if ( event.type == 'mouseenter' &&
+             $( 'textarea.exampleTd' ).length == 0 &&
+             $( '.exampleBtnlDiv' ).length == 0 )
+        {
+            var exampleEntry = $( this ).find( 'div.exampleEntry' );
 
-    //         if ( exampleEntry.length > 0 )
-    //         {
-    //             $( this ).unbind( 'mouseenter' );
-    //             return;
-    //         }
+            if ( exampleEntry.length > 0 )
+            {
+                $( this ).unbind( 'mouseenter' );
+                return;
+            }
 
-    //         $( this ).createExampleControlsDiv();
-    //         $('.exampleBtnlDiv').fadeIn().find('#updateExampleBtn').focus();
+            $( this ).createExampleControlsDiv();
+            $( '.exampleBtnlDiv' ).fadeIn().find( '#updateExampleBtn' ).focus();
 
-    //         $( this ).bindExampleDivEvents();
-    //         $( this ).bindExampleButtonEvents();
-    //     }
-    //     else if ( event.type == 'mouseleave' )
-    //     {
-    //         $( '.exampleBtnlDiv' ).remove();
-    //         $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
-    //     }
-    // }
+            $( this ).bindExampleEvents();
+        }
+        else if ( event.type == 'mouseleave' )
+        {
+            $( '.exampleBtnlDiv' ).remove();
+            $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
+        }
+    }
 
     $.fn.updateWord = function( event, rowObj ) {
         event.preventDefault();
@@ -436,7 +427,8 @@ $( document ).ready( function() {
 
     $.fn.validateInputData = function( wordTitle,
                                        pronunciation,
-                                       wordMeaning ) {
+                                       wordMeaning )
+    {
         var result = $( this ).validateWordTitle( wordTitle );
 
         if ( result != EMPTY_STRING )
@@ -506,76 +498,100 @@ $( document ).ready( function() {
         } );
     }
 
-    // $.fn.exampleBtnlDivMouseOut = function( event ) {
-    //     $( '.exampleBtnlDiv' ).remove();
+    $.fn.exampleBtnlDivMouseOut = function( event ) {
+        $( '.exampleBtnlDiv' ).remove();
 
-    //     if ( $( 'div.exampleEntry' ).length != 0)
-    //         $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
-    // };
+        if ( $( 'div.exampleEntry' ).length != 0)
+            $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
+    };
 
-    // $.fn.updateExampleBtnClick = function( event ) {
+    $.fn.updateExampleBtnClick = function( event ) {
+        var displayVal = $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' ).text();
+        var textarea = $( this ).toTextAreaControl( displayVal, 'div' );
+        var tdTag = $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' ).parent();
 
-    //     var textarea = $( this ).toTextAreaControl( $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' ).text() );
+        $( textarea ).removeAttr( 'id' );
+        $( textarea ).removeAttr( 'style' );
 
-    //     $( textarea ).removeAttr( 'id' );
-    //     $( textarea ).removeAttr( 'style' );
+        $( textarea ).removeClass( 'exampleBtn' );
 
-    //     textarea.style.width = $( this ).parent().width() - 6 + 'px';
-    //     textarea.style.color = $( 'div[data-exId=' + $( textarea ).attr( 'data-exId' ) + ']' ).css( 'color' );
+        textarea.style.width = $( this ).parent().width() - 6 + 'px';
+        textarea.style.color = $( this ).css( 'color' );
+        $( textarea ).css( 'left', '5px' );
+        $( textarea ).css( 'width', $( tdTag ).width() - 10 + 'px' );
 
-    //     $( textarea ).addClass( 'transEffect' );
+        $( textarea ).attr( 'data-controltranstype', 'div' );
 
-    //     $( textarea ).attr( 'data-controltranstype', 'div' );
+        $( textarea ).addClass( 'transEffect' );
 
-    //     $( 'div[data-exId=' + $( textarea ).attr( 'data-exId' ) + ']' ).replaceWith( textarea );
+        $( 'div[data-exId=' + $( textarea ).attr( 'data-exId' ) + ']' ).replaceWith( textarea );
 
-    //     $( '<br/>' ).insertAfter( textarea );
+        $( '<br/>' ).insertAfter( textarea );
 
-    //     $( textarea ).focus();
-    //     $( '.exampleBtnlDiv' ).remove();
-    //     $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
-    // };
+        $( textarea ).focus();
 
-    // $.fn.addExampleBtnClick = function( event ) {
-    //     console.dir('asd');
-    //     var textarea = $( this ).toTextAreaControl( '', 'div' );
-    //     var tdTag = null;
+        $( '.exampleBtnlDiv' ).remove();
 
-    //     if ( $( this ).is( '[data-exId]' ) )
-    //         tdTag = $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' ).parent();
-    //     else
-    //         tdTag = $( this ).parent().parent();
+        if ( $( 'div.exampleEntry' ).length > 0 )
+            $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
+    };
 
-    //     $( textarea ).removeAttr( 'id' );
-    //     $( textarea ).removeAttr( 'style' );
+    $.fn.addExampleBtnClick = function( event ) {
+        var textarea = null;
+        var tdTag = null;
 
-    //     $( textarea ).removeClass( 'exampleBtn' );
+        if ( $( this ).is( '[data-exId]' ) )
+            tdTag = $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' ).parent();
+        else
+            tdTag = $( this ).parent().parent();
 
-    //     textarea.style.width = $( this ).parent().width() - 6 + 'px';
-    //     textarea.style.color = 'red';
-    //     $( textarea ).css( 'left', '5px' );
-    //     $( textarea ).css( 'width', $( tdTag ).width() - 10 + 'px' );
+        textarea = $( this ).toTextAreaControl( '', 'div' );
 
-    //     $( textarea ).attr( 'data-controltranstype', 'div' );
-    //     $( textarea ).attr( 'data-exId', 'ex_' + $( 'div[data-exId]' ).length );
-    //     $( textarea ).attr( 'data-sourceexample', '' );
+        $( textarea ).removeAttr( 'id' );
+        $( textarea ).removeAttr( 'style' );
 
-    //     $( tdTag ).append( textarea );
+        $( textarea ).removeClass( 'exampleBtn' );
 
-    //     $( '<br/>' ).insertBefore( textarea );
+        textarea.style.width = $( this ).parent().width() - 6 + 'px';
+        textarea.style.color = 'red';
+        $( textarea ).css( 'left', '5px' );
+        $( textarea ).css( 'width', $( tdTag ).width() - 10 + 'px' );
 
-    //     $( '<br/>' ).insertAfter( textarea );
+        $( textarea ).attr( 'data-controltranstype', 'div' );
+        $( textarea ).attr( 'data-exId', 'ex_' + $( 'div[data-exId]' ).length );
+        $( textarea ).attr( 'data-sourceexample', '' );
 
-    //     $( '<br/>' ).insertAfter( textarea );
+        $( tdTag ).append( textarea );
 
-    //     $( textarea ).focus();
+        $( '<br/>' ).insertBefore( textarea );
 
-    //     $( '.exampleBtnlDiv' ).remove();
+        $( '<br/>' ).insertAfter( textarea );
 
-    //     if ( $( 'div.exampleEntry' ).length > 0 )
-    //         $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
-    // };
+        $( '<br/>' ).insertAfter( textarea );
 
-    // $.fn.deleteExampleBtnClick = function( event ) {
-    // };
+        $( textarea ).focus();
+
+        $( '.exampleBtnlDiv' ).remove();
+
+        if ( $( 'div.exampleEntry' ).length > 0 )
+            $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
+    };
+
+    $.fn.deleteExampleBtnClick = function( event ) {
+        var curDiv = $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' );
+
+        $( '.exampleBtnlDiv' ).remove();
+
+        curDiv.removeRedundantBrTag();
+
+        var nextEle = curDiv.next();
+        var prevEle = curDiv.prev();
+
+        if ( nextEle.length > 0 &&
+             prevEle.length > 0 )
+            $( '<br/>' ).insertBefore( curDiv );
+
+        /* Remove div itself */
+        curDiv.remove();
+    };
 } );
