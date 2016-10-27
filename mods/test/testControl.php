@@ -29,7 +29,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			while ( $row = mysqli_fetch_row( $result ) )
@@ -73,11 +73,15 @@
 
 			mysqli_free_result( $result );
 		}
-		else if ( $result == FALSE )
+		else if ( $result == null )
 		{
 			$responseData[ 'errState' ] = 'NG';
 			$responseData[ 'errCode' ] = '2001';
 			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+		else
+		{
+			$responseData[ 'errState' ] = 'OK';
 		}
 
 		$data = $responseData;

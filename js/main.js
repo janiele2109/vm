@@ -322,6 +322,30 @@ $( document ).ready( function() {
 										   eventArr,
 										   $.fn.menuItemTestOnClick );
 
+		$( this ).checkAndBindEventForEle( '#checkWordBtn',
+										   eventArr,
+										   $.fn.checkWordBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#showWordBtn',
+										   eventArr,
+										   $.fn.showWordBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#nextWordBtn',
+										   eventArr,
+										   $.fn.nextWordBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#retestBtn',
+										   eventArr,
+										   $.fn.retestBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#displayPron',
+										   eventArr,
+										   $.fn.displayPronOnClick );
+
+		$( this ).checkAndBindEventForEle( '#displayExample',
+										   eventArr,
+										   $.fn.displayExampleOnClick );
+
 		eventArr = null;
 	}
 

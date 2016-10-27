@@ -12,6 +12,50 @@ header{
 	margin-bottom: 20px;
 }
 
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	border: 0px;
+	background-color: #f3f3f3;
+}
+
+li {
+	float: left;
+}
+
+li a {
+	display: block;
+	color: #666;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+li a:hover:not(.active) {
+	background-color: #ddd;
+}
+
+li a.active {
+	color: white;
+	background-color: #4CAF50;
+}
+
+nav {
+	margin-bottom: 10px;
+}
+
+table {
+	margin-top: 10px;
+}
+
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+	padding: 5px;
+}
+
 .err {
 	color: red;
 }
@@ -26,6 +70,23 @@ header{
 	visibility: hidden;
 	font-weight: bold;
 	margin-top: 10px;
+}
+
+.title{
+	font-size: 40px;
+	color: #FFFFFF;
+	position: absolute;
+	padding-top: 10px;
+	padding-left: 20px;
+	margin-bottom: 20px;
+}
+
+.welcomeText{
+	font-size: 15px;
+	color: #FFFF23;
+	position: absolute;
+	right: 20px;
+	padding-top: 10px;
 }
 
 
@@ -156,6 +217,11 @@ td.exampleTd .exampleTextArea {
 	padding: 0;
 }
 
+tr.dynRowWord {
+    text-align: left;
+    height: 70px;
+}
+
 /* wordForm.php - END */
 
 
@@ -168,25 +234,59 @@ td.exampleTd .exampleTextArea {
 	width: 80px;
 }
 
+.exampleEntry {
+	padding-left: 5px;
+}
+
+.exampleBtn {
+	position: relative;
+	margin: 0;
+	padding: 0;
+	height: 30px;
+	width: 50px;
+}
+
+.exampleBtnlDiv {
+	position: absolute;
+	margin: auto;
+}
+
+td.exampleTd
+{
+	padding: 0;
+}
+
+.transEffect {
+	-webkit-transition: opacity 0.1s ease-in-out;
+	-moz-transition: opacity 0.1s ease-in-out;
+	-ms-transition: opacity 0.1s ease-in-out;
+	-o-transition: opacity 0.1s ease-in-out;
+	transition: opacity 0.1s ease-in-out;
+}
+
+.transEffectHover {
+	zoom: 1;
+	filter: alpha(opacity=50);
+	opacity: 0.5;
+}
+
+.word, .pronunciation, .partOfSpeech {
+	width: 150px;
+}
+
+.wordlist, .meaning, .example {
+	width: 300px;
+}
+
 /* wordView.php - END */
 
 /* ===================== Word styles - END ===================== */
 
 
-.noselect {
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-  /* Chrome/Safari/Opera */
-  -moz-user-select: none;
-  /* Firefox */
-  -ms-user-select: none;
-  /* IE/Edge */
-  -webkit-touch-callout: none;
-  /* iOS Safari */
-}
+/* ===================== Test styles - START ===================== */
 
-/* Test page - START */
+/* testForm.php - START */
+
 .toggleTestForm {
 	position: relative; 
 	display: none; 
@@ -195,6 +295,59 @@ td.exampleTd .exampleTextArea {
 	width: 100%; 
 	font-size: 20px;
 	text-align: center;
+}
+
+.testForm button {
+	width:200px;
+	height: 40px;
+	margin-left: 15px;
+	margin-top: 20px;
+}
+
+.testForm .resultSpan {
+	position: relative;
+	display:inline-block;
+	visibility: hidden;
+	margin: auto;
+	width: 100%;
+	font-size: 30px;
+	margin-top: 40px;
+}
+
+.testForm .pronunciationSpan {
+	position: relative;
+	display:inline-block;
+	visibility: hidden;
+}
+
+.testForm .exampleDiv {
+	position: relative;
+	display:inline-block;
+	margin: auto;
+	width: 100%;
+	padding-left: 30%;
+	visibility: hidden;
+	font-size: 20px;
+	margin-top: 20px;
+	text-align: left;
+}
+
+.testForm .exampleP {
+	margin-left: 30px;
+	margin-top: 10px;
+}
+
+.noselect {
+	cursor: default;
+	user-select: none;
+	-webkit-user-select: none;
+	/* Chrome/Safari/Opera */
+	-moz-user-select: none;
+	/* Firefox */
+	-ms-user-select: none;
+	/* IE/Edge */
+	-webkit-touch-callout: none;
+	/* iOS Safari */
 }
 
 .testOptions {
@@ -217,178 +370,34 @@ td.exampleTd .exampleTextArea {
 }
 
 .inputWord {
-	margin-top: 30px; 
+	margin-top: 30px;
 	margin-bottom: 20px;
-	text-align: center; 
+	text-align: center;
 	height: 50px; 
 	font-size: 26px;
 	font-style: italic;
 }
 
-.testForm button {
-	width:200px; 
-	height: 40px;
-	margin-left: 15px; 
-	margin-top: 20px;
-}
-
-.testForm .resultSpan {	 
-	position: relative; 
-	display:inline-block;
-    visibility: hidden;
-    margin: auto;
-	width: 100%;
-	font-size: 30px;
-	margin-top: 40px;
-}
-
-.testForm .pronunciationSpan {	 
-	position: relative; 
-	display:inline-block;
-    visibility: hidden;
-}
-
-.testForm .exampleDiv {	 
-	position: relative; 
-	display:inline-block;
-	margin: auto;
-	width: 100%;
-	padding-left: 30%;
-    visibility: hidden;
-    font-size: 20px;
-	margin-top: 20px;
-	text-align: left;
-}
-
-.testForm .exampleP {	 
-	margin-left: 30px;
-	margin-top: 10px;
-}
-
-.testPage #msg {
-	position: relative; 
-	display: none; 
+.testPage #msgDiv {
+	position: relative;
+	display: none;
 	margin: auto; 
 	margin-top: 80px;
-	width: 100%; 
+	width: 100%;
 	font-size: 30px;
 	text-align: center;
 }
+
+.testBtn {
+	display: block;
+	margin:auto;
+	width: 400px;
+	height: 100px;
+	margin-top: 200px
+}
+
 /* Test form - END */
 
-.transEffect {
-	-webkit-transition: opacity 0.1s ease-in-out;
-	-moz-transition: opacity 0.1s ease-in-out;
-	-ms-transition: opacity 0.1s ease-in-out;
-	-o-transition: opacity 0.1s ease-in-out;
-	transition: opacity 0.1s ease-in-out;
-}
+/* testForm.php - END */
 
-.transEffectHover {
-    zoom: 1;
-    filter: alpha(opacity=50);
-    opacity: 0.5;
-}
-
-.word, .pronunciation, .partOfSpeech {
-	width: 150px;
-}
-
-.wordlist, .meaning, .example {
-	width: 300px;
-}
-
-.exampleEntry {
-	padding-left: 5px;
-}
-
-.title{
-	font-size: 40px;
-	color: #FFFFFF;
-	position: absolute;
-	padding-top: 10px;
-	padding-left: 20px;
-	margin-bottom: 20px;
-}
-
-.welcomeText{
-	font-size: 15px;
-	color: #FFFF23;
-	position: absolute;
-	right: 20px;
-	padding-top: 10px;
-}
-
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    border: 0px;
-    background-color: #f3f3f3;
-}
-
-li {
-    float: left;
-}
-
-li a {
-    display: block;
-    color: #666;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-}
-
-li a:hover:not(.active) {
-    background-color: #ddd;
-}
-
-li a.active {
-    color: white;
-    background-color: #4CAF50;
-}
-
-nav {
-	margin-bottom: 10px;
-}
-
-.exampleBtn {
-	position: relative;
-	margin: 0;
-	padding: 0;
-	height: 30px;
-	width: 50px;
-}
-
-.exampleBtnlDiv {
-	position: absolute;
-	margin: auto;
-}
-
-td.exampleTd
-{
-	padding: 0;
-}
-
-button {
-	
-}
-
-table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-    padding: 5px;
-}
-tr.dynRowWord {    
-    text-align: left;
-    height: 70px;
-}
-table#t01 {
-    width: 100%;    
-    background-color: #f1f1c1;
-}
-
-table {
-	margin-top: 10px;
-}
+/* ===================== Test styles - END ===================== */
