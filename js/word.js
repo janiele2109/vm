@@ -157,8 +157,10 @@ $( document ).ready( function() {
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourceword' );
 
                     if ( ( result = $( this ).validateWordTitle( $( this ).text() ) ) != EMPTY_STRING )
+                    {
                         $( this ).displayErrMsg( result );
                         return;
+                    }
                 }
 
                 else if ( classString.search( /\bpartOfSpeech\b/ ) != -1 )
@@ -173,8 +175,10 @@ $( document ).ready( function() {
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcepron' );
 
                     if ( ( result = $( this ).validatePronunciation( $( this ).text() ) ) != EMPTY_STRING )
+                    {
                         $( this ).displayErrMsg( result );
                         return;
+                    }
                 }
 
                 else if ( classString.search( /\bwordlist\b/ ) != -1 )
@@ -189,8 +193,10 @@ $( document ).ready( function() {
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcemeaning' );
 
                     if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                    {
                         $( this ).displayErrMsg( result );
                         return;
+                    }
                 }
 
                 valObj[ 'newVal' ] = $( this ).text();
@@ -585,6 +591,8 @@ $( document ).ready( function() {
 
     $.fn.deleteExampleBtnClick = function( event ) {
         var curDiv = $( 'div[data-exId=' + $( this ).attr( 'data-exId' ) + ']' );
+        var tdTag = curDiv.parent().parent();
+        var checkboxObj = tdTag.find( 'input[type="checkbox"]' );
 
         $( '.exampleBtnlDiv' ).remove();
 
@@ -598,6 +606,13 @@ $( document ).ready( function() {
             $( '<br/>' ).insertBefore( curDiv );
 
         /* Remove div itself */
-        curDiv.remove();
+        if ( curDiv.attr( 'data-sourceexample' ) == '' )
+            curDiv.remove();
+        else
+        {
+            curDiv.text( '' );
+            checkboxObj.first().prop( 'checked', true );
+            curDiv.css( 'display', 'none' );
+        }
     };
 } );
