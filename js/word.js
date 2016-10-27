@@ -260,7 +260,7 @@ $( document ).ready( function() {
 
     $.fn.exampleEntryOnMouseEnter = function( event ) {
         if ( event.type == 'mouseenter' &&
-             $( 'textarea.exampleEntry' ).length == 0 &&
+             $( '#wordViewTbl' ).find( 'textarea' ).length == 0 &&
              $( '.exampleBtnlDiv' ).length == 0 )
         {
             $( this ).createExampleControlsDiv();
@@ -271,7 +271,7 @@ $( document ).ready( function() {
         }
     }
 
-    $.fn.exampleTdOnMouseEnter = function( event ) {
+    $.fn.exampleTdOnMouseEvents = function( event ) {
         if ( event.type == 'mouseenter' &&
              $( 'textarea.exampleTd' ).length == 0 &&
              $( '.exampleBtnlDiv' ).length == 0 )

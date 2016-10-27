@@ -264,14 +264,15 @@ $( document ).ready( function() {
 	$.fn.bindExampleEvents = function() {
 		var eventArr = new Array();
 
+		( eventArr = [] ).push( 'mouseenter', 'mouseleave' );
+		$( this ).checkAndbindEventsForSelectors( '.exampleTd',
+												  eventArr,
+												  $.fn.exampleTdOnMouseEvents );
+
 		( eventArr = [] ).push( 'mouseenter' );
 		$( this ).checkAndbindEventsForSelectors( '.exampleEntry',
 												  eventArr,
 												  $.fn.exampleEntryOnMouseEnter );
-
-		$( this ).checkAndbindEventsForSelectors( '.exampleTd',
-												  eventArr,
-												  $.fn.exampleTdOnMouseEnter );
 
 		( eventArr = [] ).push( 'mouseleave' );
 		$( this ).checkAndbindEventsForSelectors( 'div.exampleBtnlDiv',
