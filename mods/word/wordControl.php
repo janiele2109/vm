@@ -1,10 +1,11 @@
 <?php
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/constants.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/libs/commonLib.php';
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getWordlistList' )
 	{
-		getWordlistList();
+		getWordlistList( $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWord' )
@@ -15,28 +16,36 @@
 					$_POST[ 'pronunciation' ],
 					$_POST[ 'wordlistId' ],
 					$_POST[ 'wordMeaning' ],
-					$_POST[ 'wordExample' ]
+					$_POST[ 'wordExample' ],
+					$_POST[ 'username' ]
 				);
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'delSelectedWords' )
 	{
-		delSelectedWords( $_POST[ 'selectedWordArr' ] );
+		delSelectedWords( $_POST[ 'selectedWordArr' ], $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateWord' )
 	{
-		updateWord( $_POST[ 'modifiedRow' ] );
+		updateWord( $_POST[ 'modifiedRow' ], $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateSelectedWords' )
 	{
-		updateSelectedWords( $_POST[ 'modifiedWordRowList' ] );
+		updateSelectedWords( $_POST[ 'modifiedWordRowList' ], $_POST[ 'username' ] );
 	}
 
-	function getWordlistList()
+	function getWordlistList( $username )
 	{
-		$result = getWordlistListInDb();
+		$result = checkUserNameExists( $username );
+
+		if ( $result[ 'errState' ] == 'OK' )
+		{
+			$userId = $result[ 'dataContent' ];
+
+			$result = getWordlistListInDb( $userId );
+		}
 
 		header( 'Content-Type: application/json' );
 		echo json_encode( $result );
@@ -47,54 +56,65 @@
 					  $pronunciation,
 					  $wordlistId,
 					  $wordMeaning,
-					  $wordExample )
+					  $wordExample,
+					  $username )
 	{
-		$result = validateClientData( $wordTitle,
-									  $partsOfSpeech,
-									  $pronunciation,
-									  $wordlistId,
-									  $wordMeaning,
-									  $wordExample );
+		$result = checkUserNameExists( $username );
 
 		if ( $result[ 'errState' ] == 'OK' )
 		{
-			$result = checkDuplicateWord( $wordTitle,
-										  $partsOfSpeech,
-										  $wordlistId,
-										  $wordMeaning );
+			$userId = $result[ 'dataContent' ];
 
-			/* Word is not duplicated (includes word meaning) */
+			$result = validateClientData( $wordTitle,
+										  $partsOfSpeech,
+										  $pronunciation,
+										  $wordlistId,
+										  $wordMeaning,
+										  $wordExample );
+
 			if ( $result[ 'errState' ] == 'OK' )
 			{
-				if ( $result[ 'dataContent' ] == 0 )
-				{
-					$result = addWordToDb( $wordTitle,
-										   $partsOfSpeech,
-										   $pronunciation,
-										   $wordlistId );
-				}
+				$result = checkDuplicateWord( $wordTitle,
+											  $partsOfSpeech,
+											  $wordlistId,
+											  $wordMeaning,
+											  $userId );
 
+				/* Word is not duplicated (includes word meaning) */
 				if ( $result[ 'errState' ] == 'OK' )
 				{
-					$wordId = getWordId( $wordTitle,
-										 $wordlistId,
-										 $partsOfSpeech );
-
-					$result = addWordMeaningToDb( $wordId, $wordMeaning );
+					if ( $result[ 'dataContent' ] == 0 )
+					{
+						$result = addWordToDb( $wordTitle,
+											   $partsOfSpeech,
+											   $pronunciation,
+											   $wordlistId,
+											   $userId );
+					}
 
 					if ( $result[ 'errState' ] == 'OK' )
 					{
-						if ( $wordExample != '' )
-						{
-							$wordMeaningId = getWordMeaningId( $wordId, $wordMeaning );
+						$wordId = getWordId( $wordTitle,
+											 $wordlistId,
+											 $partsOfSpeech,
+											 $userId );
 
-							$result = addWordExampleToDb( $wordMeaningId, $wordExample );
-						}
-						
+						$result = addWordMeaningToDb( $wordId, $wordMeaning );
+
 						if ( $result[ 'errState' ] == 'OK' )
 						{
-							$result[ 'dataContent' ] = reloadWordViewContent();
-							$result[ 'msg' ] = constant( '1051' );
+							if ( $wordExample != '' )
+							{
+								$wordMeaningId = getWordMeaningId( $wordId, $wordMeaning );
+
+								$result = addWordExampleToDb( $wordMeaningId, $wordExample );
+							}
+							
+							if ( $result[ 'errState' ] == 'OK' )
+							{
+								$result[ 'dataContent' ] = reloadWordViewContent();
+								$result[ 'msg' ] = constant( '1051' );
+							}
 						}
 					}
 				}
@@ -105,26 +125,35 @@
 		echo json_encode( $result );
 	}
 
-	function delSelectedWords( $selectedWordArr )
+	function delSelectedWords( $selectedWordArr, $username )
 	{
-		$decodedSelectedWordArr = json_decode( $selectedWordArr );
+		$result = checkUserNameExists( $username );
 
-		foreach( $decodedSelectedWordArr as $word )
+		if ( $result[ 'errState' ] == 'OK' )
 		{
-			$result = checkExistedWord( $word->word,
-										$word->partOfSpeech,
-										$word->wordlistName,
-										$word->meaning );
+			$userId = $result[ 'dataContent' ];
 
-			if ( $result[ 'errState' ] == 'OK' )
+			$decodedSelectedWordArr = json_decode( $selectedWordArr );
+
+			foreach( $decodedSelectedWordArr as $word )
 			{
-				$result = deleteWordInDb( $word->word,
-										  $word->partOfSpeech,
-										  $word->wordlistName,
-										  $word->meaning );
+				$result = checkExistedWord( $word->word,
+											$word->partOfSpeech,
+											$word->wordlistName,
+											$word->meaning,
+											$userId );
 
 				if ( $result[ 'errState' ] == 'OK' )
-					$result[ 'msg' ] = constant( '1052' );
+				{
+					$result = deleteWordInDb( $word->word,
+											  $word->partOfSpeech,
+											  $word->wordlistName,
+											  $word->meaning,
+											  $userId );
+
+					if ( $result[ 'errState' ] == 'OK' )
+						$result[ 'msg' ] = constant( '1052' );
+				}
 			}
 		}
 
@@ -132,80 +161,89 @@
 		echo json_encode( $result );
 	}
 
-	function updateWord( $modifiedRow, $inListFlag = false )
+	function updateWord( $modifiedRow, $username, $inListFlag = false )
 	{
-		$decodedModifiedRow = null;
-
-		if ( $inListFlag )
-			$decodedModifiedRow = $modifiedRow;
-		else
-			$decodedModifiedRow = json_decode( $modifiedRow );
-
-		$result = checkExistedWord( $decodedModifiedRow[ 0 ]->word->orgVal,
-									$decodedModifiedRow[ 0 ]->partOfSpeech->orgVal,
-									$decodedModifiedRow[ 0 ]->wordlist->orgVal,
-									$decodedModifiedRow[ 0 ]->meaning->orgVal );
+		$result = checkUserNameExists( $username );
 
 		if ( $result[ 'errState' ] == 'OK' )
 		{
-			$wordlistId = getWordlistId( $decodedModifiedRow[ 0 ]->wordlist->orgVal );
-			$wordId = getWordId( $decodedModifiedRow[ 0 ]->word->orgVal,
-								 $wordlistId,
-								 $decodedModifiedRow[ 0 ]->partOfSpeech->orgVal );
+			$userId = $result[ 'dataContent' ];
 
-			$wordMeaningId = getWordMeaningId( $wordId, $decodedModifiedRow[ 0 ]->meaning->orgVal );
+			$decodedModifiedRow = null;
 
-			/* Update word title */
-			if ( $decodedModifiedRow[ 0 ]->word->orgVal != $decodedModifiedRow[ 0 ]->word->newVal )
-				$result = updateWordFieldInDb( $wordId,
-											   $decodedModifiedRow[ 0 ]->word->newVal );
+			if ( $inListFlag )
+				$decodedModifiedRow = $modifiedRow;
+			else
+				$decodedModifiedRow = json_decode( $modifiedRow );
 
-			/* Update word class */
-			if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->partOfSpeech->orgVal != $decodedModifiedRow[ 0 ]->partOfSpeech->newVal )
-				$result = updateWordClassFieldInDb( $wordId,
-													$decodedModifiedRow[ 0 ]->partOfSpeech->newVal );
+			$result = checkExistedWord( $decodedModifiedRow[ 0 ]->word->orgVal,
+										$decodedModifiedRow[ 0 ]->partOfSpeech->orgVal,
+										$decodedModifiedRow[ 0 ]->wordlist->orgVal,
+										$decodedModifiedRow[ 0 ]->meaning->orgVal,
+										$userId );
 
-			/* Update word pronunciation */
-			if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->pronunciation->orgVal != $decodedModifiedRow[ 0 ]->pronunciation->newVal )
-				$result = updateWordPronunciationFieldInDb( $wordId,
-															$decodedModifiedRow[ 0 ]->pronunciation->newVal );
-
-			/* Update wordlist */
-			if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->wordlist->orgVal != $decodedModifiedRow[ 0 ]->wordlist->newVal )
-				$result = updateWordlistFieldInDb( $wordId,
-												   $decodedModifiedRow[ 0 ]->wordlist->newVal );
-
-			/* Update word meaning */
-			if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->meaning->orgVal != $decodedModifiedRow[ 0 ]->meaning->newVal )
-				$result = updateWordMeaningFieldInDb( $wordMeaningId,
-													  $decodedModifiedRow[ 0 ]->meaning->newVal );
-
-			/* Update examples */
-			foreach( $decodedModifiedRow[ 0 ]->exampleList as $ex )
+			if ( $result[ 'errState' ] == 'OK' )
 			{
-				if ( $ex->orgVal != $ex->newVal && $ex->orgVal == '' )
-					$result = addWordExampleToDb( $wordMeaningId,
-												  $ex->newVal );
+				$wordlistId = getWordlistId( $decodedModifiedRow[ 0 ]->wordlist->orgVal,
+											 $userId );
+				$wordId = getWordId( $decodedModifiedRow[ 0 ]->word->orgVal,
+									 $wordlistId,
+									 $decodedModifiedRow[ 0 ]->partOfSpeech->orgVal );
 
-				else if ( $ex->orgVal != $ex->newVal && $ex->newVal == '' )
+				$wordMeaningId = getWordMeaningId( $wordId, $decodedModifiedRow[ 0 ]->meaning->orgVal );
+
+				/* Update word title */
+				if ( $decodedModifiedRow[ 0 ]->word->orgVal != $decodedModifiedRow[ 0 ]->word->newVal )
+					$result = updateWordFieldInDb( $wordId,
+												   $decodedModifiedRow[ 0 ]->word->newVal );
+
+				/* Update word class */
+				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->partOfSpeech->orgVal != $decodedModifiedRow[ 0 ]->partOfSpeech->newVal )
+					$result = updateWordClassFieldInDb( $wordId,
+														$decodedModifiedRow[ 0 ]->partOfSpeech->newVal );
+
+				/* Update word pronunciation */
+				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->pronunciation->orgVal != $decodedModifiedRow[ 0 ]->pronunciation->newVal )
+					$result = updateWordPronunciationFieldInDb( $wordId,
+																$decodedModifiedRow[ 0 ]->pronunciation->newVal );
+
+				/* Update wordlist */
+				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->wordlist->orgVal != $decodedModifiedRow[ 0 ]->wordlist->newVal )
+					$result = updateWordlistFieldInDb( $wordId,
+													   $decodedModifiedRow[ 0 ]->wordlist->newVal );
+
+				/* Update word meaning */
+				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->meaning->orgVal != $decodedModifiedRow[ 0 ]->meaning->newVal )
+					$result = updateWordMeaningFieldInDb( $wordMeaningId,
+														  $decodedModifiedRow[ 0 ]->meaning->newVal );
+
+				/* Update examples */
+				foreach( $decodedModifiedRow[ 0 ]->exampleList as $ex )
 				{
-					$wordExampleId = getWordExampleId( $wordMeaningId,
-													   $ex->orgVal );
+					if ( $ex->orgVal != $ex->newVal && $ex->orgVal == '' )
+						$result = addWordExampleToDb( $wordMeaningId,
+													  $ex->newVal );
 
-					$result = deleteWordExampleInDb( $wordExampleId );
+					else if ( $ex->orgVal != $ex->newVal && $ex->newVal == '' )
+					{
+						$wordExampleId = getWordExampleId( $wordMeaningId,
+														   $ex->orgVal );
+
+						$result = deleteWordExampleInDb( $wordExampleId );
+					}
+					else if ( $ex->orgVal != $ex->newVal && $ex->orgVal != '' )
+						$result = updateWordExampleFieldInDb( $wordMeaningId,
+															  $ex->orgVal,
+															  $ex->newVal );
+
+					if ( $result[ 'errState' ] == 'NG' )
+						break;
 				}
-				else if ( $ex->orgVal != $ex->newVal && $ex->orgVal != '' )
-					$result = updateWordExampleFieldInDb( $wordMeaningId,
-														  $ex->orgVal,
-														  $ex->newVal );
-
-				if ( $result[ 'errState' ] == 'NG' )
-					break;
 			}
-		}
 
-		if ( $result[ 'errState' ] == 'OK' )
-			$result[ 'msg' ] = constant( '1053' );
+			if ( $result[ 'errState' ] == 'OK' )
+				$result[ 'msg' ] = constant( '1053' );
+		}
 
 		if ( $inListFlag == false )
 		{
@@ -216,22 +254,29 @@
 			return $result;
 	}
 
-	function updateSelectedWords( $modifiedWordRowList )
+	function updateSelectedWords( $modifiedWordRowList, $username )
 	{
-		$decodedModifiedWordRowList = json_decode( $modifiedWordRowList );
-
-		foreach( $decodedModifiedWordRowList as $modifiedWordRow )
-		{
-			$result = updateWord( $modifiedWordRow, true );
-
-			if ( $result[ 'errState' ] == 'NG' )
-				break;
-		}
+		$result = checkUserNameExists( $username );
 
 		if ( $result[ 'errState' ] == 'OK' )
 		{
-			$result[ 'dataContent' ] = reloadWordViewContent();
-			$result[ 'msg' ] = constant( '1054' );
+			$userId = $result[ 'dataContent' ];
+
+			$decodedModifiedWordRowList = json_decode( $modifiedWordRowList );
+
+			foreach( $decodedModifiedWordRowList as $modifiedWordRow )
+			{
+				$result = updateWord( $modifiedWordRow, $username, true );
+
+				if ( $result[ 'errState' ] == 'NG' )
+					break;
+			}
+
+			if ( $result[ 'errState' ] == 'OK' )
+			{
+				$result[ 'dataContent' ] = reloadWordViewContent();
+				$result[ 'msg' ] = constant( '1054' );
+			}
 		}
 
 		header( 'Content-Type: application/json' );
@@ -240,13 +285,13 @@
 
 	/* ===================== Word helper functions - START ===================== */
 
-	function getWordlistId( $wordlistName )
+	function getWordlistId( $wordlistName, $userId )
 	{
 		global $mysqli;
 
 		$query = 'SELECT wl.wordlistId
 				  FROM wordlist wl
-				  WHERE wl.wordlistName = "' . $wordlistName . '"';
+				  WHERE wl.wordlistName = "' . $wordlistName . '" AND wl.userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -259,7 +304,9 @@
 		return '';
 	}
 
-	function getWordId( $wordTitle, $wordlistId, $partsOfSpeech )
+	function getWordId( $wordTitle,
+						$wordlistId,
+						$partsOfSpeech )
 	{
 		global $mysqli;
 
@@ -536,7 +583,8 @@
 	function checkDuplicateWord( $wordTitle,
 								 $partsOfSpeech,
 								 $wordlistId,
-								 $wordMeaning )
+								 $wordMeaning,
+								 $userId )
 	{
 		global $mysqli;
 
@@ -551,7 +599,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partsOfSpeech . '" AND w.wordlistId = "' . $wordlistId . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partsOfSpeech . '" AND w.wordlistId = "' . $wordlistId . '" AND userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -591,7 +639,8 @@
 	function checkExistedWord( $wordTitle,
 							   $partOfSpeech,
 							   $wordlistName,
-							   $wordMeaning )
+							   $wordMeaning,
+							   $userId )
 	{
 		global $mysqli;
 
@@ -606,7 +655,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '" AND wl.userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -645,7 +694,7 @@
 		return $responseData;
 	}
 
-	function getWordlistListInDb()
+	function getWordlistListInDb( $userId )
 	{
 		global $mysqli;
 
@@ -658,8 +707,9 @@
 
 		$data = [];
 
-		$query = 'SELECT *
-				  FROM wordlist';
+		$query = 'SELECT wordlistId, wordlistName
+				  FROM wordlist
+				  WHERE userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -921,7 +971,8 @@
 	function addWordToDb( $wordTitle,
 						  $partOfSpeech,
 						  $pronunciation,
-						  $wordlistId )
+						  $wordlistId,
+						  $userId )
 	{
 		global $mysqli;
 
@@ -932,11 +983,12 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'INSERT INTO word( word, partOfSpeech, pronunciation, wordlistId )
+		$query = 'INSERT INTO word( word, partOfSpeech, pronunciation, wordlistId, userId )
 				  VALUES ( "' . $wordTitle . '",' .
 				  		 ' "' . $partOfSpeech . '",' .
 				  		 ' "' . $pronunciation . '",' .
-				  		 ' "' . $wordlistId . '")';
+				  		 ' "' . $wordlistId . '",' .
+				  		 ' "' . $userId . '")';
 
 		$result = $mysqli->query( $query );
 
@@ -955,7 +1007,8 @@
 	function deleteWordInDb( $wordTitle,
 							 $partOfSpeech,
 							 $wordlistName,
-							 $wordMeaning )
+							 $wordMeaning,
+							 $userId )
 	{
 		global $mysqli;
 
@@ -972,7 +1025,7 @@
 				  ON w.wordlistId = wl.wordlistId
 				  INNER JOIN wordmeaning wm
 				  ON w.wordId = wm.wordId
-				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '" AND wm.meaning = "' . $wordMeaning . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '" AND wm.meaning = "' . $wordMeaning . '" AND wl.userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 

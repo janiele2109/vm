@@ -1,9 +1,10 @@
 <?php
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/app.config.php';
 
 	global $mysqli;
 
-	$query = "SELECT w.word,
+	$query = 'SELECT w.word,
 					 w.partOfSpeech,
 					 w.pronunciation,
 					 wl.wordlistName,
@@ -14,7 +15,10 @@
 			  ON w.wordlistId = wl.wordlistId
 			  INNER JOIN wordMeaning wm
 			  ON w.wordId = wm.wordId
-			  ORDER BY w.word";
+			  INNER JOIN users u
+			  ON wl.userId = u.userId
+			  WHERE u.userName = "' . $username .
+			  '" ORDER BY w.word';
 
 	if ( $result = $mysqli->query( $query ) )
 	{
