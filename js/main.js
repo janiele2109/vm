@@ -6,6 +6,8 @@ $( document ).ready( function() {
 		$( this ).bindEventsToControls();
 
 		$( this ).toggleActiveMenuItem( MENU_ITEM_TEST );
+
+		$( '#testBtn' ).focus();
 	} );
 
 /* =========================== Event functions - END =========================== */
@@ -16,6 +18,7 @@ $( document ).ready( function() {
 
 	$.fn.fillHiddenWordlistCb = function( event ) {
 		var sendingData = {
+			username: $( '#userName' ).text(),
 			requestType: 'getWordlistList'
 		};
 
@@ -54,6 +57,7 @@ $( document ).ready( function() {
 		history.pushState( '', document.title, '/' + requestMenuItem );
 
 		var sendingData = {
+			username: $( '#userName' ).text(),
 			requestType: 'getPageContent'
 		};
 
@@ -62,7 +66,7 @@ $( document ).ready( function() {
 			type: 'post',
 			success:
 				function( response, status ) {
-					$( this ).getPageContentOnSuccess( response, status, currentUri );
+					$( this ).getPageContentOnSuccess( response, status, currentUri, requestMenuItem );
 
 					if ( requestMenuItem == MENU_ITEM_WORD )
 						$( this ).fillHiddenWordlistCb();
@@ -206,7 +210,7 @@ $( document ).ready( function() {
 		var eventArr = new Array();
 
 		( eventArr = [] ).push( 'blur' );
-		$( this ).checkAndbindEventsForSelectors( 'input[type=text]',
+		$( this ).checkAndbindEventsForSelectors( 'input[type=text][data-controltranstype]',
 												  eventArr,
 												  $.fn.toSpanControl,
 												  { spanControlTranstype: 'input-text' } );
@@ -589,8 +593,6 @@ $( document ).ready( function() {
 
 	$.fn.toTextAreaControl = function( displayVal, controlTranstype ) {
 		var textarea = document.createElement( 'TEXTAREA' );
-		var parentPadding = $( this ).parent().css( 'padding-right' ).replace( 'px', '' );
-		var parentWidth = $( this ).parent().width();
 
 		$.each( this[ 0 ].attributes, function( i, attrib ) {
 										  if ( attrib.name != 'id' )
@@ -813,8 +815,9 @@ $( document ).ready( function() {
 														  } );
 	}
 
-	$.fn.getPageContentOnSuccess = function( response, status, currentUri ) {
+	$.fn.getPageContentOnSuccess = function( response, status, currentUri, requestMenuItem ) {
 		var pageType = '';
+		var focusControl = '';
 
 		if ( currentUri == MENU_ITEM_TEST )
 			pageType = 'testForm';
@@ -827,6 +830,17 @@ $( document ).ready( function() {
 
 		if ( $( '#' + pageType ).length > 0 )
 			$( '#' + pageType ).replaceWith( response );
+
+		if ( requestMenuItem == MENU_ITEM_TEST )
+			focusControl = '#testBtn';
+
+		else if ( requestMenuItem == MENU_ITEM_WORD )
+			focusControl = '#addNewWordTextBox';
+
+		else if ( requestMenuItem == MENU_ITEM_WORDLIST )
+			focusControl = '#addNewWordlistTextBox';
+
+		$( focusControl ).focus();
 
 		$( this ).bindEventsToControls();
 	}

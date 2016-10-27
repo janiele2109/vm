@@ -1,11 +1,15 @@
 <?php
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
+	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/app.config.php';
 
 	global $mysqli;
 
-	$query = 'SELECT wordlistName
-			  FROM wordlist
-			  ORDER BY wordlistName';
+	$query = 'SELECT wl.wordlistName
+			  FROM wordlist wl
+			  INNER JOIN users u
+			  ON wl.userId = u.userId
+			  WHERE u.userName = "' . $username .
+			  '" ORDER BY wordlistName';
 
 	if ( $result = $mysqli->query( $query ) )
 	{

@@ -15,7 +15,7 @@
 	require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/inc/head.php';
 ?>
 
-<body OnLoad = 'document.getElementById( "testBtn" ).focus(); history.pushState( "", document.title, "/test" );'>
+<body OnLoad = 'history.pushState( "", document.title, "/test" );'>
 	<?php
 		require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/inc/header.php';
 	?>

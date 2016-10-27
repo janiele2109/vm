@@ -23,6 +23,7 @@ $( document ).ready( function() {
                 wordlistId: wordlistId,
                 wordMeaning: meaning,
                 wordExample: example,
+                username: $( '#userName' ).text(),
                 requestType: 'addWord'
             }
 
@@ -98,6 +99,7 @@ $( document ).ready( function() {
         if ( selectedWord.length > 0 ) {
             var sendingData = {
                 'selectedWordArr': JSON.stringify( selectedWord ),
+                username: $( '#userName' ).text(),
                 requestType: 'delSelectedWords'
             }
 
@@ -222,6 +224,7 @@ $( document ).ready( function() {
         if ( modifiedWordRowList.length > 0 ) {
             var sendingData = {
                 'modifiedWordRowList': JSON.stringify( modifiedWordRowList ),
+                username: $( '#userName' ).text(),
                 requestType: 'updateSelectedWords'
             }
 
@@ -378,6 +381,7 @@ $( document ).ready( function() {
         {
             var sendingData = {
                 'modifiedRow': JSON.stringify( modifiedRow ),
+                username: $( '#userName' ).text(),
                 requestType: 'updateWord'
             }
 

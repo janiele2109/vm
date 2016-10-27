@@ -19,6 +19,7 @@ define( '0003'		, 'Selected wordlist names does not exist!' );
 define( '0004'		, 'Add new wordlist name failed!' );
 define( '0005'		, 'Deleting selected wordlist names failed!' );
 define( '0006'		, 'Updating new wordlist name failed!' );
+define( '0007'		, 'Invalid username!' );
 
 /* =========== For wordlist errors - END =========== */
 

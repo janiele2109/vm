@@ -250,7 +250,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			return $result->fetch_object()->wordlistId;
@@ -271,7 +271,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			return $result->fetch_object()->wordId;
@@ -292,7 +292,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			return $result->fetch_object()->wordMeaningId;
@@ -311,7 +311,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			return $result->fetch_object()->wordExampleId;
@@ -339,7 +339,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			$responseData[ 'errState' ] = 'OK';
@@ -443,7 +443,7 @@
 
 			$result = $mysqli->query( $query );
 
-			if ( $result != FALSE &&
+			if ( $result != null &&
 				 $result->num_rows > 0 )
 			{
 				$responseData[ 'errState' ] = 'OK';
@@ -555,7 +555,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			$query = 'SELECT *
@@ -566,7 +566,7 @@
 
 			$result = $mysqli->query( $query );
 
-			if ( $result != FALSE &&
+			if ( $result != null &&
 				 $result->num_rows > 0 )
 			{
 				$responseData[ 'errState' ] = 'NG';
@@ -610,7 +610,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			$wordId = $result->fetch_object()->wordId;
@@ -623,7 +623,7 @@
 
 			$result = $mysqli->query( $query );
 
-			if ( $result != FALSE &&
+			if ( $result != null &&
 				 $result->num_rows > 0 )
 			{
 				$responseData[ 'errState' ] = 'OK';
@@ -663,7 +663,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			while ( $row = mysqli_fetch_row( $result ) )
@@ -810,7 +810,7 @@
 		return $responseData;
 	}
 
-	function deleteWordsBelongToWordlistNameInDb( $wordlistName )
+	function deleteWordsBelongToWordlistNameInDb( $wordlistName, $userId )
 	{
 		global $mysqli;
 
@@ -825,7 +825,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE wl.wordlistName = "' . $wordlistName . '"';
+				  WHERE wl.wordlistName = "' . $wordlistName . '" AND w.userId = "' . $userId . '"';
 
 		$words = $mysqli->query( $query );
 
@@ -976,7 +976,7 @@
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			$resultObj = $result->fetch_object();

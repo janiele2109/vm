@@ -11,6 +11,7 @@ $( document ).ready( function() {
         if ( errMsg == EMPTY_STRING ) {
             var sendingData = {
                 wordlistName: $( '#addNewWordlistTextBox' ).val(),
+                username: $( '#userName' ).text(),
                 requestType: 'addWordListName'
             };
 
@@ -34,7 +35,8 @@ $( document ).ready( function() {
 
                             $( this ).addNewWordlistTextBoxFocus();
 
-                            $( this ).bindEventsToControls();
+                            $( this ).bindWordlistEvents();
+                            $( this ).bindGeneralEvents();
                         }
                     },
                 data: sendingData
@@ -60,6 +62,7 @@ $( document ).ready( function() {
         if ( selectedWordlistName.length > 0 ) {
             var sendingData = {
                 'wordlistNameArr[]': selectedWordlistName,
+                username: $( '#userName' ).text(),
                 requestType: 'delSelectedWordListNames'
             };
 
@@ -121,6 +124,7 @@ $( document ).ready( function() {
         if ( Object.keys( selectedWordlistNameMap ).length > 0 ) {
             var sendingData = {
                 'wordlistNamesMap': selectedWordlistNameMap,
+                username: $( '#userName' ).text(),
                 requestType: 'updateSelectedWordListNames'
             }
 
@@ -144,7 +148,8 @@ $( document ).ready( function() {
 
                             $( this ).addNewWordlistTextBoxFocus();
 
-                            $( this ).bindEventsToControls();
+                            $( this ).bindWordlistEvents();
+                            $( this ).bindGeneralEvents();
                         }
                     },
                 data: sendingData
@@ -167,6 +172,7 @@ $( document ).ready( function() {
             var sendingData = {
                 oldVal: oldWordlistName,
                 newVal: newWordlistName,
+                username: $( '#userName' ).text(),
                 requestType: 'updateWordListName'
             };
 
@@ -191,8 +197,6 @@ $( document ).ready( function() {
                             $( this ).resetCheckboxOfRow( rowObj );
 
                             $( this ).addNewWordlistTextBoxFocus();
-
-                            $( this ).bindEventsToControls();
                         }
                     },
                 data: sendingData

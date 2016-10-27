@@ -5,110 +5,131 @@
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'addWordListName' )
 	{
-		addWordListName( $_POST[ 'wordlistName' ] );
+		addWordListName( $_POST[ 'wordlistName' ], $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'delSelectedWordListNames' )
 	{
-		delSelectedWordListNames( $_POST[ 'wordlistNameArr' ] );
+		delSelectedWordListNames( $_POST[ 'wordlistNameArr' ], $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateWordListName' )
 	{
-		updateWordListName( $_POST[ 'oldVal' ], $_POST[ 'newVal' ] );
+		updateWordListName( $_POST[ 'oldVal' ], $_POST[ 'newVal' ], $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateSelectedWordListNames' )
 	{
-		updateSelectedWordListNames( $_POST[ 'wordlistNamesMap' ] );
+		updateSelectedWordListNames( $_POST[ 'wordlistNamesMap' ], $_POST[ 'username' ] );
 	}
 
-	function addWordListName( $wordlistName )
+	function addWordListName( $wordlistName, $username )
 	{
-		$result = validateWordlistName( $wordlistName );
+		$result = checkUserNameExists( $username );
 
 		if ( $result[ 'errState' ] == 'OK' )
 		{
-			$result = checkDuplicateWordlistName( $wordlistName );
+			$userId = $result[ 'dataContent' ];
 
-			/* New wordlist name is not duplicated */
-			if ( $result[ 'errState' ] == 'OK' )
-			{
-				$result = addWordlistNameToDb( $wordlistName );
-
-				/* Adding wordlist to DB is successful */
-				if ( $result[ 'errState' ] == 'OK' )
-				{
-					$result[ 'dataContent' ] = reloadWordlistViewContent();
-					$result[ 'msg' ] = constant( '0051' );
-				}
-			}
-		}
-
-		header( 'Content-Type: application/json' );
-		echo json_encode( $result );
-	}
-
-	function delSelectedWordListNames( $wordlistNameArr )
-	{
-		foreach( $wordlistNameArr as $wordlistName )
-		{
-			$result = checkExistedWordlistName( $wordlistName );
+			$result = validateWordlistName( $wordlistName );
 
 			if ( $result[ 'errState' ] == 'OK' )
 			{
-				$result = deleteWordsBelongToWordlistNameInDb( $wordlistName );
-
-				if ( $result[ 'errState' ] == 'OK' )
-				{
-					$result = deleteWordlistNameInDb( $wordlistName );
-
-					if ( $result[ 'errState' ] == 'OK' )
-						$result[ 'msg' ] = constant( '0052' );
-				}
-			}
-		}
-
-		header( 'Content-Type: application/json' );
-		echo json_encode( $result );
-	}
-
-	function updateWordListName( $oldVal, $newVal, &$params = null )
-	{
-		if ( $params )
-			$params[ 'cntWordlistNameTotal' ]++;
-
-		$result = checkExistedWordlistName( $oldVal );
-
-		/* If selected wordlist name for updating exists */
-		if ( $result[ 'errState' ] == 'OK' )
-		{
-			$result = validateWordlistName( $newVal );
-
-			/* If new wordlist name is valid */
-			if ( $result[ 'errState' ] == 'OK' )
-			{
-				$result = checkDuplicateWordlistName( $newVal );
+				$result = checkDuplicateWordlistName( $wordlistName, $userId );
 
 				/* New wordlist name is not duplicated */
 				if ( $result[ 'errState' ] == 'OK' )
 				{
-					$result = updateWordlistNameToDb( $oldVal, $newVal );
+					$result = addWordlistNameToDb( $wordlistName, $userId );
 
-					/* Updating new wordlist name successfully */
+					/* Adding wordlist to DB is successful */
 					if ( $result[ 'errState' ] == 'OK' )
-						$result[ 'msg' ] = constant( '0053' );
-				}
-				else
-				{
-					if ( $params )
 					{
-						$params[ 'cntDuplicatedWordlistName' ]++;
+						$result[ 'dataContent' ] = reloadWordlistViewContent();
+						$result[ 'msg' ] = constant( '0051' );
+					}
+				}
+			}
+		}
 
-						if ( empty( $params['duplicatedWordlistName'] ) )
-							$params['duplicatedWordlistName'] = $newVal;
-						else
-							$params['duplicatedWordlistName'] = $params['duplicatedWordlistName'] . ", " . $newVal;
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function delSelectedWordListNames( $wordlistNameArr, $username )
+	{
+		$result = checkUserNameExists( $username );
+
+		if ( $result[ 'errState' ] == 'OK' )
+		{
+			$userId = $result[ 'dataContent' ];
+
+			foreach( $wordlistNameArr as $wordlistName )
+			{
+				$result = checkExistedWordlistName( $wordlistName, $userId );
+
+				if ( $result[ 'errState' ] == 'OK' )
+				{
+					$result = deleteWordsBelongToWordlistNameInDb( $wordlistName, $userId );
+
+					if ( $result[ 'errState' ] == 'OK' )
+					{
+						$result = deleteWordlistNameInDb( $wordlistName, $userId );
+
+						if ( $result[ 'errState' ] == 'OK' )
+							$result[ 'msg' ] = constant( '0052' );
+					}
+				}
+			}
+		}
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function updateWordListName( $oldVal, $newVal, $username, &$params = null )
+	{
+		$result = checkUserNameExists( $username );
+
+		if ( $result[ 'errState' ] == 'OK' )
+		{
+			$userId = $result[ 'dataContent' ];
+
+			if ( $params )
+				$params[ 'cntWordlistNameTotal' ]++;
+
+			$result = checkExistedWordlistName( $oldVal, $userId );
+
+			/* If selected wordlist name for updating exists */
+			if ( $result[ 'errState' ] == 'OK' )
+			{
+				$result = validateWordlistName( $newVal );
+
+				/* If new wordlist name is valid */
+				if ( $result[ 'errState' ] == 'OK' )
+				{
+					$result = checkDuplicateWordlistName( $newVal, $userId );
+
+					/* New wordlist name is not duplicated */
+					if ( $result[ 'errState' ] == 'OK' )
+					{
+						$result = updateWordlistNameToDb( $oldVal, $newVal, $userId );
+
+						/* Updating new wordlist name successfully */
+						if ( $result[ 'errState' ] == 'OK' )
+							$result[ 'msg' ] = constant( '0053' );
+					}
+					else
+					{
+						if ( $params )
+						{
+							$params[ 'cntDuplicatedWordlistName' ]++;
+
+							if ( empty( $params['duplicatedWordlistName'] ) )
+								$params['duplicatedWordlistName'] = $newVal;
+							else
+								$params['duplicatedWordlistName'] = $params['duplicatedWordlistName'] . ", " . $newVal;
+						}
 					}
 				}
 			}
@@ -123,42 +144,49 @@
 			$params[ 'result' ] = $result;
 	}
 
-	function updateSelectedWordListNames( $wordlistNamesMap )
+	function updateSelectedWordListNames( $wordlistNamesMap, $username )
 	{
-		$params = array('cntWordlistNameTotal' => 0, 
-						'cntDuplicatedWordlistName' =>0,
-						'duplicatedWordlistName' => '',
-						'result' => null
-						);
+		$result = checkUserNameExists( $username );
 
-		foreach( $wordlistNamesMap as $oldVal => $newVal )
+		if ( $result[ 'errState' ] == 'OK' )
 		{
-			updateWordListName( $oldVal, $newVal, $params );
-		}
+			$userId = $result[ 'dataContent' ];
 
-		$result = $params[ 'result' ];
+			$params = array('cntWordlistNameTotal' => 0, 
+							'cntDuplicatedWordlistName' =>0,
+							'duplicatedWordlistName' => '',
+							'result' => null
+							);
 
-		/* If there is error cause of duplicated wordlist names */
-		if ( ( $result != null &&
-			  $result[ 'errState' ] == 'NG' ) ||
-			 $params[ 'cntDuplicatedWordlistName' ] > 0 )
-		{
-			if ( $result[ 'errCode' ] == '0001' )
+			foreach( $wordlistNamesMap as $oldVal => $newVal )
 			{
-				$range = $params['cntWordlistNameTotal'] - $params['cntDuplicatedWordlistName'];
-
-				if ( $range == 1 )
-					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist is updated successfully!";
-				else if ( $range > 1 )
-					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist are updated successfully!";
-				else
-					$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'];
+				updateWordListName( $oldVal, $newVal, $username, $params );
 			}
-		}
-		else
-		{
-			$result[ 'dataContent' ] = reloadWordlistViewContent();
-			$result[ 'msg' ] = constant( '0054' );
+
+			$result = $params[ 'result' ];
+
+			/* If there is error cause of duplicated wordlist names */
+			if ( ( $result != null &&
+				  $result[ 'errState' ] == 'NG' ) ||
+				 $params[ 'cntDuplicatedWordlistName' ] > 0 )
+			{
+				if ( $result[ 'errCode' ] == '0001' )
+				{
+					$range = $params['cntWordlistNameTotal'] - $params['cntDuplicatedWordlistName'];
+
+					if ( $range == 1 )
+						$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist is updated successfully!";
+					else if ( $range > 1 )
+						$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'] . "! Remaining wordlist are updated successfully!";
+					else
+						$result[ 'msg' ] = "Duplicated wordlist: " . $params['duplicatedWordlistName'];
+				}
+			}
+			else
+			{
+				$result[ 'dataContent' ] = reloadWordlistViewContent();
+				$result[ 'msg' ] = constant( '0054' );
+			}
 		}
 
 		header( 'Content-Type: application/json' );
@@ -188,7 +216,40 @@
 		return $responseData;
 	}
 
-	function checkDuplicateWordlistName( $wordlistName )
+	function checkUserNameExists( $username )
+	{
+		global $mysqli;
+
+		$responseData = array(
+					           'errState' 		=> '',
+							   'errCode' 		=> '',
+						  	   'msg' 			=> '',
+							   'dataContent' 	=> ''
+							 );
+
+		$query = 'SELECT userId
+				  FROM users
+				  WHERE userName="' . $username . '"';
+
+		$result = $mysqli->query( $query );
+
+		if ( $result != null &&
+			 $result->num_rows > 0 )
+		{
+			$responseData[ 'errState' ] = 'OK';
+			$responseData[ 'dataContent' ] = $result->fetch_object()->userId;
+		}
+		else
+		{
+			$responseData[ 'errState' ] = 'NG';
+			$responseData[ 'errCode' ] = '0007';
+			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+		}
+
+		return $responseData;
+	}
+
+	function checkDuplicateWordlistName( $wordlistName, $userId )
 	{
 		global $mysqli;
 
@@ -201,11 +262,11 @@
 
 		$query = 'SELECT wordlistName
 				  FROM wordlist
-				  WHERE wordlistName="' . $wordlistName . '"';
+				  WHERE wordlistName="' . $wordlistName . '" AND userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			$responseData[ 'errState' ] = 'NG';
@@ -218,7 +279,7 @@
 		return $responseData;
 	}
 
-	function checkExistedWordlistName( $wordlistName )
+	function checkExistedWordlistName( $wordlistName, $userId )
 	{
 		global $mysqli;
 
@@ -231,11 +292,11 @@
 
 		$query = 'SELECT wordlistName
 				  FROM wordlist
-				  WHERE wordlistName="' . $wordlistName . '"';
+				  WHERE wordlistName = "' . $wordlistName . '" AND userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
-		if ( $result != FALSE &&
+		if ( $result != null &&
 			 $result->num_rows > 0 )
 		{
 			$responseData[ 'errState' ] = 'OK';
@@ -244,13 +305,13 @@
 		{
 			$responseData[ 'errState' ] = 'NG';
 			$responseData[ 'errCode' ] = '0003';
-			$responseData[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+			$responseData[ 'msg' ] = $wordlistName . ' - ' . $userId;//constant( $responseData[ 'errCode' ] );
 		}
 
 		return $responseData;
 	}
 
-	function addWordlistNameToDb( $wordlistName )
+	function addWordlistNameToDb( $wordlistName, $userId )
 	{
 		global $mysqli;
 
@@ -261,8 +322,8 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'INSERT INTO wordlist( wordlistName )
-				  VALUES("' . $wordlistName . '")';
+		$query = 'INSERT INTO wordlist( wordlistName, userId )
+				  VALUES("' . $wordlistName . '", "' . $userId . '")';
 
 		$result = $mysqli->query( $query );
 
@@ -278,7 +339,7 @@
 		return $responseData;
 	}
 
-	function deleteWordlistNameInDb( $wordlistName )
+	function deleteWordlistNameInDb( $wordlistName, $userId )
 	{
 		global $mysqli;
 
@@ -290,7 +351,7 @@
 							 );
 
 		$query = 'DELETE FROM wordlist
-				  WHERE wordlistName="' . $wordlistName . '"';
+				  WHERE wordlistName = "' . $wordlistName . '" AND userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -306,7 +367,7 @@
 		return $responseData;
 	}
 
-	function updateWordlistNameToDb( $oldVal, $newVal )
+	function updateWordlistNameToDb( $oldVal, $newVal, $userId )
 	{
 		global $mysqli;
 
@@ -319,7 +380,7 @@
 
 		$query = 'UPDATE wordlist
 				  SET wordlistName = "' . $newVal .
-				  '" WHERE wordlistName="' . $oldVal . '"';
+				  '" WHERE wordlistName="' . $oldVal . '" AND userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 

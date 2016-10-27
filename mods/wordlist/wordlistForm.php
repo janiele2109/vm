@@ -1,7 +1,8 @@
 <div id = 'wordlistForm'>
 
 	<?php
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/wordlist/newWordlistForm.php';
+		require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/mods/wordlist/newWordlistForm.php';
+		require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/app.config.php';
 	?>
 
 	<div class = 'wordlistBtnCtrls'>

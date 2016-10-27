@@ -4,12 +4,9 @@
 	$username = 'guest';
 	$loginSuccess = false;
 
-	function getLoginInfo()
+	if ( isset( $_POST[ 'username' ] ) && $_POST[ 'username' ] )
 	{
-		if ( isset( $_POST[ 'userName' ] ) && $_POST[ 'userName' ] )
-		{
-			$username = $_POST[ 'userName' ];
-			$loginSuccess = true;
-		}
+		$username = $_POST[ 'username' ];
+		$loginSuccess = true;
 	}
 ?>

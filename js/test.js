@@ -7,6 +7,7 @@ $(document).ready(function() {
         event.preventDefault();
 
         var sendingData = {
+            username: $( '#userName' ).text(),
             requestType: 'testDataRequest'
         }
 
