@@ -1,5 +1,5 @@
 <form>
-	<span class = 'wordTitle'>Word title</span>
+	<span class = 'wordTitle'>Word title <span class = 'required'>(*)</span> </span>
 
 	<input id = 'addNewWordTextBox' type = 'text' size = '30' maxlength = '30' tabindex = '1'/>
 
@@ -50,12 +50,12 @@
 		<option value = 'exclamation'>exclamation</option>
 	</select>
 
-	<span class = 'pronunciationSpan'>Pronunciation</span>
+	<span class = 'pronunciationSpan'>Pronunciation <span class = 'required'>(*)</span> </span>
 
 	<input id = 'pronunciationTextBox' type = 'text' size = '30' maxlength = '30' tabindex = '4'/><br/>
 
 	<p>
-		<span class = 'meaningSpan'>Meaning</span>
+		<span class = 'meaningSpan'>Meaning <span class = 'required'>(*)</span> </span>
 
 		<textarea id = 'meaningTextArea' placeholder = 'Meaning...' rows = '4' cols = '50' class = 'meaningTextArea' tabindex = '5'></textarea>
 
@@ -63,13 +63,13 @@
 	</p>
 
 	<p>
-		<span class = 'nativeMeaningSpan'>Native meaning</span>
+		<span class = 'nativeMeaningSpan'>Native meaning <span class = 'required'>(*)</span> </span>
 
 		<textarea id = 'nativemeaningTextArea' placeholder = 'Meaning in native language...' rows = '4' cols = '50' class = 'nativemeaningTextArea' tabindex = '6'></textarea>
 	</p>
 
 	<p>
-		<span>Example</span>
+		<span>Example <span class = 'required'>(*)</span> </span>
 
 		<textarea id = 'exampleTextArea' placeholder = 'Example...' rows = '4' cols = '50' class = 'exampleTextArea' tabindex = '7'></textarea>
 	</p>

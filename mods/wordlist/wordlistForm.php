@@ -5,6 +5,8 @@
 		require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/app.config.php';
 	?>
 
+	<span class = 'required'>(*): Required</span><br/>
+
 	<div class = 'wordlistBtnCtrls'>
 		<button id = 'delSelectedWordListsBtn'>Delete selected wordlists</button>
 		<button id = 'updateSelectedWordListsBtn'>Update selected wordlists</button>

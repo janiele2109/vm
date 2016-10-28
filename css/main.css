@@ -56,6 +56,11 @@ table, th, td {
 	padding: 5px;
 }
 
+.required {
+	color: red;
+	font-style: italic;
+}
+
 .err {
 	color: red;
 }

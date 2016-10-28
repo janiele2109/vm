@@ -4,6 +4,8 @@
 		require_once $_SERVER['DOCUMENT_ROOT'] . '/mods/word/newWordForm.php';
 	?>
 
+	<span class = 'required'>(*): Required</span>
+
 	<div class = 'wordBtnCtrls'>
 		<button id = 'delSelectedWordsBtn'>Delete selected words</button>
 		<button id = 'updateSelectedWordsBtn'>Update selected words</button>
