@@ -336,7 +336,7 @@
 		global $mysqli;
 
 		$query = 'SELECT wm.wordMeaningId
-				  FROM wordmeaning wm
+				  FROM wordMeaning wm
 				  INNER JOIN word w
 				  ON wm.wordId = w.wordId
 				  WHERE w.wordId = "' . $wordId . '" AND wm.meaning = "' . $meaning . '"';
@@ -357,7 +357,7 @@
 		global $mysqli;
 
 		$query = 'SELECT we.wordExampleId
-				  FROM wordexample we
+				  FROM wordExample we
 				  WHERE we.wordMeaningId = "' . $wordMeaningId . '" AND we.example = "' . $example . '"';
 
 		$result = $mysqli->query( $query );
@@ -383,7 +383,7 @@
 							 );
 
 		$query = 'SELECT wm.wordMeaningId
-				  FROM wordmeaning wm
+				  FROM wordMeaning wm
 				  INNER JOIN word w
 				  ON w.wordId = wm.wordId
 				  WHERE w.wordId = "' . $wordId . '"';
@@ -609,7 +609,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partsOfSpeech . '" AND w.wordlistId = "' . $wordlistId . '" AND userId = "' . $userId . '"';
+				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partsOfSpeech . '" AND w.wordlistId = "' . $wordlistId . '" AND w.userId = "' . $userId . '"';
 
 		$result = $mysqli->query( $query );
 
@@ -617,7 +617,7 @@
 			 $result->num_rows > 0 )
 		{
 			$query = 'SELECT *
-					  FROM wordmeaning wm
+					  FROM wordMeaning wm
 					  INNER JOIN word w
 					  ON w.wordId = wm.wordId
 					  WHERE wm.wordId = "' . $result->fetch_object()->wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
@@ -675,7 +675,7 @@
 			$wordId = $result->fetch_object()->wordId;
 
 			$query = 'SELECT *
-					  FROM wordmeaning wm
+					  FROM wordMeaning wm
 					  INNER JOIN word w
 					  ON w.wordId = wm.wordId
 					  WHERE wm.wordId = "' . $wordId . '" AND wm.meaning = "' . $wordMeaning . '"';
@@ -749,7 +749,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'DELETE FROM wordexample
+		$query = 'DELETE FROM wordExample
 				  WHERE wordMeaningId = "' . $wordMeaningId . '"';
 
 		$result = $mysqli->query( $query );
@@ -777,7 +777,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'DELETE FROM wordmeaning
+		$query = 'DELETE FROM wordMeaning
 				  WHERE wordMeaningId = "' . $wordMeaningId . '"';
 
 		$result = $mysqli->query( $query );
@@ -805,7 +805,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'DELETE FROM wordexample
+		$query = 'DELETE FROM wordExample
 				  WHERE wordExampleId = "' . $wordExampleId . '"';
 
 		$result = $mysqli->query( $query );
@@ -834,7 +834,7 @@
 							 );
 
 		$query = 'SELECT wm.wordMeaningId
-				  FROM wordmeaning wm
+				  FROM wordMeaning wm
 				  WHERE wm.wordId = "' . $wordId . '"';
 
 		$wordMeaningIds = $mysqli->query( $query );
@@ -848,7 +848,7 @@
 
 				if ( $responseData[ 'errState' ] == 'OK' )
 				{
-					$query = 'DELETE FROM wordmeaning
+					$query = 'DELETE FROM wordMeaning
 							  WHERE wordId = "' . $wordId . '"';
 
 					$result = $mysqli->query( $query );
@@ -931,7 +931,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'INSERT INTO wordexample( example, wordMeaningId )
+		$query = 'INSERT INTO wordExample( example, wordMeaningId )
 				  VALUES ( "' . $wordExample . '",' .
 				         ' "' . $wordMeaningId . '")';
 
@@ -1034,7 +1034,7 @@
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
-				  INNER JOIN wordmeaning wm
+				  INNER JOIN wordMeaning wm
 				  ON w.wordId = wm.wordId
 				  WHERE w.word = "' . $wordTitle . '" AND w.partOfSpeech = "' . $partOfSpeech . '" AND wl.wordlistName = "' . $wordlistName . '" AND wm.meaning = "' . $wordMeaning . '" AND wl.userId = "' . $userId . '"';
 
@@ -1213,7 +1213,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'UPDATE wordmeaning
+		$query = 'UPDATE wordMeaning
 				  SET meaning = "' . $newMeaningVal . '", nativemeaning = "' . $newNativeMeaningVal .
 				  '" WHERE wordMeaningId="' . $wordMeaningId . '"';
 
@@ -1244,7 +1244,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'UPDATE wordexample
+		$query = 'UPDATE wordExample
 				  SET example = "' . $exNewVal .
 				  '" WHERE wordMeaningId="' . $wordMeaningId . '" AND example = "' . $exOldVal . '"';
 

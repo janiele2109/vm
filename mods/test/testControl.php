@@ -22,7 +22,7 @@
 
 			$query = 'SELECT w.wordId, w.word, w.partOfSpeech, wl.wordlistName, w.pronunciation, wm.meaning, wm.nativemeaning
 					  FROM word w
-					  INNER JOIN wordmeaning wm
+					  INNER JOIN wordMeaning wm
 					  ON w.wordId = wm.wordId
 					  INNER JOIN wordlist wl
 					  ON w.wordlistId = wl.wordlistId
@@ -38,8 +38,8 @@
 					$examplesList = [];
 
 					$query = 'SELECT we.example
-							  FROM wordexample we
-							  INNER JOIN wordmeaning wm
+							  FROM wordExample we
+							  INNER JOIN wordMeaning wm
 							  ON we.wordMeaningId = wm.wordMeaningId
 							  WHERE wm.meaning = "' . $row[ 5 ] . '"';
 

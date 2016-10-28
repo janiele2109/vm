@@ -291,9 +291,9 @@ $( document ).ready( function() {
 
     $.fn.exampleTdOnMouseEvents = function( event ) {
         if ( event.type == 'mouseenter' &&
-             $( 'textarea.exampleTd' ).length == 0 &&
+             $( this ).find( 'textarea' ).length == 0 &&
              $( '.exampleBtnlDiv' ).length == 0 )
-        {
+        {console.dir('exampleTdOnMouseEvents');
             var exampleEntry = $( this ).find( 'div.exampleEntry' );
 
             if ( exampleEntry.length > 0 )

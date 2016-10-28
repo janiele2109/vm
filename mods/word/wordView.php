@@ -36,8 +36,8 @@
 					'<td class = "exampleTd">';
 
 			$query = 'SELECT we.wordExampleId, we.example
-					  FROM wordexample we
-					  INNER JOIN wordmeaning wm
+					  FROM wordExample we
+					  INNER JOIN wordMeaning wm
 					  ON we.wordMeaningId = wm.wordMeaningId
 					  WHERE wm.wordMeaningId = "' . $row[ 6 ] . '"
 					  ORDER BY we.example';

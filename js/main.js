@@ -226,7 +226,7 @@ $( document ).ready( function() {
 	$.fn.bindSelectEvents = function() {
 		var eventArr = new Array();
 
-		( eventArr = [] ).push( 'blur', 'mouseleave' );
+		( eventArr = [] ).push( 'blur' );
 		$( this ).checkAndbindEventsForSelectors( 'select[data-controltranstype]',
 												  eventArr,
 												  $.fn.toSpanControl,
@@ -786,20 +786,35 @@ $( document ).ready( function() {
 				break;
 
 			case 'div':
-				var divTag = $( this ).toDivControl( param );
+				if ( $( this ).val() == '' &&
+					 $( this ).attr( 'data-sourceexample' ) == $( this ).val() )
+				{
+					var prevEle = $( this ).prev();
 
-				$( divTag ).removeRedundantBrTag();
+					while ( prevEle.length > 0 && prevEle.prop( 'tagName' ) == 'BR' )
+						prevEle = $( prevEle ).prev();
 
-				var nextEle = $( divTag ).next();
-				var prevEle = $( divTag ).prev();
+					$( this ).remove();
+					$( prevEle ).removeRedundantBrTag();
+				}
 
-				if ( prevEle.length > 0 &&
-					 prevEle.prop( 'tagName' ) == 'DIV' )
-					$( '<br/>' ).insertBefore( divTag );
+				else
+				{
+					var divTag = $( this ).toDivControl( param );
 
-				if ( nextEle.length > 0 &&
-					 nextEle.prop( 'tagName' ) == 'DIV' )
-					$( '<br/>' ).insertAfter( divTag );
+					$( divTag ).removeRedundantBrTag();
+
+					var nextEle = $( divTag ).next();
+					var prevEle = $( divTag ).prev();
+
+					if ( prevEle.length > 0 &&
+						 prevEle.prop( 'tagName' ) == 'DIV' )
+						$( '<br/>' ).insertBefore( divTag );
+
+					if ( nextEle.length > 0 &&
+						 nextEle.prop( 'tagName' ) == 'DIV' )
+						$( '<br/>' ).insertAfter( divTag );
+				}
 				break;
 
 			default:
