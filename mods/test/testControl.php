@@ -20,7 +20,7 @@
 
 			$wordsList = [];
 
-			$query = 'SELECT w.wordId, w.word, w.partOfSpeech, wl.wordlistName, w.pronunciation, wm.meaning
+			$query = 'SELECT w.wordId, w.word, w.partOfSpeech, wl.wordlistName, w.pronunciation, wm.meaning, wm.nativemeaning
 					  FROM word w
 					  INNER JOIN wordmeaning wm
 					  ON w.wordId = wm.wordId
@@ -63,6 +63,7 @@
 								   'wordlistName' 	=> $row[ 3 ],
 								   'pronunciation' 	=> $row[ 4 ],
 								   'meaning' 		=> $row[ 5 ],
+								   'nativemeaning'	=> $row[ 6 ],
 								   'examples'		=> $examplesList
 								 );
 

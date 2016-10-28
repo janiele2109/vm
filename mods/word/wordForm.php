@@ -21,6 +21,7 @@
 			<td class = 'pronunciation'>Pronunciation</td>
 			<td class = 'wordlist'>Wordlist</td>
 			<td class = 'meaning'>Meaning</td>
+			<td class = 'nativemeaning'>Native meaning</td>
 			<td class = 'example'>Example</td>
 			<td class = 'updateBtn'></td>
 		</tr>

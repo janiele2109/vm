@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `word`(
 CREATE TABLE IF NOT EXISTS `wordMeaning`(
 	wordMeaningId  	INT NOT NULL AUTO_INCREMENT,
 	meaning			longtext NOT NULL,
+	nativemeaning	longtext NOT NULL,
 	wordId    		INT NOT NULL,
 	PRIMARY KEY (wordMeaningId, wordId)
 );

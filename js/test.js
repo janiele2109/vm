@@ -192,6 +192,19 @@ $(document).ready(function() {
         }
     }
 
+    $.fn.displayNativeMeaningOnClick = function( event ) {
+        if ( $( this ).prop( 'checked' ) &&
+            $( '#resultSpan' ).css( 'visibility' ) == 'visible' &&
+            $( '#resultSpan' ).css( 'color' ) != 'rgb(255, 0, 0)' )
+        {
+            $( '#nativeMeaningDiv' ).css( 'visibility', 'visible' );
+        }
+        else
+        {
+            $( '#nativeMeaningDiv' ).css( 'visibility', 'hidden' );
+        }
+    }
+
     $.fn.menuItemTestOnClick = function( event ) {
         $( this ).toggleActiveMenuItem( MENU_ITEM_TEST );
         $( this ).switchMenuItem( event, MENU_ITEM_TEST );
@@ -204,6 +217,7 @@ $(document).ready(function() {
     function genNewWord() {
         var randomNo = randomNumber( 0, unCheckDataArr.length - 1 );
         var index = unCheckDataArr[ randomNo ];
+        var pTag = null;
 
         $( '#meaningSpan' ).attr( 'data-wordId', testData[ index ][ 'wordId' ] );
         $( '#meaningSpan' ).attr( 'data-word', testData[ index ][ 'word' ] );
@@ -214,11 +228,17 @@ $(document).ready(function() {
         $( '#wordClassSpan' ).html( '<i>(' + testData[ index ][ 'partOfSpeech' ] + ')</i>' );
         $( '#pronunciationSpan' ).html( $( '#meaningSpan' ).attr( 'data-pronunciation' ) );
 
+        $( '#nativeMeaningDiv' ).find( 'p.nativeMeaningP' ).remove();
+        pTag = document.createElement( 'P' );
+        $( pTag ).html( testData[ index ][ 'nativemeaning' ] );
+        $( pTag ).addClass( 'nativeMeaningP' );
+        $( '#nativeMeaningDiv' ).append( pTag );
+
         $( '#exampleDiv' ).find( 'p.exampleP' ).remove();
 
         for ( var i = 0; i < testData[ index ][ 'examples' ].length; i++ )
         {
-            var pTag = document.createElement( 'P' );
+            pTag = document.createElement( 'P' );
             $( pTag ).html( testData[ index ][ 'examples' ][ i ] );
 
             $( pTag ).addClass( 'exampleP' );
@@ -241,6 +261,9 @@ $(document).ready(function() {
                 if ( $('#displayPron').prop('checked') )
                     $("#pronunciationSpan").css('visibility', behavior);
 
+                if ( $('#displayNativeMeaning').prop('checked') )
+                    $("#nativeMeaningDiv").css('visibility', behavior);
+
                 if ( $('#displayExample').prop('checked') )
                     $("#exampleDiv").css('visibility', behavior);
             }
@@ -248,6 +271,7 @@ $(document).ready(function() {
             {
                 $("#pronunciationSpan").css('visibility', behavior);
                 $("#resultSpan").css('visibility', behavior);
+                $("#nativeMeaningDiv").css('visibility', behavior);
                 $("#exampleDiv").css('visibility', behavior);
             }
         }

@@ -9,6 +9,7 @@
 					 w.pronunciation,
 					 wl.wordlistName,
 					 wm.meaning,
+					 wm.nativemeaning,
 					 wm.wordMeaningId
 			  FROM word w
 			  INNER JOIN wordlist wl
@@ -31,13 +32,14 @@
 					'<td class = "toggleEnabled"><span class = "pronunciation" data-controltranstype = "input-text" data-sourcepron = "' . $row[ 2 ] . '">' . $row[ 2 ] . '</span></td>' .
 					'<td class = "toggleEnabled"><span class = "wordlist" data-controltranstype = "select" data-sourcewordlistname = "' . $row[ 3 ] . '">' . $row[ 3 ] . '</span></td>' .
 					'<td class = "toggleEnabled"><span class = "meaning" data-controltranstype = "textarea" data-sourcemeaning = "' . $row[ 4 ] . '">' . $row[ 4 ] . '</span></td>' .
+					'<td class = "toggleEnabled"><span class = "nativemeaning" data-controltranstype = "textarea" data-sourcenativemeaning = "' . $row[ 5 ] . '">' . $row[ 5 ] . '</span></td>' .
 					'<td class = "exampleTd">';
 
 			$query = 'SELECT we.wordExampleId, we.example
 					  FROM wordexample we
 					  INNER JOIN wordmeaning wm
 					  ON we.wordMeaningId = wm.wordMeaningId
-					  WHERE wm.wordMeaningId = "' . $row[ 5 ] . '"
+					  WHERE wm.wordMeaningId = "' . $row[ 6 ] . '"
 					  ORDER BY we.example';
 
 			if ( $wordExamples = $mysqli->query( $query ) )

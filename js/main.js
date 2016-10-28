@@ -351,6 +351,10 @@ $( document ).ready( function() {
 										   eventArr,
 										   $.fn.displayExampleOnClick );
 
+		$( this ).checkAndBindEventForEle( '#displayNativeMeaning',
+										   eventArr,
+										   $.fn.displayNativeMeaningOnClick );
+
 		eventArr = null;
 	}
 
@@ -656,6 +660,9 @@ $( document ).ready( function() {
 		else if ( classString.search( 'wordlist' ) != -1 )
 			dataSourceName = 'data-sourcewordlistname';
 
+		else if ( classString.search( 'nativemeaning' ) != -1 )
+			dataSourceName = 'data-sourcenativemeaning';
+
 		else if ( classString.search( 'meaning' ) != -1 )
 			dataSourceName = 'data-sourcemeaning';
 
@@ -734,37 +741,40 @@ $( document ).ready( function() {
 	}
 
 	$.fn.toEditableControls = function() {
-		switch( $( this ).attr( 'data-controlTransType' ) )
+		if ( $( '#enableEditting' ).prop( 'checked' ) == true )
 		{
-			case 'input-text':
-				$( this ).toInputTextControl( $( this ).getTagDisplayVal(), 'span' );
-				break;
+			switch( $( this ).attr( 'data-controlTransType' ) )
+			{
+				case 'input-text':
+					$( this ).toInputTextControl( $( this ).getTagDisplayVal(), 'span' );
+					break;
 
-			case 'select':
-				var dataSource = null;
+				case 'select':
+					var dataSource = null;
 
-				if ( $( this ).attr( 'class' ).indexOf( 'partOfSpeech' ) != -1 )
-					dataSource = $( '#wordClassCb option' );
+					if ( $( this ).attr( 'class' ).indexOf( 'partOfSpeech' ) != -1 )
+						dataSource = $( '#wordClassCb option' );
 
-				else if ( $( this ).attr( 'class' ).indexOf( 'wordlist' ) != -1 )
-					dataSource = $( '#hiddenWordlistCb option' );
+					else if ( $( this ).attr( 'class' ).indexOf( 'wordlist' ) != -1 )
+						dataSource = $( '#hiddenWordlistCb option' );
 
-				$( this ).toSelectControl( $( this ).getTagDisplayVal(),
-										   'span',
-										   dataSource );
-				break;
+					$( this ).toSelectControl( $( this ).getTagDisplayVal(),
+											   'span',
+											   dataSource );
+					break;
 
-			case 'textarea':
-				var controlTranstype = 'span';
+				case 'textarea':
+					var controlTranstype = 'span';
 
-				if ( $( this ).attr( 'class' ).indexOf( 'exampleEntry' ) != -1 )
-					controlTranstype = 'div';
+					if ( $( this ).attr( 'class' ).indexOf( 'exampleEntry' ) != -1 )
+						controlTranstype = 'div';
 
-				$( this ).toTextAreaControl( $( this ).getTagDisplayVal(), controlTranstype );
-				break;
+					$( this ).toTextAreaControl( $( this ).getTagDisplayVal(), controlTranstype );
+					break;
 
-			default:
-				break;
+				default:
+					break;
+			}
 		}
 	}
 

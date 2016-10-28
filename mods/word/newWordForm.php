@@ -1,11 +1,11 @@
 <form>
 	<span class = 'wordTitle'>Word title</span>
 
-	<input id = 'addNewWordTextBox' type = 'text' size = '30' maxlength = '30'/>
+	<input id = 'addNewWordTextBox' type = 'text' size = '30' maxlength = '30' tabindex = '1'/>
 
 	<span class = 'belongToWordlist'>belong to wordlist</span>
 
-	<select id = 'wordlistCb' class = 'wordlistCb'>
+	<select id = 'wordlistCb' class = 'wordlistCb' tabindex = '2'>
 
 		<?php
 			require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
@@ -29,11 +29,16 @@
 			}
 		?>
 
-	</select><br/>
+	</select>
+
+	<div class = 'enableEditting'>
+		<input type = 'checkbox' name = 'group' id = 'enableEditting'/>
+		<label for = 'enableEditting' class = 'noselect'>Enable editting</label>
+	</div><br/>
 
 	<span class = 'wordClassSpan'>Word class</span>
 
-	<select id = 'wordClassCb' class = 'wordClassCb'>
+	<select id = 'wordClassCb' class = 'wordClassCb' tabindex = '3'>
 		<option value = 'noun'>noun</option>
 		<option value = 'verb'>verb</option>
 		<option value = 'adjective'>adjective</option>
@@ -47,20 +52,26 @@
 
 	<span class = 'pronunciationSpan'>Pronunciation</span>
 
-	<input id = 'pronunciationTextBox' type = 'text' size = '30' maxlength = '30'/><br/>
+	<input id = 'pronunciationTextBox' type = 'text' size = '30' maxlength = '30' tabindex = '4'/><br/>
 
 	<p>
 		<span class = 'meaningSpan'>Meaning</span>
 
-		<textarea id = 'meaningTextArea' placeholder = 'Meaning...' rows = '4' cols = '50' class = 'meaningTextArea'></textarea>
+		<textarea id = 'meaningTextArea' placeholder = 'Meaning...' rows = '4' cols = '50' class = 'meaningTextArea' tabindex = '5'></textarea>
 
 		<button type = 'submit' id = 'addNewWordBtn' class = 'addNewWordBtn'>Add</button>
 	</p>
 
 	<p>
+		<span class = 'nativeMeaningSpan'>Native meaning</span>
+
+		<textarea id = 'nativemeaningTextArea' placeholder = 'Meaning in native language...' rows = '4' cols = '50' class = 'nativemeaningTextArea' tabindex = '6'></textarea>
+	</p>
+
+	<p>
 		<span>Example</span>
 
-		<textarea id = 'exampleTextArea' placeholder = 'Example...' rows = '4' cols = '50' class = 'exampleTextArea'></textarea>
+		<textarea id = 'exampleTextArea' placeholder = 'Example...' rows = '4' cols = '50' class = 'exampleTextArea' tabindex = '7'></textarea>
 	</p>
 
 </form>

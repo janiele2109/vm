@@ -8,11 +8,13 @@ $( document ).ready( function() {
         var pronunciation = $( '#pronunciationTextBox' ).val().trim();
         var wordlistId = $( '#wordlistCb' ).find( ':selected' ).val().trim();
         var meaning = $( '#meaningTextArea' ).val().trim();
+        var nativeMeaning = $( '#nativemeaningTextArea' ).val().trim();
         var example = $( '#exampleTextArea' ).val().trim();
 
         var result = $( this ).validateInputData( wordTitle,
                                                   pronunciation,
-                                                  meaning );
+                                                  meaning,
+                                                  nativeMeaning );
 
         if ( result == EMPTY_STRING )
         {
@@ -22,6 +24,7 @@ $( document ).ready( function() {
                 pronunciation: pronunciation,
                 wordlistId: wordlistId,
                 wordMeaning: meaning,
+                nativeMeaning: nativeMeaning,
                 wordExample: example,
                 username: $( '#userName' ).text(),
                 requestType: 'addWord'
@@ -201,6 +204,18 @@ $( document ).ready( function() {
                     }
                 }
 
+                else if ( classString.search( /\bnativemeaning\b/ ) != -1 )
+                {
+                    ctrlType = 'nativemeaning';
+                    valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcenativemeaning' );
+
+                    if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                    {
+                        $( this ).displayErrMsg( result );
+                        return;
+                    }
+                }
+
                 valObj[ 'newVal' ] = $( this ).text();
                 data[ ctrlType ] = valObj;
             } );
@@ -360,6 +375,18 @@ $( document ).ready( function() {
                 }
             }
 
+            else if ( classString.search( /\bnativemeaning\b/ ) != -1 )
+            {
+                ctrlType = 'nativemeaning';
+                valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcenativemeaning' );
+
+                if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
+                {
+                    $( this ).displayErrMsg( result );
+                    return;
+                }
+            }
+
             valObj[ 'newVal' ] = $( this ).text();
             data[ ctrlType ] = valObj;
         } );
@@ -443,7 +470,8 @@ $( document ).ready( function() {
 
     $.fn.validateInputData = function( wordTitle,
                                        pronunciation,
-                                       wordMeaning )
+                                       wordMeaning,
+                                       nativeMeaning )
     {
         var result = $( this ).validateWordTitle( wordTitle );
 
@@ -456,6 +484,11 @@ $( document ).ready( function() {
             return result;
 
         result = $( this ).validateWordMeaning( wordMeaning );
+
+        if ( result != EMPTY_STRING )
+            return result;
+
+        result = $( this ).validateWordMeaning( nativeMeaning );
 
         if ( result != EMPTY_STRING )
             return result;
@@ -504,6 +537,9 @@ $( document ).ready( function() {
 
             else if ( classString.search( /\bmeaning\b/ ) != -1 )
                 $( this ).attr( 'data-sourcemeaning', $( this ).text() );
+
+            else if ( classString.search( /\bnativemeaning\b/ ) != -1 )
+                $( this ).attr( 'data-sourcenativemeaning', $( this ).text() );
 
             $( this ).css( 'color', 'black' );
             $( this ).removeClass( 'modified' );

@@ -7,6 +7,9 @@
 
 		    	<input type = 'checkbox' name = 'group' id = 'displayExample'/>
 		    	<label for = 'displayExample' class = 'noselect'>Display example</label>
+
+		    	<input type = 'checkbox' name = 'group' id = 'displayNativeMeaning'/>
+		    	<label for = 'displayNativeMeaning' class = 'noselect'>Display native meaning</label>
 			</div>
 
 			<div class = 'meaningDescription'>
@@ -24,6 +27,10 @@
 		</form>
 
 		<span id = 'resultSpan' class = 'resultSpan'></span>
+
+		<div id = 'nativeMeaningDiv' class = 'nativeMeaningDiv'>
+			<b><span>Native meaning: </span></b><br/>
+		</div>
 
 		<div id = 'exampleDiv' class = 'exampleDiv'>
 			<b><span>Example: </span></b><br/>

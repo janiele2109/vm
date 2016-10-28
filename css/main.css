@@ -168,11 +168,11 @@ table, th, td {
 	margin-right: 10px;
 }
 
-.meaningSpan {
+.meaningSpan, .nativeMeaningSpan {
 	margin-right: 10px;
 }
 
-.meaningTextArea {
+.meaningTextArea, .nativemeaningTextArea {
 	margin-left: 7px;
 	vertical-align: top;
 }
@@ -195,6 +195,10 @@ td.exampleTd .exampleTextArea {
 	margin-top: 15px;
 }
 
+.enableEditting {
+	display: inline-block;
+	margin-left: 20px;
+}
 /* newWordForm.php - END */
 
 
@@ -274,7 +278,7 @@ td.exampleTd
 	width: 150px;
 }
 
-.wordlist, .meaning, .example {
+.wordlist, .meaning, .nativemeaning, .example {
 	width: 300px;
 }
 
@@ -320,7 +324,7 @@ td.exampleTd
 	visibility: hidden;
 }
 
-.testForm .exampleDiv {
+.testForm .exampleDiv, .testForm .nativeMeaningDiv {
 	position: relative;
 	display:inline-block;
 	margin: auto;
@@ -332,7 +336,7 @@ td.exampleTd
 	text-align: left;
 }
 
-.testForm .exampleP {
+.testForm .exampleP, .testForm .nativeMeaningP {
 	margin-left: 30px;
 	margin-top: 10px;
 }

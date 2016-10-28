@@ -16,6 +16,7 @@
 					$_POST[ 'pronunciation' ],
 					$_POST[ 'wordlistId' ],
 					$_POST[ 'wordMeaning' ],
+					$_POST[ 'nativeMeaning' ],
 					$_POST[ 'wordExample' ],
 					$_POST[ 'username' ]
 				);
@@ -56,6 +57,7 @@
 					  $pronunciation,
 					  $wordlistId,
 					  $wordMeaning,
+					  $nativeMeaning,
 					  $wordExample,
 					  $username )
 	{
@@ -70,6 +72,7 @@
 										  $pronunciation,
 										  $wordlistId,
 										  $wordMeaning,
+										  $nativeMeaning,
 										  $wordExample );
 
 			if ( $result[ 'errState' ] == 'OK' )
@@ -99,7 +102,7 @@
 											 $partsOfSpeech,
 											 $userId );
 
-						$result = addWordMeaningToDb( $wordId, $wordMeaning );
+						$result = addWordMeaningToDb( $wordId, $wordMeaning, $nativeMeaning );
 
 						if ( $result[ 'errState' ] == 'OK' )
 						{
@@ -215,7 +218,8 @@
 				/* Update word meaning */
 				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->meaning->orgVal != $decodedModifiedRow[ 0 ]->meaning->newVal )
 					$result = updateWordMeaningFieldInDb( $wordMeaningId,
-														  $decodedModifiedRow[ 0 ]->meaning->newVal );
+														  $decodedModifiedRow[ 0 ]->meaning->newVal,
+														  $decodedModifiedRow[ 0 ]->nativemeaning->newVal );
 
 				/* Update examples */
 				foreach( $decodedModifiedRow[ 0 ]->exampleList as $ex )
@@ -553,6 +557,7 @@
 								  $pronunciation,
 								  $wordlistId,
 								  $wordMeaning,
+								  $nativeMeaning,
 								  $wordExample )
 	{
 		$result = validateWord( $wordTitle );
@@ -572,6 +577,11 @@
 					if ( $result[ 'errState' ] == 'OK' )
 					{
 						$result = validateMeaning( $wordMeaning );
+
+						if ( $result[ 'errState' ] == 'OK' )
+						{
+							$result = validateMeaning( $nativeMeaning );
+						}
 					}
 				}
 			}
@@ -939,7 +949,7 @@
 		return $responseData;
 	}
 
-	function addWordMeaningToDb( $wordId, $meaning )
+	function addWordMeaningToDb( $wordId, $meaning, $nativeMeaning )
 	{
 		global $mysqli;
 
@@ -950,8 +960,9 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$query = 'INSERT INTO wordMeaning( meaning, wordId )
+		$query = 'INSERT INTO wordMeaning( meaning, nativemeaning, wordId )
 				  VALUES ( "' . $meaning . '",' .
+						 ' "' . $nativeMeaning . '",' .
 				         ' "' . $wordId . '")';
 
 		$result = $mysqli->query( $query );
@@ -1191,7 +1202,7 @@
 		return $responseData;
 	}
 
-	function updateWordMeaningFieldInDb( $wordMeaningId, $newVal )
+	function updateWordMeaningFieldInDb( $wordMeaningId, $newMeaningVal, $newNativeMeaningVal )
 	{
 		global $mysqli;
 
@@ -1203,7 +1214,7 @@
 							 );
 
 		$query = 'UPDATE wordmeaning
-				  SET meaning = "' . $newVal .
+				  SET meaning = "' . $newMeaningVal . '", nativemeaning = "' . $newNativeMeaningVal .
 				  '" WHERE wordMeaningId="' . $wordMeaningId . '"';
 
 		$result = $mysqli->query( $query );
