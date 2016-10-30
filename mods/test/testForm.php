@@ -12,8 +12,13 @@
 		    	<label for = 'displayNativeMeaning' class = 'noselect'>Display native meaning</label>
 			</div>
 
+			<div class = 'cntNumberLabel'>
+				<span>Tested/Total: </span>
+				<span id = 'cntNumber'></span>
+			</div>
+
 			<div class = 'meaningDescription'>
-				<b><span class = 'meaningLabel'>Meaning</span></b>
+				<span class = 'meaningLabel'>Meaning</span>
 				<span id = 'wordClassSpan' class = 'wordClassSpan'></span>:
 				<span id = 'meaningSpan' data-wordId = '' data-word = '' data-partOfSpeech = '' data-wordlistName = '' data-pronunciation = ''></span>
 			</div>

@@ -227,6 +227,7 @@ $(document).ready(function() {
         $( '#meaningSpan').html( testData[ index ][ 'meaning' ] );
         $( '#wordClassSpan' ).html( '<i>(' + testData[ index ][ 'partOfSpeech' ] + ')</i>' );
         $( '#pronunciationSpan' ).html( $( '#meaningSpan' ).attr( 'data-pronunciation' ) );
+        $( '#cntNumber').html( ( Object.keys( testData ).length - unCheckDataArr.length ) + 1 + '/' + Object.keys( testData ).length );
 
         $( '#nativeMeaningDiv' ).find( 'p.nativeMeaningP' ).remove();
         pTag = document.createElement( 'P' );

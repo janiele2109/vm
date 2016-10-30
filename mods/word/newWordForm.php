@@ -57,21 +57,21 @@
 	<p>
 		<span class = 'meaningSpan'>Meaning <span class = 'required'>(*)</span> </span>
 
-		<textarea id = 'meaningTextArea' placeholder = 'Meaning...' rows = '4' cols = '50' class = 'meaningTextArea' tabindex = '5'></textarea>
-
-		<button type = 'submit' id = 'addNewWordBtn' class = 'addNewWordBtn'>Add</button>
+		<textarea id = 'meaningTextArea' placeholder = 'Meaning...' rows = '4' cols = '50' class = 'meaningTextArea' tabindex = '5'></textarea>		
 	</p>
 
 	<p>
-		<span class = 'nativeMeaningSpan'>Native meaning <span class = 'required'>(*)</span> </span>
+		<span class = 'nativeMeaningSpan'>Native meaning</span>
 
 		<textarea id = 'nativemeaningTextArea' placeholder = 'Meaning in native language...' rows = '4' cols = '50' class = 'nativemeaningTextArea' tabindex = '6'></textarea>
 	</p>
 
 	<p>
-		<span>Example <span class = 'required'>(*)</span> </span>
+		<span>Example</span>
 
 		<textarea id = 'exampleTextArea' placeholder = 'Example...' rows = '4' cols = '50' class = 'exampleTextArea' tabindex = '7'></textarea>
+		
+		<button type = 'submit' id = 'addNewWordBtn' class = 'addNewWordBtn'>Add</button>
 	</p>
 
 </form>

@@ -375,7 +375,13 @@ td.exampleTd
 }
 
 .meaningLabel {
-	margin-right: 10px;
+	margin-top: 10px;
+}
+
+.cntNumberLabel {
+	margin-top: 20px;
+	font-size: 15px;
+	height: 10px;
 }
 
 .inputWord {

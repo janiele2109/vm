@@ -72,7 +72,6 @@
 										  $pronunciation,
 										  $wordlistId,
 										  $wordMeaning,
-										  $nativeMeaning,
 										  $wordExample );
 
 			if ( $result[ 'errState' ] == 'OK' )
@@ -216,7 +215,8 @@
 													   $decodedModifiedRow[ 0 ]->wordlist->newVal );
 
 				/* Update word meaning */
-				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->meaning->orgVal != $decodedModifiedRow[ 0 ]->meaning->newVal )
+				if ( $result[ 'errState' ] == 'OK' && ( $decodedModifiedRow[ 0 ]->meaning->orgVal != $decodedModifiedRow[ 0 ]->meaning->newVal ||
+														$decodedModifiedRow[ 0 ]->nativemeaning->orgVal != $decodedModifiedRow[ 0 ]->nativemeaning->newVal ) )
 					$result = updateWordMeaningFieldInDb( $wordMeaningId,
 														  $decodedModifiedRow[ 0 ]->meaning->newVal,
 														  $decodedModifiedRow[ 0 ]->nativemeaning->newVal );
@@ -557,7 +557,6 @@
 								  $pronunciation,
 								  $wordlistId,
 								  $wordMeaning,
-								  $nativeMeaning,
 								  $wordExample )
 	{
 		$result = validateWord( $wordTitle );
@@ -577,11 +576,6 @@
 					if ( $result[ 'errState' ] == 'OK' )
 					{
 						$result = validateMeaning( $wordMeaning );
-
-						if ( $result[ 'errState' ] == 'OK' )
-						{
-							$result = validateMeaning( $nativeMeaning );
-						}
 					}
 				}
 			}

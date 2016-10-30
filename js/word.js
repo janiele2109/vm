@@ -13,8 +13,7 @@ $( document ).ready( function() {
 
         var result = $( this ).validateInputData( wordTitle,
                                                   pronunciation,
-                                                  meaning,
-                                                  nativeMeaning );
+                                                  meaning );
 
         if ( result == EMPTY_STRING )
         {
@@ -208,12 +207,6 @@ $( document ).ready( function() {
                 {
                     ctrlType = 'nativemeaning';
                     valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcenativemeaning' );
-
-                    if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
-                    {
-                        $( this ).displayErrMsg( result );
-                        return;
-                    }
                 }
 
                 valObj[ 'newVal' ] = $( this ).text();
@@ -379,12 +372,6 @@ $( document ).ready( function() {
             {
                 ctrlType = 'nativemeaning';
                 valObj[ 'orgVal' ] = $( this ).attr( 'data-sourcenativemeaning' );
-
-                if ( ( result = $( this ).validateWordMeaning( $( this ).text() ) ) != EMPTY_STRING )
-                {
-                    $( this ).displayErrMsg( result );
-                    return;
-                }
             }
 
             valObj[ 'newVal' ] = $( this ).text();
@@ -484,11 +471,6 @@ $( document ).ready( function() {
             return result;
 
         result = $( this ).validateWordMeaning( wordMeaning );
-
-        if ( result != EMPTY_STRING )
-            return result;
-
-        result = $( this ).validateWordMeaning( nativeMeaning );
 
         if ( result != EMPTY_STRING )
             return result;
