@@ -4,12 +4,12 @@
 
 	global $mysqli;
 
-	$query = 'SELECT wl.wordlistName
+	$query = 'SELECT wl.wordlistName, wl.DateCreated
 			  FROM wordlist wl
 			  INNER JOIN users u
 			  ON wl.userId = u.userId
 			  WHERE u.userName = "' . $username .
-			  '" ORDER BY wordlistName';
+			  '" ORDER BY wl.DateCreated DESC';
 
 	if ( $result = $mysqli->query( $query ) )
 	{

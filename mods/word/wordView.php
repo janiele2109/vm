@@ -10,7 +10,8 @@
 					 wl.wordlistName,
 					 wm.meaning,
 					 wm.nativemeaning,
-					 wm.wordMeaningId
+					 wm.wordMeaningId,
+					 wm.DateCreated
 			  FROM word w
 			  INNER JOIN wordlist wl
 			  ON w.wordlistId = wl.wordlistId
@@ -19,7 +20,7 @@
 			  INNER JOIN users u
 			  ON wl.userId = u.userId
 			  WHERE u.userName = "' . $username .
-			  '" ORDER BY w.word';
+			  '" ORDER BY wm.DateCreated DESC LIMIT 5 OFFSET 0';
 
 	if ( $result = $mysqli->query( $query ) )
 	{
@@ -35,12 +36,12 @@
 					'<td class = "toggleEnabled"><span class = "nativemeaning" data-controltranstype = "textarea" data-sourcenativemeaning = "' . $row[ 5 ] . '">' . $row[ 5 ] . '</span></td>' .
 					'<td class = "exampleTd">';
 
-			$query = 'SELECT we.wordExampleId, we.example
+			$query = 'SELECT we.wordExampleId, we.example, we.DateCreated
 					  FROM wordExample we
 					  INNER JOIN wordMeaning wm
 					  ON we.wordMeaningId = wm.wordMeaningId
 					  WHERE wm.wordMeaningId = "' . $row[ 6 ] . '"
-					  ORDER BY we.example';
+					  ORDER BY we.DateCreated DESC';
 
 			if ( $wordExamples = $mysqli->query( $query ) )
 			{

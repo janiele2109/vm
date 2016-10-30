@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `wordlist`(
 	wordlistId      INT NOT NULL AUTO_INCREMENT,
 	wordlistName    VARCHAR(30) NOT NULL,
 	userId			INT NOT NULL,
+	DateCreated 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (wordlistId, userId)
 );
 
@@ -29,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `word`(
 	pronunciation	VARCHAR(50) NOT NULL,
 	wordlistId    	INT NOT NULL,
 	userId			INT NOT NULL,
+	DateCreated 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (wordId, partOfSpeech, wordlistId, userId)
 );
 
