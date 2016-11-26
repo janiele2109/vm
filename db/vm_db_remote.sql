@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `wordMeaning`(
 	meaning			longtext NOT NULL,
 	nativemeaning	longtext NOT NULL,
 	wordId    		INT NOT NULL,
+	DateCreated 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (wordMeaningId, wordId)
 );
 

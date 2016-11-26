@@ -231,6 +231,13 @@ tr.dynRowWord {
     height: 70px;
 }
 
+.pageDiv {
+	float: right;
+}
+
+.pageDiv input {
+	text-align: center;
+}
 /* wordForm.php - END */
 
 

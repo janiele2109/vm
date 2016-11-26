@@ -20,7 +20,14 @@
 			  INNER JOIN users u
 			  ON wl.userId = u.userId
 			  WHERE u.userName = "' . $username .
-			  '" ORDER BY wm.DateCreated DESC LIMIT 5 OFFSET 0';
+			  '" ORDER BY wm.DateCreated DESC LIMIT 10 OFFSET ';
+
+	$pageIndex = 0;
+
+	if ( isset( $_POST[ 'pageIndex' ] ) )
+		$pageIndex = ( $_POST[ 'pageIndex' ] - 1 ) * 10;
+
+	$query = $query . $pageIndex;
 
 	if ( $result = $mysqli->query( $query ) )
 	{

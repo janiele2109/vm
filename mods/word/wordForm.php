@@ -15,6 +15,16 @@
 
 	<div id = 'msgDiv' class = 'displayMsg'>&nbsp;</div>
 
+	<div class = 'pageDiv'>
+		<button id = 'firstPage'> << First</button>
+		<button id = 'prevPage'> < Prev</button>
+		<input id = 'curPage' type = 'text' size = '3' maxlength = '3' value = 1 />
+		<span> / </span>
+		<span id = 'totalPage'>&nbsp;</span>
+		<button id = 'nextPage'>Next ></button>
+		<button id = 'lastPage'> Last >></button>
+	</div>
+
 	<table id = 'wordViewTbl'>
 		<tr>
 			<td><input type = 'checkbox' id = 'selectAllChkbox'/></td>

@@ -68,6 +68,7 @@ define( '1023'		, 'Updating word meaning of word failed!' );
 define( '1024'		, 'Updating word example of word meaning failed!' );
 define( '1025'		, 'Get remaining word meanings of word failed!' );
 define( '1026'		, 'Adding word example failed!' );
+define( '1027'		, 'Getting total word pages failed!' );
 
 /* =========== For word errors - END =========== */
 

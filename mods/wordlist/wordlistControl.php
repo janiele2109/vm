@@ -273,7 +273,7 @@
 		{
 			$responseData[ 'errState' ] = 'NG';
 			$responseData[ 'errCode' ] = '0003';
-			$responseData[ 'msg' ] = $wordlistName . ' - ' . $userId;//constant( $responseData[ 'errCode' ] );
+			$responseData[ 'msg' ] = $wordlistName . ' - ' . $userId;
 		}
 
 		return $responseData;

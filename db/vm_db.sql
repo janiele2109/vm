@@ -3,7 +3,6 @@ DROP DATABASE IF EXISTS `vm_db`;
 CREATE DATABASE IF NOT EXISTS `vm_db`;
 
 USE `vm_db`;
-
 CREATE TABLE IF NOT EXISTS `users`(
 	userId      INT NOT NULL AUTO_INCREMENT,
 	userName    VARCHAR(30) NOT NULL,
@@ -39,6 +38,7 @@ CREATE TABLE IF NOT EXISTS `wordMeaning`(
 	meaning			longtext NOT NULL,
 	nativemeaning	longtext NOT NULL,
 	wordId    		INT NOT NULL,
+	DateCreated 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (wordMeaningId, wordId)
 );
 

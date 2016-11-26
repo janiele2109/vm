@@ -286,7 +286,7 @@ $( document ).ready( function() {
         if ( event.type == 'mouseenter' &&
              $( this ).find( 'textarea' ).length == 0 &&
              $( '.exampleBtnlDiv' ).length == 0 )
-        {console.dir('exampleTdOnMouseEvents');
+        {
             var exampleEntry = $( this ).find( 'div.exampleEntry' );
 
             if ( exampleEntry.length > 0 )
@@ -305,6 +305,38 @@ $( document ).ready( function() {
             $( '.exampleBtnlDiv' ).remove();
             $( 'div.exampleEntry' ).removeClass( 'transEffectHover' );
         }
+    }
+
+    $.fn.firstPageBtnOnClick = function( event ) {
+        event.preventDefault();
+
+        $( '#curPage' ).val( 1 );
+
+        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+    }
+
+    $.fn.prevPageBtnOnClick = function( event ) {
+        event.preventDefault();
+
+        $( '#curPage' ).val( $( '#curPage' ).val() - 1 );
+
+        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+    }
+
+    $.fn.nextPageBtnOnClick = function( event ) {
+        event.preventDefault();
+
+        $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
+
+        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+    }
+
+    $.fn.lastPageBtnOnClick = function( event ) {
+        event.preventDefault();
+
+        $( '#curPage' ).val( parseInt( $( '#totalPage' ).text().trim() ) );
+
+        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
 
     $.fn.updateWord = function( event, rowObj ) {
@@ -478,6 +510,16 @@ $( document ).ready( function() {
         return EMPTY_STRING;
     }
 
+    $.fn.validatePageIndex = function( pageIndex )
+    {
+        if ( pageIndex == EMPTY_STRING ||
+             pageIndex < 0 ||
+             pageIndex > $( '#totalPage' ).text() )
+            return ERR_1005;
+        else
+            return EMPTY_STRING;
+    }
+
     $.fn.reloadWordViewTbl = function( dataContent, isRemoveSelectedItems = false ) {
         /* Remove old rows in wordlist table and update new content */
         if ( isRemoveSelectedItems )
@@ -529,6 +571,40 @@ $( document ).ready( function() {
 
         $.each( rowObj.find( 'div.exampleEntry.modified' ), function() {
             $( this ).attr( 'data-sourceexample', $( this ).text() );
+        } );
+    }
+
+    $.fn.switchPageRequest = function( curPageIndex ) {
+        var sendingData = {
+            pageIndex: curPageIndex,
+            username: $( '#userName' ).text(),
+            requestType: 'switchPage'
+        }
+
+        $.ajax( {
+            url: '/mods/word/wordControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success:
+                function( response, status ) {
+                    /* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        $( this ).resetControlInfo( response[ 'msg' ] );
+
+                        $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
+
+                        $( this ).addNewWordTextBoxFocus();
+
+                        $( this ).bindEventsToControls();
+                    }
+                },
+            data: sendingData
         } );
     }
 

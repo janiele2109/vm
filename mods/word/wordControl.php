@@ -37,6 +37,16 @@
 		updateSelectedWords( $_POST[ 'modifiedWordRowList' ], $_POST[ 'username' ] );
 	}
 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getTotalWordPage' )
+	{
+		getTotalWordPage();
+	}
+
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'switchPage' )
+	{
+		switchPage();
+	}
+
 	function getWordlistList( $username )
 	{
 		$result = checkUserNameExists( $username );
@@ -281,6 +291,57 @@
 				$result[ 'dataContent' ] = reloadWordViewContent();
 				$result[ 'msg' ] = constant( '1054' );
 			}
+		}
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function switchPage()
+	{
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$result[ 'dataContent' ] = reloadWordViewContent();
+		$result[ 'msg' ] = '';
+		$result[ 'errState' ] = 'OK';
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function getTotalWordPage()
+	{
+		global $mysqli;
+
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$query = 'SELECT COUNT( wordId )
+				  AS num_rows
+				  FROM word';
+
+		$ret = $mysqli->query( $query );
+
+		if ( $ret != null &&
+			 $ret->num_rows > 0 )
+		{
+			$result[ 'dataContent' ] = $ret->fetch_object()->num_rows;
+			$result[ 'msg' ] = '';
+			$result[ 'errState' ] = 'OK';
+		}
+		else
+		{
+			$result[ 'msg' ] = constant( '1027' );;
+			$result[ 'errState' ] = 'NG';
 		}
 
 		header( 'Content-Type: application/json' );

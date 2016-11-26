@@ -1,5 +1,5 @@
 <?php
-    $mysqli = new mysqli( 'localhost', 'jangerte_admin', 'lnkxuyen2109', 'jangerte_vm' );
+    $mysqli = new mysqli( 'localhost', 'root', '', 'vm_db' );
     
     if ( $mysqli->errno ){
         echo "Fail to connect database! <br>";

@@ -39,6 +39,29 @@ $( document ).ready( function() {
 		} );
 	}
 
+	$.fn.updateTotalWordPage = function( event ) {
+		var sendingData = {
+			username: $( '#userName' ).text(),
+			requestType: 'getTotalWordPage'
+		};
+
+		$.ajax( {
+			url: '/mods/word/wordControl.php',
+			type: 'post',
+			dataType: 'json',
+			cache: false,
+			error:
+				function( xhr, status, error ) {
+					$( this ).displayErrMsg( xhr.responseText );
+				},
+			success:
+				function( response, status ) {
+					$( this ).getTotalWordPageOnSuccess( response, status );
+				},
+			data: sendingData
+		} );
+	}
+
 	$.fn.switchMenuItem = function( event, requestMenuItem ) {
 		event.preventDefault();
 
@@ -69,7 +92,10 @@ $( document ).ready( function() {
 					$( this ).getPageContentOnSuccess( response, status, currentUri, requestMenuItem );
 
 					if ( requestMenuItem == MENU_ITEM_WORD )
+					{
 						$( this ).fillHiddenWordlistCb();
+						$( this ).updateTotalWordPage();
+					}
 				},
 			data: sendingData
 		} );
@@ -113,9 +139,11 @@ $( document ).ready( function() {
 
 	$.fn.resetControlInfo = function( msg ) {
 		/* Update message information */
-		if ( $( '#msgDiv' ).length > 0 )
+		if ( $( '#msgDiv' ).length > 0 &&
+			 msg != EMPTY_STRING )
 		{
 			$( '#msgDiv' ).text( msg );
+			alert(msg);
 			$( '#msgDiv' ).css( 'visibility', 'visible' );
 			$( '#msgDiv' ).removeClass( 'err' );
 		}
@@ -408,6 +436,27 @@ $( document ).ready( function() {
 		$( this ).checkAndbindEventsForSelectors( '.updateWordBtn',
 												  eventArr,
 												  $.fn.updateWordBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#firstPage',
+										   eventArr,
+										   $.fn.firstPageBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#prevPage',
+										   eventArr,
+										   $.fn.prevPageBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#nextPage',
+										   eventArr,
+										   $.fn.nextPageBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#lastPage',
+										   eventArr,
+										   $.fn.lastPageBtnOnClick );
+
+		( eventArr = [] ).push( 'keydown' );
+		$( this ).checkAndBindEventForEle( '#curPage',
+										   eventArr,
+										   $.fn.curPageBtnOnKeydown );
 
 		$( this ).bindExampleEvents();
 
@@ -838,6 +887,13 @@ $( document ).ready( function() {
 															  var option = '<option value="' + key + '">' + response[ 'dataContent' ][ key ] + '</option>';
 															  $( '#hiddenWordlistCb' ).append( option );
 														  } );
+	}
+
+	$.fn.getTotalWordPageOnSuccess = function( response, status ) {
+		if ( response[ 'dataContent' ] % 10 == 0 )
+			$( '#totalPage' ).html( response[ 'dataContent' ] );
+		else
+			$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / 10 ) );
 	}
 
 	$.fn.getPageContentOnSuccess = function( response, status, currentUri, requestMenuItem ) {

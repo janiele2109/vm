@@ -15,6 +15,7 @@ const ERR_1001 = 'Word title is empty!';
 const ERR_1002 = 'Pronunciation is empty!';
 const ERR_1003 = 'Word meaning is empty!';
 const ERR_1004 = 'Word example is empty!';
+const ERR_1005 = 'Page index is invalid!';
 
 /* Word constants - END */
 
