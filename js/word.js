@@ -361,6 +361,46 @@ $( document ).ready( function() {
         }
     }
 
+    $.fn.searchItemOnKeydown = function( event ) {
+        if ( event.which == 13 )
+        {
+            var sendingData = {
+                word: $( '#searchWordTextBox' ).val().trim(),
+                wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
+                wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+                nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
+                username: $( '#userName' ).text(),
+                requestType: 'searchItem'
+            }
+
+            $.ajax( {
+                url: '/mods/word/wordControl.php',
+                type: 'post',
+                dataType: 'json',
+                cache: false,
+                error:
+                    function( xhr, status, error ) {
+                        $( this ).displayErrMsg( xhr.responseText );
+                    },
+                success:
+                    function( response, status ) {
+                        /* In case response from server is successful */
+                        if ( $( this ).isServerResponseOk( response, status ) )
+                        {
+                            $( this ).resetControlInfo( response[ 'msg' ] );
+
+                            $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
+
+                            $( this ).addNewWordTextBoxFocus();
+
+                            $( this ).bindEventsToControls();
+                        }
+                    },
+                data: sendingData
+            } );
+        }
+    }
+
     $.fn.updateWord = function( event, rowObj ) {
         event.preventDefault();
 

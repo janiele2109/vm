@@ -47,6 +47,11 @@
 		switchPage();
 	}
 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchItem' )
+	{
+		searchItem();
+	}
+
 	function getWordlistList( $username )
 	{
 		$result = checkUserNameExists( $username );
@@ -298,6 +303,23 @@
 	}
 
 	function switchPage()
+	{
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$result[ 'dataContent' ] = reloadWordViewContent();
+		$result[ 'msg' ] = '';
+		$result[ 'errState' ] = 'OK';
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function searchItem()
 	{
 		$result = array(
 			               'errState' 		=> '',

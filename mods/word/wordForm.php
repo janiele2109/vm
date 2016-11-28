@@ -33,12 +33,12 @@
 	<table id = 'wordViewTbl'>
 		<tr>
 			<td><input type = 'checkbox' id = 'selectAllChkbox'/></td>
-			<td class = 'word'><span id = 'searchWordSpan'>Word Title</span></td>
-			<td class = 'partOfSpeech'><span id = 'searchPartOfSpeechSpan'>Word class</span></td>
+			<td class = 'word'><span class = 'searchItem' id = 'searchWordSpan'>Word Title</span></td>
+			<td class = 'partOfSpeech'><span class = 'searchItem' id = 'searchPartOfSpeechSpan'>Word class</span></td>
 			<td class = 'pronunciation'>Pronunciation</td>
-			<td class = 'wordlist'><span id = 'searchWordlistSpan'>Wordlist</span></td>
+			<td class = 'wordlist'><span class = 'searchItem' id = 'searchWordlistSpan'>Wordlist</span></td>
 			<td class = 'meaning'>Meaning</td>
-			<td class = 'nativemeaning'><span id = 'searchNativeMeaningSpan'>Native meaning</span></td>
+			<td class = 'nativemeaning'><span class = 'searchItem' id = 'searchNativeMeaningSpan'>Native meaning</span></td>
 			<td class = 'example'>Example</td>
 			<td class = 'updateBtn'></td>
 		</tr>

@@ -19,8 +19,24 @@
 			  ON w.wordId = wm.wordId
 			  INNER JOIN users u
 			  ON wl.userId = u.userId
-			  WHERE u.userName = "' . $username .
-			  '" ORDER BY wm.DateCreated DESC LIMIT 10 OFFSET ';
+			  WHERE u.userName = "' . $username . '" ';
+
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchItem' )
+	{
+		if ( isset( $_POST[ 'word' ] ) && $_POST[ 'word' ] != '' )
+			$query = $query . 'AND w.word = "' . $_POST[ 'word' ] . '" ';
+
+		if ( isset( $_POST[ 'wordClass' ] ) && $_POST[ 'wordClass' ] != '' )
+			$query = $query . 'AND w.partOfSpeech = "' . $_POST[ 'wordClass' ] . '" ';
+
+		if ( isset( $_POST[ 'wordlistName' ] ) && $_POST[ 'wordlistName' ] != '' )
+			$query = $query . 'AND wl.wordlistName = "' . $_POST[ 'wordlistName' ] . '" ';
+
+		if ( isset( $_POST[ 'nativeMeaning' ] ) && $_POST[ 'nativeMeaning' ] != '' )
+			$query = $query . 'AND wm.nativemeaning = "' . $_POST[ 'nativeMeaning' ] . '" ';
+	}
+
+	$query = $query . 'ORDER BY wm.DateCreated DESC LIMIT 10 OFFSET ';
 
 	$pageIndex = 0;
 

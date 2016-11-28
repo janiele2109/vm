@@ -113,6 +113,11 @@ $( document ).ready( function() {
 		var parentWidth = $( '#' + spanId ).parent().width();
 		var parentHeight = $( '#' + spanId ).parent().height();
 
+		$.each( $( '#' + spanId )[ 0 ].attributes, function( i, attrib ) {
+																			 if ( attrib.name != 'id' )
+																				 $( inputTag ).attr( attrib.name, attrib.value );
+																		 } );
+
 		inputTag.type = 'text';
 
 		inputTag.id = textboxId;
@@ -145,13 +150,21 @@ $( document ).ready( function() {
 
 		$( '#' + spanId ).replaceWith( inputTag );
 
-		// $( this ).bindInputTextEvents();
+		var eventArr = new Array();
+
+		( eventArr = [] ).push( 'keydown' );
+		$( this ).checkAndBindEventForEle( '#' + inputTag.id,
+										   eventArr,
+										   $.fn.searchItemOnKeydown );
+
+		eventArr = null;
 	}
 
 	$.fn.removeSearchTextBoxes = function( textboxId, spanId ) {
 		var spanTag = document.createElement( 'SPAN' );
 		var displayVal = '';
 
+		$( spanTag ).attr( 'class', 'searchItem' );
 		spanTag.id = spanId;
 
 		switch( textboxId )
@@ -214,7 +227,6 @@ $( document ).ready( function() {
 			 msg != EMPTY_STRING )
 		{
 			$( '#msgDiv' ).text( msg );
-			alert(msg);
 			$( '#msgDiv' ).css( 'visibility', 'visible' );
 			$( '#msgDiv' ).removeClass( 'err' );
 		}
