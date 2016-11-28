@@ -42,7 +42,7 @@ $( document ).ready( function() {
 	$.fn.updateTotalWordPage = function( event ) {
 		var sendingData = {
 			username: $( '#userName' ).text(),
-			requestType: 'getTotalWordPage'
+			requestType: 'getTotalWordsNum'
 		};
 
 		$.ajax( {
@@ -56,7 +56,7 @@ $( document ).ready( function() {
 				},
 			success:
 				function( response, status ) {
-					$( this ).getTotalWordPageOnSuccess( response, status );
+					$( this ).getTotalWordNumOnSuccess( response, status );
 				},
 			data: sendingData
 		} );
@@ -976,11 +976,14 @@ $( document ).ready( function() {
 														  } );
 	}
 
-	$.fn.getTotalWordPageOnSuccess = function( response, status ) {
+	$.fn.getTotalWordNumOnSuccess = function( response, status ) {
 		if ( response[ 'dataContent' ] % 10 == 0 )
 			$( '#totalPage' ).html( response[ 'dataContent' ] );
 		else
 			$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / 10 ) );
+
+		if( $( '#totalPage' ).text() == '0' )
+			$( '#curPage' ).val( 0 );
 	}
 
 	$.fn.getPageContentOnSuccess = function( response, status, currentUri, requestMenuItem ) {

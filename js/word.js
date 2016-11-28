@@ -43,6 +43,10 @@ $( document ).ready( function() {
                         /* In case response from server is successful */
                         if ( $( this ).isServerResponseOk( response, status ) )
                         {
+                            $( '#curPage' ).val( 1 );
+
+                            $( this ).updateTotalWordPage( event );
+
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
                             $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
@@ -310,7 +314,10 @@ $( document ).ready( function() {
     $.fn.firstPageBtnOnClick = function( event ) {
         event.preventDefault();
 
-        $( '#curPage' ).val( 1 );
+        if( $( '#totalPage' ).text() == '0' )
+            $( '#curPage' ).val( 0 );
+        else
+            $( '#curPage' ).val( 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
@@ -318,7 +325,10 @@ $( document ).ready( function() {
     $.fn.prevPageBtnOnClick = function( event ) {
         event.preventDefault();
 
-        $( '#curPage' ).val( $( '#curPage' ).val() - 1 );
+        if( $( '#totalPage' ).text() == '0' )
+            $( '#curPage' ).val( 0 );
+        else
+            $( '#curPage' ).val( $( '#curPage' ).val() - 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
@@ -326,7 +336,10 @@ $( document ).ready( function() {
     $.fn.nextPageBtnOnClick = function( event ) {
         event.preventDefault();
 
-        $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
+        if( $( '#totalPage' ).text() == '0' )
+            $( '#curPage' ).val( 0 );
+        else
+            $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
@@ -334,7 +347,10 @@ $( document ).ready( function() {
     $.fn.lastPageBtnOnClick = function( event ) {
         event.preventDefault();
 
-        $( '#curPage' ).val( parseInt( $( '#totalPage' ).text().trim() ) );
+        if( $( '#totalPage' ).text() == '0' )
+            $( '#curPage' ).val( 0 );
+        else
+            $( '#curPage' ).val( parseInt( $( '#totalPage' ).text().trim() ) );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }

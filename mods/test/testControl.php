@@ -5,10 +5,14 @@
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'testDataRequest' )
 	{
-		getTestData( $_POST[ 'username' ] );
+		getTestData( $_POST[ 'testingWordlists' ],
+					 $_POST[ 'startOffset' ],
+					 $_POST[ 'username' ] );
 	}
 
-	function getTestData( $username )
+	function getTestData( $testingWordlists,
+						  $startOffset,
+						  $username )
 	{
 		$responseData = checkUserNameExists( $username );
 
@@ -26,7 +30,12 @@
 					  ON w.wordId = wm.wordId
 					  INNER JOIN wordlist wl
 					  ON w.wordlistId = wl.wordlistId
-					  WHERE wl.userId = "' . $userId . '"';
+					  WHERE wl.userId = "' . $userId . '" ';
+
+			if ( $testingWordlists != 'testAllWordlist' )
+				$query = $query . 'AND wl.wordlistId = "' . $testingWordlists . '" ';
+
+			$query = $query . 'ORDER BY wm.DateCreated DESC LIMIT 50 OFFSET ' . $startOffset;
 
 			$result = $mysqli->query( $query );
 

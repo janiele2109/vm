@@ -56,6 +56,10 @@ table, th, td {
 	padding: 5px;
 }
 
+.hiddenFields {
+	display: none;
+}
+
 .required {
 	color: red;
 	font-style: italic;
@@ -415,11 +419,10 @@ td.exampleTd
 	text-align: center;
 }
 
-.testBtn {
+.testingWordlist {
 	display: block;
 	margin:auto;
 	width: 400px;
-	height: 100px;
 	margin-top: 200px
 }
 

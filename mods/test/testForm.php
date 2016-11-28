@@ -46,5 +46,39 @@
 		<b><span id = 'msgDiv'></span></b>
 	</div>
 
-	<button id = 'testBtn' style = 'display: block;	margin:auto;width: 400px;height: 100px;margin-top: 200px'>Test</button>
+	<div class = 'testingWordlist' id = 'testingWordlist'>
+		<span class = 'belongToWordlist'>Choose wordlist for testing</span>
+		<select id = 'testingWordlistCb' class = 'wordlistCb' tabindex = '1'>
+
+			<?php
+				require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/db/mysql.connect.php';
+				require_once $_SERVER[ 'DOCUMENT_ROOT' ] . '/config/app.config.php';
+
+				$query = 'SELECT wl.wordlistId, wl.wordlistName
+						  FROM wordlist wl
+						  INNER JOIN users u
+						  ON wl.userId = u.userId
+						  WHERE u.userName = "' . $username .
+						  '" ORDER BY wordlistName';
+
+				if ( $result = $mysqli->query( $query ) )
+				{
+					while ( $row = mysqli_fetch_row( $result ) )
+					{
+						echo '<option value = "' . $row[ 0 ] . '">' . $row[ 1 ] . '</option>';
+					}
+
+					mysqli_free_result( $result );
+				}
+			?>
+
+			<option value = 'testAllWordlist' selected>All wordlists</option>
+		</select>
+	</div>
+
+	<button id = 'testBtn'  tabindex = '2' style = 'display: block;	margin:auto;width: 400px;height: 100px;margin-top: 50px'>Test</button>
+
+	<span class = 'hiddenFields' id = 'startOffset'>0</span>
+	<span class = 'hiddenFields' id = 'curTestWordIndex'>0</span>
+	<span class = 'hiddenFields' id = 'totalWordNum'>0</span>
 </div>

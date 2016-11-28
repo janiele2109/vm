@@ -6,13 +6,16 @@ $(document).ready(function() {
     $.fn.testBtnOnClick = function( event ) {
         event.preventDefault();
 
-        var sendingData = {
+        /* ============== Get total word num ============== */
+
+        var getTotalWordNum = {
+            wordlistId: $( '#testingWordlistCb' ).find( ':selected' ).val().trim(),
             username: $( '#userName' ).text(),
-            requestType: 'testDataRequest'
-        }
+            requestType: 'getTotalWordsNum'
+        };
 
         $.ajax( {
-            url: '/mods/test/testControl.php',
+            url: '/mods/word/wordControl.php',
             type: 'post',
             dataType: 'json',
             cache: false,
@@ -20,49 +23,16 @@ $(document).ready(function() {
                 function( xhr, status, error ) {
                     $( this ).displayErrMsg( xhr.responseText );
                 },
-            success: 
+            success:
                 function( response, status ) {
-                    if ( $( this ).isServerResponseOk( response, status ) )
-                    {
-                        testData = response[ 'dataContent' ];
-
-                        var cnt = 0;
-
-                        $.each( testData, function() {
-                            unCheckDataArr[ cnt ] = cnt++;
-                        } );
-
-                        if ( Object.keys( testData ).length > 0 )
-                        {
-                            $( '#testBtn' ).css( 'display', 'none' );
-
-                            if ( Object.keys( testData ).length == 1 )
-                            {
-                                $( '#retestBtn' ).css( 'display', 'inline' );
-                                $( '#nextWordBtn' ).css( 'display', 'none' );
-                            }
-                            else
-                            {
-                                $( '#retestBtn' ).css( 'display', 'none' );
-                                $( '#nextWordBtn' ).css( 'display', 'inline' );
-                            }
-
-                            eleAppearControl( 'hidden' );
-                            $( '.toggleTestForm' ).css( 'display', 'inline' );
-
-                            genNewWord();
-
-                            $( '#inputWord' ).focus();
-                        }
-                        else
-                        {
-                            $( '#msgDiv' ).css( 'display', 'inline-block' ).html( 'There is no data for testing' );
-                            $( '#testBtn' ).css( 'display', 'none' );
-                        }
-                    }
+                    $( '#totalWordNum' ).text( response[ 'dataContent' ] );
                 },
-            data: sendingData
+            data: getTotalWordNum
         } );
+
+        /* ============== Get test data ============== */
+
+        $( this ).getTestData( event );
     }
 
     $.fn.checkWordBtnOnClick = function( event ) {
@@ -127,7 +97,7 @@ $(document).ready(function() {
         $( '#inputWord' ).prop( 'value', '' );
         $( '#inputWord' ).focus();
 
-        genNewWord();
+        genNewWord( event );
 
         if ( unCheckDataArr.length == 0 )
         {
@@ -140,6 +110,11 @@ $(document).ready(function() {
         event.preventDefault();
 
         eleAppearControl( 'hidden' );
+
+        $( '#startOffset' ).text( '0' );
+        $( '#curTestWordIndex' ).text( '0' );
+
+        $( this ).getTestData( event );
 
         $( '#checkWordBtn' ).attr( 'disabled', false );
 
@@ -162,8 +137,6 @@ $(document).ready(function() {
         $.each( testData, function() {
             unCheckDataArr[ cnt ] = cnt++;
         } );
-
-        genNewWord();
     }
 
     $.fn.displayPronOnClick = function( event ) {
@@ -210,11 +183,83 @@ $(document).ready(function() {
         $( this ).switchMenuItem( event, MENU_ITEM_TEST );
     }
 
+    $.fn.getTestData = function( event ) {
+        event.preventDefault();
+
+        var sendingData = {
+            testingWordlists: $( '#testingWordlistCb' ).find( ':selected' ).val().trim(),
+            startOffset: $( '#startOffset' ).text(),
+            username: $( '#userName' ).text(),
+            requestType: 'testDataRequest'
+        }
+
+        $.ajax( {
+            url: '/mods/test/testControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success: 
+                function( response, status ) {
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        testData = response[ 'dataContent' ];
+
+                        var cnt = 0;
+
+                        $.each( testData, function() {
+                            unCheckDataArr[ cnt ] = cnt++;
+                        } );
+
+                        $( '#startOffset' ).text( parseInt( $( '#startOffset' ).text() ) + cnt );
+
+                        if ( parseInt( $( '#startOffset' ).text() ) > parseInt( $( '#totalWordNum' ).text() ) )
+                            $( '#startOffset' ).text( '0' );
+
+                        if ( Object.keys( testData ).length > 0 )
+                        {
+                            $( '#testBtn' ).css( 'display', 'none' );
+
+                            if ( Object.keys( testData ).length == 1 )
+                            {
+                                $( '#retestBtn' ).css( 'display', 'inline' );
+                                $( '#nextWordBtn' ).css( 'display', 'none' );
+                            }
+                            else
+                            {
+                                $( '#retestBtn' ).css( 'display', 'none' );
+                                $( '#nextWordBtn' ).css( 'display', 'inline' );
+                            }
+
+                            eleAppearControl( 'hidden' );
+                            $( '.toggleTestForm' ).css( 'display', 'inline' );
+
+                            if ( $( '#curTestWordIndex' ).text() == '0' )
+                                genNewWord( event );
+
+                            $( '#inputWord' ).focus();
+                        }
+                        else
+                        {
+                            $( '#msgDiv' ).css( 'display', 'inline-block' ).html( 'There is no data for testing' );
+                            $( '#testBtn' ).css( 'display', 'none' );
+
+                            eleAppearControl( 'hidden' );
+                        }
+                    }
+                },
+            data: sendingData
+        } );
+    }
+
     function randomNumber( min = 0, max = 0 ) { // include min and max
         return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
     }
 
-    function genNewWord() {
+    function genNewWord( event ) {
         var randomNo = randomNumber( 0, unCheckDataArr.length - 1 );
         var index = unCheckDataArr[ randomNo ];
         var pTag = null;
@@ -227,7 +272,10 @@ $(document).ready(function() {
         $( '#meaningSpan').html( testData[ index ][ 'meaning' ] );
         $( '#wordClassSpan' ).html( '<i>(' + testData[ index ][ 'partOfSpeech' ] + ')</i>' );
         $( '#pronunciationSpan' ).html( $( '#meaningSpan' ).attr( 'data-pronunciation' ) );
-        $( '#cntNumber').html( ( Object.keys( testData ).length - unCheckDataArr.length ) + 1 + '/' + Object.keys( testData ).length );
+
+        $( '#curTestWordIndex' ).text( parseInt( $( '#curTestWordIndex' ).text() ) + 1 );
+
+        $( '#cntNumber').html( $( '#curTestWordIndex' ).text() + '/' + $( '#totalWordNum' ).text() );
 
         $( '#nativeMeaningDiv' ).find( 'p.nativeMeaningP' ).remove();
         pTag = document.createElement( 'P' );
@@ -247,7 +295,11 @@ $(document).ready(function() {
             $( '#exampleDiv' ).append( pTag );
         }
 
-        unCheckDataArr.splice( randomNo,1 );
+        unCheckDataArr.splice( randomNo, 1 );
+
+        if ( unCheckDataArr.length == 0 &&
+             parseInt( $( '#startOffset' ).text() ) < parseInt( $( '#totalWordNum' ).text() ) )
+            $( this ).getTestData( event );
     }
 
     function eleAppearControl(behavior, controlId=null) {
@@ -274,8 +326,8 @@ $(document).ready(function() {
                 $("#resultSpan").css('visibility', behavior);
                 $("#nativeMeaningDiv").css('visibility', behavior);
                 $("#exampleDiv").css('visibility', behavior);
+                $("#testingWordlist").css('visibility', behavior);
             }
         }
     }
-
 });

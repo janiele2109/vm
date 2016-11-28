@@ -37,9 +37,9 @@
 		updateSelectedWords( $_POST[ 'modifiedWordRowList' ], $_POST[ 'username' ] );
 	}
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getTotalWordPage' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getTotalWordsNum' )
 	{
-		getTotalWordPage();
+		getTotalWordsNum();
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'switchPage' )
@@ -336,7 +336,7 @@
 		echo json_encode( $result );
 	}
 
-	function getTotalWordPage()
+	function getTotalWordsNum()
 	{
 		global $mysqli;
 
@@ -349,7 +349,12 @@
 
 		$query = 'SELECT COUNT( wordId )
 				  AS num_rows
-				  FROM word';
+				  FROM word w ';
+
+		if ( isset( $_POST[ 'wordlistId' ] ) && $_POST[ 'wordlistId' ] != 'testAllWordlist' )
+			$query = $query . 'INNER JOIN wordlist wl
+							   ON w.wordlistId = wl.wordlistId
+							   AND wl.wordlistId = "' . $_POST[ 'wordlistId' ] . '"';
 
 		$ret = $mysqli->query( $query );
 
