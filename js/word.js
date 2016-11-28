@@ -746,7 +746,7 @@ $( document ).ready( function() {
         $( textarea ).css( 'width', $( tdTag ).width() - 10 + 'px' );
 
         $( textarea ).attr( 'data-controltranstype', 'div' );
-        $( textarea ).attr( 'data-exId', 'ex_' + $( 'div[data-exId]' ).length );
+        $( textarea ).attr( 'data-exId', 'ex_' + $( 'div[data-exId]' ).length + 1 );
         $( textarea ).attr( 'data-sourceexample', '' );
 
         $( tdTag ).append( textarea );
