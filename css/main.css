@@ -235,6 +235,11 @@ tr.dynRowWord {
 	float: right;
 }
 
+.searchDiv {
+	float: right;
+	margin-left: 10px;
+}
+
 .pageDiv input {
 	text-align: center;
 }
@@ -291,7 +296,7 @@ td.exampleTd
 }
 
 .wordlist, .meaning, .nativemeaning, .example {
-	width: 300px;
+	width: 307px;
 }
 
 /* wordView.php - END */

@@ -339,6 +339,28 @@ $( document ).ready( function() {
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
 
+    $.fn.curPageBtnOnKeydown = function( event ) {
+        if ( event.which == 13 )
+            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+    }
+
+    $.fn.enableSearchOnClick = function( event ) {
+        if ( $( this ).prop( 'checked' ) )
+        {
+            $( this ).createSearchTextBoxes( 'searchWordSpan', 'searchWordTextBox' );
+            $( this ).createSearchTextBoxes( 'searchPartOfSpeechSpan', 'searchPartOfSpeechTextBox' );
+            $( this ).createSearchTextBoxes( 'searchWordlistSpan', 'searchWordlistTextBox' );
+            $( this ).createSearchTextBoxes( 'searchNativeMeaningSpan', 'searchNativeMeaningTextBox' );
+        }
+        else
+        {
+            $( this ).removeSearchTextBoxes( 'searchWordTextBox', 'searchWordSpan' );
+            $( this ).removeSearchTextBoxes( 'searchPartOfSpeechTextBox', 'searchPartOfSpeechSpan' );
+            $( this ).removeSearchTextBoxes( 'searchWordlistTextBox', 'searchWordlistSpan' );
+            $( this ).removeSearchTextBoxes( 'searchNativeMeaningTextBox', 'searchNativeMeaningSpan' );
+        }
+    }
+
     $.fn.updateWord = function( event, rowObj ) {
         event.preventDefault();
 

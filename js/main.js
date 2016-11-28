@@ -107,6 +107,77 @@ $( document ).ready( function() {
 
 /* =========================== Helper functions - START =========================== */
 
+	$.fn.createSearchTextBoxes = function( spanId, textboxId ) {
+		var inputTag = document.createElement( 'INPUT' );
+		var parentPadding = $( '#' + spanId ).parent().css( 'padding-right' ).replace( 'px', '' );
+		var parentWidth = $( '#' + spanId ).parent().width();
+		var parentHeight = $( '#' + spanId ).parent().height();
+
+		inputTag.type = 'text';
+
+		inputTag.id = textboxId;
+		inputTag.style.width = '100%';
+		inputTag.style.height = '100%';
+		$( inputTag ).css( 'font-style', 'italic' );
+		$( inputTag ).css( 'font-size', '12px' );
+		$( inputTag ).css( 'box-sizing', 'border-box' );
+		$( inputTag ).css( 'padding-top', '0px' );
+		$( inputTag ).css( 'padding-bottom', '0px' );
+
+		switch( spanId )
+		{
+			case 'searchWordSpan':
+				$( inputTag ).attr( 'placeholder', 'Search word' );
+				break;
+
+			case 'searchPartOfSpeechSpan':
+				$( inputTag ).attr( 'placeholder', 'Search word class' );
+				break;
+
+			case 'searchWordlistSpan':
+				$( inputTag ).attr( 'placeholder', 'Search wordlist' );
+				break;
+
+			case 'searchNativeMeaningSpan':
+				$( inputTag ).attr( 'placeholder', 'Search native meaning' );
+				break;
+		}
+
+		$( '#' + spanId ).replaceWith( inputTag );
+
+		// $( this ).bindInputTextEvents();
+	}
+
+	$.fn.removeSearchTextBoxes = function( textboxId, spanId ) {
+		var spanTag = document.createElement( 'SPAN' );
+		var displayVal = '';
+
+		spanTag.id = spanId;
+
+		switch( textboxId )
+		{
+			case 'searchWordTextBox':
+				displayVal = 'Word Title';
+				break;
+
+			case 'searchPartOfSpeechTextBox':
+				displayVal = 'Word class';
+				break;
+
+			case 'searchWordlistTextBox':
+				displayVal = 'Wordlist';
+				break;
+
+			case 'searchNativeMeaningTextBox':
+				displayVal = 'Native meaning';
+				break;
+		}
+
+		spanTag.innerHTML = displayVal;
+
+		$( '#' + textboxId ).replaceWith( spanTag );
+	}
+
 	$.fn.displayErrMsg = function( errMsg ) {
 		if ( $( '#msgDiv' ).length > 0 )
 		{
@@ -452,6 +523,10 @@ $( document ).ready( function() {
 		$( this ).checkAndBindEventForEle( '#lastPage',
 										   eventArr,
 										   $.fn.lastPageBtnOnClick );
+
+		$( this ).checkAndBindEventForEle( '#enableSearch',
+										   eventArr,
+										   $.fn.enableSearchOnClick );
 
 		( eventArr = [] ).push( 'keydown' );
 		$( this ).checkAndBindEventForEle( '#curPage',

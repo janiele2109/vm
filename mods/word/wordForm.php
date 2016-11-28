@@ -15,6 +15,11 @@
 
 	<div id = 'msgDiv' class = 'displayMsg'>&nbsp;</div>
 
+	<div class = 'searchDiv'>
+		<input type = 'checkbox' name = 'group' id = 'enableSearch'/>
+		<label for = 'enableSearch' class = 'noselect'>Enable search</label>
+	</div>
+
 	<div class = 'pageDiv'>
 		<button id = 'firstPage'> << First</button>
 		<button id = 'prevPage'> < Prev</button>
@@ -28,12 +33,12 @@
 	<table id = 'wordViewTbl'>
 		<tr>
 			<td><input type = 'checkbox' id = 'selectAllChkbox'/></td>
-			<td class = 'word'>Word Title</td>
-			<td class = 'partOfSpeech'>Word class</td>
+			<td class = 'word'><span id = 'searchWordSpan'>Word Title</span></td>
+			<td class = 'partOfSpeech'><span id = 'searchPartOfSpeechSpan'>Word class</span></td>
 			<td class = 'pronunciation'>Pronunciation</td>
-			<td class = 'wordlist'>Wordlist</td>
+			<td class = 'wordlist'><span id = 'searchWordlistSpan'>Wordlist</span></td>
 			<td class = 'meaning'>Meaning</td>
-			<td class = 'nativemeaning'>Native meaning</td>
+			<td class = 'nativemeaning'><span id = 'searchNativeMeaningSpan'>Native meaning</span></td>
 			<td class = 'example'>Example</td>
 			<td class = 'updateBtn'></td>
 		</tr>
