@@ -133,6 +133,11 @@ $( document ).ready( function() {
 
     $.fn.updateWordsOnCurrentPage = function() {
 	    $( '#wordsCurrentPageSpan' ).html( $( '#totalRowsInTable' ).text() );
+
+	    if ( $( '#totalRowsInTable' ).text() == '0' )
+	    	$( '#curPage' ).val( 0 );
+	    else
+	    	$( '#curPage' ).val( 1 );
     }
 
 	$.fn.createSearchTextBoxes = function( spanId, textboxId ) {

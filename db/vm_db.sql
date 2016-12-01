@@ -1,3 +1,16 @@
+-- Usefule SQL statement
+
+-- === Find duplicate record - START ===
+
+-- SELECT w.word, wm.meaning, COUNT(*)
+-- FROM word w
+-- INNER JOIN wordMeaning wm
+-- ON w.wordId = wm.wordId
+-- GROUP BY w.word
+-- HAVING (COUNT(*) > 1)
+
+-- === Find duplicate record - END ===
+
 DROP DATABASE IF EXISTS `vm_db`;
 
 CREATE DATABASE IF NOT EXISTS `vm_db`;

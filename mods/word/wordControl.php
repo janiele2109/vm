@@ -353,24 +353,34 @@
 					       'dataContent' 	=> ''
 					   );
 
-		$query = 'SELECT COUNT( wordId )
-				  AS num_rows
+		$query = 'SELECT DISTINCT w.word
 				  FROM word w
+				  INNER JOIN wordlist wl
+				  ON w.wordlistId = wl.wordlistId
+				  INNER JOIN wordMeaning wm
+				  ON w.wordId = wm.wordId
 				  INNER JOIN users u
-				  ON w.userId = u.userId
+				  ON wl.userId = u.userId
 				  WHERE u.userName = "' . $username . '" ';
 
-		if ( isset( $_POST[ 'wordlistId' ] ) && $_POST[ 'wordlistId' ] != 'allWordlists' )
-			$query = $query . 'INNER JOIN wordlist wl
-							   ON w.wordlistId = wl.wordlistId
-							   AND wl.wordlistId = "' . $_POST[ 'wordlistId' ] . '"';
+		if ( isset( $_POST[ 'word' ] ) && $_POST[ 'word' ] != '' )
+			$query = $query . 'AND w.word = "' . $_POST[ 'word' ] . '" ';
+
+		if ( isset( $_POST[ 'wordClass' ] ) && $_POST[ 'wordClass' ] != '' )
+			$query = $query . 'AND w.partOfSpeech = "' . $_POST[ 'wordClass' ] . '" ';
+
+		if ( isset( $_POST[ 'wordlistName' ] ) && $_POST[ 'wordlistName' ] != '' )
+			$query = $query . 'AND wl.wordlistName = "' . $_POST[ 'wordlistName' ] . '" ';
+
+		if ( isset( $_POST[ 'nativeMeaning' ] ) && $_POST[ 'nativeMeaning' ] != '' )
+			$query = $query . 'AND wm.nativemeaning = "' . $_POST[ 'nativeMeaning' ] . '" ';
 
 		$ret = $mysqli->query( $query );
 
 		if ( $ret != null &&
 			 $ret->num_rows > 0 )
 		{
-			$result[ 'dataContent' ] = $ret->fetch_object()->num_rows;
+			$result[ 'dataContent' ] = $ret->num_rows;
 			$result[ 'msg' ] = '';
 			$result[ 'errState' ] = 'OK';
 		}
@@ -395,8 +405,21 @@
 					       'dataContent' 	=> ''
 					   );
 
-		$query = 'SELECT COUNT( w.wordId )
-				  AS num_rows
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$query = 'SELECT w.word,
+						 w.partOfSpeech,
+						 w.pronunciation,
+						 wl.wordlistName,
+						 wm.meaning,
+						 wm.nativemeaning,
+						 wm.wordMeaningId,
+						 wm.DateCreated
 				  FROM word w
 				  INNER JOIN wordlist wl
 				  ON w.wordlistId = wl.wordlistId
@@ -406,12 +429,24 @@
 				  ON wl.userId = u.userId
 				  WHERE u.userName = "' . $username . '" ';
 
+		if ( isset( $_POST[ 'word' ] ) && $_POST[ 'word' ] != '' )
+			$query = $query . 'AND w.word = "' . $_POST[ 'word' ] . '" ';
+
+		if ( isset( $_POST[ 'wordClass' ] ) && $_POST[ 'wordClass' ] != '' )
+			$query = $query . 'AND w.partOfSpeech = "' . $_POST[ 'wordClass' ] . '" ';
+
+		if ( isset( $_POST[ 'wordlistName' ] ) && $_POST[ 'wordlistName' ] != '' )
+			$query = $query . 'AND wl.wordlistName = "' . $_POST[ 'wordlistName' ] . '" ';
+
+		if ( isset( $_POST[ 'nativeMeaning' ] ) && $_POST[ 'nativeMeaning' ] != '' )
+			$query = $query . 'AND wm.nativemeaning = "' . $_POST[ 'nativeMeaning' ] . '" ';
+
 		$ret = $mysqli->query( $query );
 
 		if ( $ret != null &&
 			 $ret->num_rows > 0 )
 		{
-			$result[ 'dataContent' ] = $ret->fetch_object()->num_rows;
+			$result[ 'dataContent' ] = $ret->num_rows;
 			$result[ 'msg' ] = '';
 			$result[ 'errState' ] = 'OK';
 		}

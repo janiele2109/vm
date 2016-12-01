@@ -378,12 +378,15 @@ $( document ).ready( function() {
             $( this ).removeSearchTextBoxes( 'searchNativeMeaningTextBox', 'searchNativeMeaningSpan' );
 
             $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+            $( this ).reloadCounterInfo( false );
         }
     }
 
     $.fn.searchItemOnKeydown = function( event ) {
         if ( event.which == 13 )
         {
+            /* ============================= Execute search ============================= */
+
             var sendingData = {
                 word: $( '#searchWordTextBox' ).val().trim(),
                 wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
@@ -421,6 +424,8 @@ $( document ).ready( function() {
                 data: sendingData
             } );
         }
+
+        $( this ).reloadCounterInfo( true );
     }
 
     $.fn.updateWord = function( event, rowObj ) {
@@ -798,5 +803,82 @@ $( document ).ready( function() {
             checkboxObj.first().prop( 'checked', true );
             curDiv.css( 'display', 'none' );
         }
+    };
+
+    $.fn.reloadCounterInfo = function( isInSearch ) {
+        var getTotalWordsNumSendingData, getTotalWordMeaningsNumSendingData;
+
+        if ( isInSearch )
+        {
+            getTotalWordsNumSendingData = {
+                word: $( '#searchWordTextBox' ).val().trim(),
+                wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
+                wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+                nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
+                username: $( '#userName' ).text(),
+                requestType: 'getTotalWordsNum'
+            }
+
+            getTotalWordMeaningsNumSendingData = {
+                word: $( '#searchWordTextBox' ).val().trim(),
+                wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
+                wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+                nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
+                username: $( '#userName' ).text(),
+                requestType: 'getTotalWordMeaningsNum'
+            }
+        }
+        else
+        {
+            getTotalWordsNumSendingData = {
+                username: $( '#userName' ).text(),
+                requestType: 'getTotalWordsNum'
+            }
+
+            getTotalWordMeaningsNumSendingData = {
+                username: $( '#userName' ).text(),
+                requestType: 'getTotalWordMeaningsNum'
+            }
+        }
+
+        $.ajax( {
+            url: '/mods/word/wordControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success:
+                function( response, status ) {
+                    /* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        $( this ).getTotalWordNumOnSuccess( response, status );
+                    }
+                },
+            data: getTotalWordsNumSendingData
+        } );
+
+        $.ajax( {
+            url: '/mods/word/wordControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success:
+                function( response, status ) {
+                    /* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        $( this ).getTotalWordMeaningsNumOnSuccess( response, status );
+                    }
+                },
+            data: getTotalWordMeaningsNumSendingData
+        } );
     };
 } );
