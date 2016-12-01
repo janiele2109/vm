@@ -1005,9 +1005,13 @@ $( document ).ready( function() {
 	}
 
 	$.fn.getTotalWordNumOnSuccess = function( response, status ) {
-		var numWordPerPage = 10;
-
 		$( '#totalWordsSpan' ).html( response[ 'dataContent' ] );
+
+		$( this ).updateWordsOnCurrentPage();
+	}
+
+	$.fn.getTotalWordMeaningsNumOnSuccess = function( response, status ) {
+		var numWordPerPage = 10;
 
 		$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
 
@@ -1017,10 +1021,6 @@ $( document ).ready( function() {
 			$( '#wordsCurrentPageSpan' ).html( '0' );
 		}
 
-		$( this ).updateWordsOnCurrentPage();
-	}
-
-	$.fn.getTotalWordMeaningsNumOnSuccess = function( response, status ) {
 		$( '#totalWordMeaningsSpan' ).html( response[ 'dataContent' ] );
 	}
 
