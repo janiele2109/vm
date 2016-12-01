@@ -991,7 +991,10 @@ $( document ).ready( function() {
 			$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
 
 		if( $( '#totalPage' ).text() == '0' )
+		{
 			$( '#curPage' ).val( 0 );
+			$( '#wordsCurrentPageSpan' ).html( '0' );
+		}
 
 		$( this ).updateWordsOnCurrentPage();
 	}

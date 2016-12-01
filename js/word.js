@@ -320,8 +320,6 @@ $( document ).ready( function() {
             $( '#curPage' ).val( 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
-
-        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.prevPageBtnOnClick = function( event ) {
@@ -333,8 +331,6 @@ $( document ).ready( function() {
             $( '#curPage' ).val( $( '#curPage' ).val() - 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
-
-        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.nextPageBtnOnClick = function( event ) {
@@ -346,8 +342,6 @@ $( document ).ready( function() {
             $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
-
-        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.lastPageBtnOnClick = function( event ) {
@@ -359,15 +353,11 @@ $( document ).ready( function() {
             $( '#curPage' ).val( parseInt( $( '#totalPage' ).text().trim() ) );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
-
-        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.curPageBtnOnKeydown = function( event ) {
         if ( event.which == 13 )
             $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
-
-        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.enableSearchOnClick = function( event ) {
@@ -690,6 +680,8 @@ $( document ).ready( function() {
                         $( this ).resetControlInfo( response[ 'msg' ] );
 
                         $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
+
+                        $( this ).updateWordsOnCurrentPage();
 
                         $( this ).addNewWordTextBoxFocus();
 
