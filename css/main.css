@@ -236,8 +236,11 @@ tr.dynRowWord {
 	margin-left: 10px;
 }
 
-.totalWord, .wordsCurrentPageSpan {
+.totalWord, .totalWordMeanings, .wordsCurrentPageSpan {
 	margin-right: 10px;
+	font-size: 16px;
+	font-weight: bold;
+	font-style: italic;
 }
 
 .pageDiv {

@@ -72,7 +72,7 @@
 				}
 			?>
 
-			<option value = 'testAllWordlist' selected>All wordlists</option>
+			<option value = 'allWordlists' selected>All wordlists</option>
 		</select>
 	</div>
 

@@ -32,7 +32,7 @@
 					  ON w.wordlistId = wl.wordlistId
 					  WHERE wl.userId = "' . $userId . '" ';
 
-			if ( $testingWordlists != 'testAllWordlist' )
+			if ( $testingWordlists != 'allWordlists' )
 				$query = $query . 'AND wl.wordlistId = "' . $testingWordlists . '" ';
 
 			$query = $query . 'ORDER BY wm.DateCreated DESC LIMIT 50 OFFSET ' . $startOffset;

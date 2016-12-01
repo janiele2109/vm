@@ -39,7 +39,12 @@
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getTotalWordsNum' )
 	{
-		getTotalWordsNum();
+		getTotalWordsNum( $_POST[ 'username' ] );
+	}
+
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getTotalWordMeaningsNum' )
+	{
+		getTotalWordMeaningsNum( $_POST[ 'username' ] );
 	}
 
 	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'switchPage' )
@@ -337,7 +342,7 @@
 		echo json_encode( $result );
 	}
 
-	function getTotalWordsNum()
+	function getTotalWordsNum( $username )
 	{
 		global $mysqli;
 
@@ -350,9 +355,12 @@
 
 		$query = 'SELECT COUNT( wordId )
 				  AS num_rows
-				  FROM word w ';
+				  FROM word w
+				  INNER JOIN users u
+				  ON w.userId = u.userId
+				  WHERE u.userName = "' . $username . '" ';
 
-		if ( isset( $_POST[ 'wordlistId' ] ) && $_POST[ 'wordlistId' ] != 'testAllWordlist' )
+		if ( isset( $_POST[ 'wordlistId' ] ) && $_POST[ 'wordlistId' ] != 'allWordlists' )
 			$query = $query . 'INNER JOIN wordlist wl
 							   ON w.wordlistId = wl.wordlistId
 							   AND wl.wordlistId = "' . $_POST[ 'wordlistId' ] . '"';
@@ -375,6 +383,48 @@
 		header( 'Content-Type: application/json' );
 		echo json_encode( $result );
 	}
+
+	function getTotalWordMeaningsNum( $username )
+	{
+		global $mysqli;
+
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$query = 'SELECT COUNT( w.wordId )
+				  AS num_rows
+				  FROM word w
+				  INNER JOIN wordlist wl
+				  ON w.wordlistId = wl.wordlistId
+				  INNER JOIN wordMeaning wm
+				  ON w.wordId = wm.wordId
+				  INNER JOIN users u
+				  ON wl.userId = u.userId
+				  WHERE u.userName = "' . $username . '" ';
+
+		$ret = $mysqli->query( $query );
+
+		if ( $ret != null &&
+			 $ret->num_rows > 0 )
+		{
+			$result[ 'dataContent' ] = $ret->fetch_object()->num_rows;
+			$result[ 'msg' ] = '';
+			$result[ 'errState' ] = 'OK';
+		}
+		else
+		{
+			$result[ 'msg' ] = constant( '1027' );;
+			$result[ 'errState' ] = 'NG';
+		}
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
 
 	/* ===================== Word helper functions - START ===================== */
 

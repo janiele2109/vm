@@ -45,7 +45,9 @@ $( document ).ready( function() {
                         {
                             $( '#curPage' ).val( 1 );
 
-                            $( this ).updateTotalWordPage( event );
+                            $( this ).updateTotalWordPage();
+
+                            $( this ).updateTotalWordMeanings();
 
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
@@ -338,7 +340,7 @@ $( document ).ready( function() {
 
         if( $( '#totalPage' ).text() == '0' )
             $( '#curPage' ).val( 0 );
-        else if ( $( '#curPage' ).val() < $( '#totalPage' ).text() )
+        else if ( $( '#curPage' ).val() < parseInt( $( '#totalPage' ).text() ) )
             $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );

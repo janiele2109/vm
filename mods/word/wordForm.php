@@ -29,6 +29,9 @@
 		<span>+ Total words: </span>
 		<span id = 'totalWordsSpan' class = 'totalWord'></span>
 
+		<span>+ Total word meanings: </span>
+		<span id = 'totalWordMeaningsSpan' class = 'totalWordMeanings'></span>
+
 		<span>+ Words in current page: </span>
 		<span id = 'wordsCurrentPageSpan' class = 'wordsCurrentPageSpan'></span>
 

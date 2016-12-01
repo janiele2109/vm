@@ -39,7 +39,7 @@ $( document ).ready( function() {
 		} );
 	}
 
-	$.fn.updateTotalWordPage = function( event ) {
+	$.fn.updateTotalWordPage = function() {
 		var sendingData = {
 			username: $( '#userName' ).text(),
 			requestType: 'getTotalWordsNum'
@@ -57,6 +57,29 @@ $( document ).ready( function() {
 			success:
 				function( response, status ) {
 					$( this ).getTotalWordNumOnSuccess( response, status );
+				},
+			data: sendingData
+		} );
+	}
+
+	$.fn.updateTotalWordMeanings = function( event ) {
+		var sendingData = {
+			username: $( '#userName' ).text(),
+			requestType: 'getTotalWordMeaningsNum'
+		};
+
+		$.ajax( {
+			url: '/mods/word/wordControl.php',
+			type: 'post',
+			dataType: 'json',
+			cache: false,
+			error:
+				function( xhr, status, error ) {
+					$( this ).displayErrMsg( xhr.responseText );
+				},
+			success:
+				function( response, status ) {
+					$( this ).getTotalWordMeaningsNumOnSuccess( response, status );
 				},
 			data: sendingData
 		} );
@@ -95,6 +118,7 @@ $( document ).ready( function() {
 					{
 						$( this ).fillHiddenWordlistCb();
 						$( this ).updateTotalWordPage();
+						$( this ).updateTotalWordMeanings();
 					}
 				},
 			data: sendingData
@@ -985,10 +1009,7 @@ $( document ).ready( function() {
 
 		$( '#totalWordsSpan' ).html( response[ 'dataContent' ] );
 
-		if ( response[ 'dataContent' ] % 10 == 0 )
-			$( '#totalPage' ).html( response[ 'dataContent' ] );
-		else
-			$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
+		$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
 
 		if( $( '#totalPage' ).text() == '0' )
 		{
@@ -997,6 +1018,10 @@ $( document ).ready( function() {
 		}
 
 		$( this ).updateWordsOnCurrentPage();
+	}
+
+	$.fn.getTotalWordMeaningsNumOnSuccess = function( response, status ) {
+		$( '#totalWordMeaningsSpan' ).html( response[ 'dataContent' ] );
 	}
 
 	$.fn.getPageContentOnSuccess = function( response, status, currentUri, requestMenuItem ) {
