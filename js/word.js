@@ -320,6 +320,8 @@ $( document ).ready( function() {
             $( '#curPage' ).val( 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+
+        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.prevPageBtnOnClick = function( event ) {
@@ -327,10 +329,12 @@ $( document ).ready( function() {
 
         if( $( '#totalPage' ).text() == '0' )
             $( '#curPage' ).val( 0 );
-        else
+        else if ( $( '#curPage' ).val() > 1 )
             $( '#curPage' ).val( $( '#curPage' ).val() - 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+
+        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.nextPageBtnOnClick = function( event ) {
@@ -338,10 +342,12 @@ $( document ).ready( function() {
 
         if( $( '#totalPage' ).text() == '0' )
             $( '#curPage' ).val( 0 );
-        else
+        else if ( $( '#curPage' ).val() < $( '#totalPage' ).text() )
             $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+
+        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.lastPageBtnOnClick = function( event ) {
@@ -353,11 +359,15 @@ $( document ).ready( function() {
             $( '#curPage' ).val( parseInt( $( '#totalPage' ).text().trim() ) );
 
         $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+
+        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.curPageBtnOnKeydown = function( event ) {
         if ( event.which == 13 )
             $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+
+        $( this ).updateWordsOnCurrentPage();
     }
 
     $.fn.enableSearchOnClick = function( event ) {

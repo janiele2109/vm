@@ -227,7 +227,8 @@
 				/* Update wordlist */
 				if ( $result[ 'errState' ] == 'OK' && $decodedModifiedRow[ 0 ]->wordlist->orgVal != $decodedModifiedRow[ 0 ]->wordlist->newVal )
 					$result = updateWordlistFieldInDb( $wordId,
-													   $decodedModifiedRow[ 0 ]->wordlist->newVal );
+													   $decodedModifiedRow[ 0 ]->wordlist->newVal,
+													   $userId );
 
 				/* Update word meaning */
 				if ( $result[ 'errState' ] == 'OK' && ( $decodedModifiedRow[ 0 ]->meaning->orgVal != $decodedModifiedRow[ 0 ]->meaning->newVal ||
@@ -1253,7 +1254,7 @@
 		return $responseData;
 	}
 
-	function updateWordlistFieldInDb( $wordId, $newVal )
+	function updateWordlistFieldInDb( $wordId, $newVal, $userId )
 	{
 		global $mysqli;
 
@@ -1264,7 +1265,7 @@
 							   'dataContent' 	=> ''
 							 );
 
-		$wordlistId = getWordlistId( $newVal );
+		$wordlistId = getWordlistId( $newVal, $userId );
 
 		$query = 'UPDATE word
 				  SET wordlistId = "' . $wordlistId .

@@ -204,10 +204,6 @@ td.exampleTd .exampleTextArea {
 	margin-top: 15px;
 }
 
-.enableEditting {
-	display: inline-block;
-	margin-left: 20px;
-}
 /* newWordForm.php - END */
 
 
@@ -233,6 +229,15 @@ td.exampleTd .exampleTextArea {
 tr.dynRowWord {
     text-align: left;
     height: 70px;
+}
+
+.enableEditting {
+	float: right;
+	margin-left: 10px;
+}
+
+.totalWord, .wordsCurrentPageSpan {
+	margin-right: 10px;
 }
 
 .pageDiv {
@@ -300,7 +305,7 @@ td.exampleTd
 }
 
 .wordlist, .meaning, .nativemeaning, .example {
-	width: 307px;
+	width: 311px;
 }
 
 /* wordView.php - END */

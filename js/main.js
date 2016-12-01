@@ -107,6 +107,15 @@ $( document ).ready( function() {
 
 /* =========================== Helper functions - START =========================== */
 
+    $.fn.updateWordsOnCurrentPage = function() {
+    	var numWordPerPage = 10;
+
+        if ( $( '#curPage' ).val() == $( '#totalPage' ).text() )
+            $( '#wordsCurrentPageSpan' ).html( $( '#totalWordsSpan' ).text() % numWordPerPage );
+        else
+            $( '#wordsCurrentPageSpan' ).html( numWordPerPage );
+    }
+
 	$.fn.createSearchTextBoxes = function( spanId, textboxId ) {
 		var inputTag = document.createElement( 'INPUT' );
 		var parentPadding = $( '#' + spanId ).parent().css( 'padding-right' ).replace( 'px', '' );
@@ -977,13 +986,19 @@ $( document ).ready( function() {
 	}
 
 	$.fn.getTotalWordNumOnSuccess = function( response, status ) {
+		var numWordPerPage = 10;
+
+		$( '#totalWordsSpan' ).html( response[ 'dataContent' ] );
+
 		if ( response[ 'dataContent' ] % 10 == 0 )
 			$( '#totalPage' ).html( response[ 'dataContent' ] );
 		else
-			$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / 10 ) );
+			$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
 
 		if( $( '#totalPage' ).text() == '0' )
 			$( '#curPage' ).val( 0 );
+
+		$( this ).updateWordsOnCurrentPage();
 	}
 
 	$.fn.getPageContentOnSuccess = function( response, status, currentUri, requestMenuItem ) {

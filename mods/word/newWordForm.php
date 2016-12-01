@@ -30,12 +30,7 @@
 		?>
 
 	</select>
-
-	<div class = 'enableEditting'>
-		<input type = 'checkbox' name = 'group' id = 'enableEditting'/>
-		<label for = 'enableEditting' class = 'noselect'>Enable editting</label>
-	</div><br/>
-
+	<br/>
 	<span class = 'wordClassSpan'>Word class</span>
 
 	<select id = 'wordClassCb' class = 'wordClassCb' tabindex = '3'>

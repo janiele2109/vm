@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS `wordExample`(
 	wordExampleId  	INT NOT NULL AUTO_INCREMENT,
 	example			longtext NOT NULL,
 	wordMeaningId	INT NOT NULL,
+	DateCreated 	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (wordExampleId, wordMeaningId)
 );
 

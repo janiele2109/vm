@@ -20,7 +20,18 @@
 		<label for = 'enableSearch' class = 'noselect'>Enable search</label>
 	</div>
 
+	<div class = 'enableEditting'>
+		<input type = 'checkbox' name = 'group' id = 'enableEditting'/>
+		<label for = 'enableEditting' class = 'noselect'>Enable editting</label>
+	</div>
+
 	<div class = 'pageDiv'>
+		<span>+ Total words: </span>
+		<span id = 'totalWordsSpan' class = 'totalWord'></span>
+
+		<span>+ Words in current page: </span>
+		<span id = 'wordsCurrentPageSpan' class = 'wordsCurrentPageSpan'></span>
+
 		<button id = 'firstPage'> << First</button>
 		<button id = 'prevPage'> < Prev</button>
 		<input id = 'curPage' type = 'text' size = '3' maxlength = '3' value = 1 />
