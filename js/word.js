@@ -384,6 +384,8 @@ $( document ).ready( function() {
             $( this ).removeSearchTextBoxes( 'searchPartOfSpeechTextBox', 'searchPartOfSpeechSpan' );
             $( this ).removeSearchTextBoxes( 'searchWordlistTextBox', 'searchWordlistSpan' );
             $( this ).removeSearchTextBoxes( 'searchNativeMeaningTextBox', 'searchNativeMeaningSpan' );
+
+            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
         }
     }
 
@@ -416,6 +418,8 @@ $( document ).ready( function() {
                             $( this ).resetControlInfo( response[ 'msg' ] );
 
                             $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
+
+                            $( this ).updateWordsOnCurrentPage();
 
                             $( this ).addNewWordTextBoxFocus();
 

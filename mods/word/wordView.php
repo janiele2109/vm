@@ -88,6 +88,14 @@
 				 '</tr>';
 		}
 
+		echo '<tr class = "hiddenFields dynRowWord">' .
+			      '<td colspan = "9">' .
+			          '<span id = "totalRowsInTable">' .
+			          $result->num_rows .
+			          '</span>' .
+			      '</td>' .
+			 '</tr>';
+
 		mysqli_free_result( $result );
 	}
 ?>

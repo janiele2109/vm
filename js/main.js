@@ -108,12 +108,7 @@ $( document ).ready( function() {
 /* =========================== Helper functions - START =========================== */
 
     $.fn.updateWordsOnCurrentPage = function() {
-    	var numWordPerPage = 10;
-
-        if ( $( '#curPage' ).val() == $( '#totalPage' ).text() )
-            $( '#wordsCurrentPageSpan' ).html( $( '#totalWordsSpan' ).text() % numWordPerPage );
-        else
-            $( '#wordsCurrentPageSpan' ).html( numWordPerPage );
+	    $( '#wordsCurrentPageSpan' ).html( $( '#totalRowsInTable' ).text() );
     }
 
 	$.fn.createSearchTextBoxes = function( spanId, textboxId ) {
