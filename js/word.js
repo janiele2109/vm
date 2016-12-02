@@ -343,7 +343,10 @@ $( document ).ready( function() {
         else if ( $( '#curPage' ).val() < parseInt( $( '#totalPage' ).text() ) )
             $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
 
-        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+        if ( $( '#enableSearch' ).prop( 'checked' ) )
+            $( this ).loadWordViewOnSearch();
+        else
+            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
 
     $.fn.lastPageBtnOnClick = function( event ) {
@@ -377,55 +380,17 @@ $( document ).ready( function() {
             $( this ).removeSearchTextBoxes( 'searchWordlistTextBox', 'searchWordlistSpan' );
             $( this ).removeSearchTextBoxes( 'searchNativeMeaningTextBox', 'searchNativeMeaningSpan' );
 
-            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
             $( this ).reloadCounterInfo( false );
+            $( this ).switchPageRequest( 1 );
         }
     }
 
     $.fn.searchItemOnKeydown = function( event ) {
         if ( event.which == 13 )
         {
-            /* ============================= Execute search ============================= */
-
-            var sendingData = {
-                word: $( '#searchWordTextBox' ).val().trim(),
-                wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
-                wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
-                nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
-                username: $( '#userName' ).text(),
-                requestType: 'searchItem'
-            }
-
-            $.ajax( {
-                url: '/mods/word/wordControl.php',
-                type: 'post',
-                dataType: 'json',
-                cache: false,
-                error:
-                    function( xhr, status, error ) {
-                        $( this ).displayErrMsg( xhr.responseText );
-                    },
-                success:
-                    function( response, status ) {
-                        /* In case response from server is successful */
-                        if ( $( this ).isServerResponseOk( response, status ) )
-                        {
-                            $( this ).resetControlInfo( response[ 'msg' ] );
-
-                            $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
-
-                            $( this ).updateWordsOnCurrentPage();
-
-                            $( this ).addNewWordTextBoxFocus();
-
-                            $( this ).bindEventsToControls();
-                        }
-                    },
-                data: sendingData
-            } );
+            $( this ).loadWordViewOnSearch();
+            $( this ).reloadCounterInfo( true );
         }
-
-        $( this ).reloadCounterInfo( true );
     }
 
     $.fn.updateWord = function( event, rowObj ) {
@@ -881,4 +846,45 @@ $( document ).ready( function() {
             data: getTotalWordMeaningsNumSendingData
         } );
     };
+
+    $.fn.loadWordViewOnSearch = function() {
+        var sendingData = {
+            word: $( '#searchWordTextBox' ).val().trim(),
+            wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
+            wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+            nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
+            pageIndex: $( '#curPage' ).val().trim(),
+            username: $( '#userName' ).text(),
+            requestType: 'searchItem'
+        }
+
+        $.ajax( {
+            url: '/mods/word/wordControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success:
+                function( response, status ) {
+                    /* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        $( this ).resetControlInfo( response[ 'msg' ] );
+
+                        $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
+
+                        $( this ).updateWordsOnCurrentPage();
+
+                        $( this ).addNewWordTextBoxFocus();
+
+                        $( this ).bindEventsToControls();
+                    }
+                },
+            data: sendingData
+        } );
+    }
+
 } );

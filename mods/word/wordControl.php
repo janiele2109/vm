@@ -377,17 +377,11 @@
 
 		$ret = $mysqli->query( $query );
 
-		if ( $ret != null &&
-			 $ret->num_rows > 0 )
+		if ( $ret != null )
 		{
 			$result[ 'dataContent' ] = $ret->num_rows;
 			$result[ 'msg' ] = '';
 			$result[ 'errState' ] = 'OK';
-		}
-		else
-		{
-			$result[ 'msg' ] = constant( '1027' );;
-			$result[ 'errState' ] = 'NG';
 		}
 
 		header( 'Content-Type: application/json' );
@@ -443,17 +437,11 @@
 
 		$ret = $mysqli->query( $query );
 
-		if ( $ret != null &&
-			 $ret->num_rows > 0 )
+		if ( $ret != null )
 		{
 			$result[ 'dataContent' ] = $ret->num_rows;
 			$result[ 'msg' ] = '';
 			$result[ 'errState' ] = 'OK';
-		}
-		else
-		{
-			$result[ 'msg' ] = constant( '1027' );;
-			$result[ 'errState' ] = 'NG';
 		}
 
 		header( 'Content-Type: application/json' );
