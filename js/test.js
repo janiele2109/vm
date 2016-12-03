@@ -82,7 +82,7 @@ $(document).ready(function() {
         {
             var score = ( rightAns / parseInt( $( '#totalWordNum' ).text() ) ) * 100;
 
-            $( '#resultSpan' ).html( $( '#resultSpan' ).html() + ' Finish testing! Score: ' + score );
+            $( '#resultSpan' ).html( $( '#resultSpan' ).html() + '<br/>Finish testing!<br/>Score: ' + score + '%');
 
             if ( $( '#testingWordlistCb' ).find( ':selected' ).val().trim() != 'allWordlists' )
                     $( this ).updateScore( score );
