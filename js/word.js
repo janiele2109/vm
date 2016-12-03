@@ -321,7 +321,10 @@ $( document ).ready( function() {
         else
             $( '#curPage' ).val( 1 );
 
-        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+        if ( $( '#enableSearch' ).prop( 'checked' ) )
+            $( this ).loadWordViewOnSearch( false );
+        else
+            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
 
     $.fn.prevPageBtnOnClick = function( event ) {
@@ -332,7 +335,10 @@ $( document ).ready( function() {
         else if ( $( '#curPage' ).val() > 1 )
             $( '#curPage' ).val( $( '#curPage' ).val() - 1 );
 
-        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+        if ( $( '#enableSearch' ).prop( 'checked' ) )
+            $( this ).loadWordViewOnSearch( false );
+        else
+            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
 
     $.fn.nextPageBtnOnClick = function( event ) {
@@ -344,7 +350,7 @@ $( document ).ready( function() {
             $( '#curPage' ).val( parseInt( $( '#curPage' ).val() ) + 1 );
 
         if ( $( '#enableSearch' ).prop( 'checked' ) )
-            $( this ).loadWordViewOnSearch();
+            $( this ).loadWordViewOnSearch( false );
         else
             $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
@@ -357,7 +363,10 @@ $( document ).ready( function() {
         else
             $( '#curPage' ).val( parseInt( $( '#totalPage' ).text().trim() ) );
 
-        $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
+        if ( $( '#enableSearch' ).prop( 'checked' ) )
+            $( this ).loadWordViewOnSearch( false );
+        else
+            $( this ).switchPageRequest( $( '#curPage' ).val().trim() );
     }
 
     $.fn.curPageBtnOnKeydown = function( event ) {
@@ -388,7 +397,7 @@ $( document ).ready( function() {
     $.fn.searchItemOnKeydown = function( event ) {
         if ( event.which == 13 )
         {
-            $( this ).loadWordViewOnSearch();
+            $( this ).loadWordViewOnSearch( true );
             $( this ).reloadCounterInfo( true );
         }
     }
@@ -653,7 +662,7 @@ $( document ).ready( function() {
 
                         $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
 
-                        $( this ).updateWordsOnCurrentPage();
+                        $( this ).updateWordsOnCurrentPage( false );
 
                         $( this ).addNewWordTextBoxFocus();
 
@@ -847,7 +856,7 @@ $( document ).ready( function() {
         } );
     };
 
-    $.fn.loadWordViewOnSearch = function() {
+    $.fn.loadWordViewOnSearch = function( isNewSearch ) {
         var sendingData = {
             word: $( '#searchWordTextBox' ).val().trim(),
             wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
@@ -876,7 +885,7 @@ $( document ).ready( function() {
 
                         $( this ).reloadWordViewTbl( response[ 'dataContent' ] );
 
-                        $( this ).updateWordsOnCurrentPage();
+                        $( this ).updateWordsOnCurrentPage( isNewSearch );
 
                         $( this ).addNewWordTextBoxFocus();
 

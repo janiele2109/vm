@@ -131,12 +131,13 @@ $( document ).ready( function() {
 
 /* =========================== Helper functions - START =========================== */
 
-    $.fn.updateWordsOnCurrentPage = function() {
+    $.fn.updateWordsOnCurrentPage = function( resetCurPage ) {
 	    $( '#wordsCurrentPageSpan' ).html( $( '#totalRowsInTable' ).text() );
 
 	    if ( $( '#totalRowsInTable' ).text() == '0' )
 	    	$( '#curPage' ).val( 0 );
-	    else
+	    
+	    if ( resetCurPage )
 	    	$( '#curPage' ).val( 1 );
     }
 
@@ -1012,7 +1013,7 @@ $( document ).ready( function() {
 	$.fn.getTotalWordNumOnSuccess = function( response, status ) {
 		$( '#totalWordsSpan' ).html( response[ 'dataContent' ] );
 
-		$( this ).updateWordsOnCurrentPage();
+		$( this ).updateWordsOnCurrentPage( true );
 	}
 
 	$.fn.getTotalWordMeaningsNumOnSuccess = function( response, status ) {
