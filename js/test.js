@@ -69,6 +69,9 @@ $(document).ready(function() {
 
             $( '#showWordBtn' ).focus();
         }
+
+        if ( unCheckDataArr.length == 0 )
+            $( '#resultSpan' ).html( $( '#resultSpan' ).html() + ' Finish testing!' );
     }
 
     $.fn.showWordBtnOnClick = function( event ) {
