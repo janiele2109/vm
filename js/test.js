@@ -76,12 +76,16 @@ $(document).ready(function() {
             $( '#showWordBtn' ).focus();
         }
 
+        $( '#correctedRate' ).html( rightAns + '/' + $( '#totalWordNum' ).text() );
+
         if ( isFinish == true )
         {
-            $( '#resultSpan' ).html( $( '#resultSpan' ).html() + ' Finish testing!' );
+            var score = ( rightAns / parseInt( $( '#totalWordNum' ).text() ) ) * 100;
+
+            $( '#resultSpan' ).html( $( '#resultSpan' ).html() + ' Finish testing! Score: ' + score );
 
             if ( $( '#testingWordlistCb' ).find( ':selected' ).val().trim() != 'allWordlists' )
-                    $( this ).updateScore( event );
+                    $( this ).updateScore( score );
         }
     }
 
@@ -153,6 +157,8 @@ $(document).ready(function() {
         } );
 
         rightAns = 0;
+
+        $( '#correctedRate' ).html( rightAns + '/' + $( '#totalWordNum' ).text() );
     }
 
     $.fn.displayPronOnClick = function( event ) {
@@ -292,6 +298,7 @@ $(document).ready(function() {
         $( '#curTestWordIndex' ).text( parseInt( $( '#curTestWordIndex' ).text() ) + 1 );
 
         $( '#cntNumber').html( $( '#curTestWordIndex' ).text() + '/' + $( '#totalWordNum' ).text() );
+        $( '#correctedRate' ).html( rightAns + '/' + $( '#totalWordNum' ).text() );
 
         $( '#nativeMeaningDiv' ).find( 'p.nativeMeaningP' ).remove();
         pTag = document.createElement( 'P' );
@@ -351,9 +358,9 @@ $(document).ready(function() {
         }
     }
 
-    $.fn.updateScore = function( event ) {
+    $.fn.updateScore = function( score ) {
         var sendingData = {
-            score: ( rightAns / parseInt( $( '#totalWordNum' ).text() ) ) * 100,
+            score: score,
             wordlistId: $( '#testingWordlistCb' ).find( ':selected' ).val().trim(),
             username: $( '#userName' ).text(),
             requestType: 'updateScore'

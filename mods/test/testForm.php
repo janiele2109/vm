@@ -15,6 +15,8 @@
 			<div class = 'cntNumberLabel'>
 				<span>Tested/Total: </span>
 				<span id = 'cntNumber'></span>
+				<span> -- Corrected/Total: </span>
+				<span id = 'correctedRate'></span>
 			</div>
 
 			<div class = 'meaningDescription'>
