@@ -2,9 +2,13 @@ $(document).ready(function() {
 
     var unCheckDataArr = new Array();
     var testData = null;
+    var rightAns = 0;
+    var isFinish = false;
 
     $.fn.testBtnOnClick = function( event ) {
         event.preventDefault();
+
+        rightAns = 0;
 
         /* ============== Get total word num ============== */
 
@@ -57,6 +61,8 @@ $(document).ready(function() {
             $( '#resultSpan' ).html( 'Correct!' );
             $( '#resultSpan' ).css( 'color','green' );
 
+            rightAns++;
+
             if ( $( '#nextWordBtn' ).css( 'display' ) != 'none' )
                 $( '#nextWordBtn' ).focus();
             else if ( $( '#retestBtn' ).css( 'display' ) != 'none' )
@@ -70,8 +76,13 @@ $(document).ready(function() {
             $( '#showWordBtn' ).focus();
         }
 
-        if ( unCheckDataArr.length == 0 )
+        if ( isFinish == true )
+        {
             $( '#resultSpan' ).html( $( '#resultSpan' ).html() + ' Finish testing!' );
+
+            if ( $( '#testingWordlistCb' ).find( ':selected' ).val().trim() != 'allWordlists' )
+                    $( this ).updateScore( event );
+        }
     }
 
     $.fn.showWordBtnOnClick = function( event ) {
@@ -140,6 +151,8 @@ $(document).ready(function() {
         $.each( testData, function() {
             unCheckDataArr[ cnt ] = cnt++;
         } );
+
+        rightAns = 0;
     }
 
     $.fn.displayPronOnClick = function( event ) {
@@ -300,9 +313,13 @@ $(document).ready(function() {
 
         unCheckDataArr.splice( randomNo, 1 );
 
-        if ( unCheckDataArr.length == 0 &&
-             parseInt( $( '#startOffset' ).text() ) < parseInt( $( '#totalWordNum' ).text() ) )
-            $( this ).getTestData( event );
+        if ( unCheckDataArr.length == 0 )
+        {
+             if ( parseInt( $( '#startOffset' ).text() ) < parseInt( $( '#totalWordNum' ).text() ) )
+                $( this ).getTestData( event );
+            else
+                isFinish = true;
+        }
     }
 
     function eleAppearControl(behavior, controlId=null) {
@@ -333,4 +350,26 @@ $(document).ready(function() {
             }
         }
     }
+
+    $.fn.updateScore = function( event ) {
+        var sendingData = {
+            score: ( rightAns / parseInt( $( '#totalWordNum' ).text() ) ) * 100,
+            wordlistId: $( '#testingWordlistCb' ).find( ':selected' ).val().trim(),
+            username: $( '#userName' ).text(),
+            requestType: 'updateScore'
+        };
+
+        $.ajax( {
+            url: '/mods/wordlist/wordlistControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            data: sendingData
+        } );
+    }
+
 });

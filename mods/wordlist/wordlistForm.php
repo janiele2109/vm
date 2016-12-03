@@ -18,6 +18,9 @@
 		<tr>
 			<td><input type = 'checkbox' id = 'selectAllChkbox'/></td>
 			<td class = 'wordlist'>Wordlist Title</td>
+			<td class = 'wlTotalWords'>Total words</td>
+			<td class = 'wlTotalWordMeanings'>Total word meanings</td>
+			<td class = 'wlScore'>Score</td>
 			<td class = 'updateBtn'></td>
 		</tr>
 

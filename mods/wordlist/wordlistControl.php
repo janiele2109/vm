@@ -24,6 +24,11 @@
 		updateSelectedWordListNames( $_POST[ 'wordlistNamesMap' ], $_POST[ 'username' ] );
 	}
 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'updateScore' )
+	{
+		updateScore( $_POST[ 'score' ], $_POST[ 'wordlistId' ], $_POST[ 'username' ] );
+	}
+
 	function addWordListName( $wordlistName, $username )
 	{
 		$result = checkUserNameExists( $username );
@@ -192,6 +197,43 @@
 
 		header( 'Content-Type: application/json' );
 		echo json_encode( $result );
+	}
+
+	function updateScore( $score, $wordlistId, $username )
+	{
+		$result = checkUserNameExists( $username );
+
+		if ( $result[ 'errState' ] == 'OK' )
+		{
+			$userId = $result[ 'dataContent' ];
+
+			global $mysqli;
+
+			$result = array(
+				               'errState' 		=> '',
+						       'errCode' 		=> '',
+					  	       'msg' 			=> '',
+						       'dataContent' 	=> ''
+						   );
+
+			$query = 'UPDATE wordlist
+					  SET score = "' . $score .
+					  '" WHERE wordlistId="' . $wordlistId . '" AND userId = "' . $userId . '"';
+
+			$ret = $mysqli->query( $query );
+
+			if ( $ret == FALSE )
+			{
+				$result[ 'errState' ] = 'NG';
+				$result[ 'errCode' ] = '0008';
+				$result[ 'msg' ] = constant( $responseData[ 'errCode' ] );
+			}
+			else
+				$result[ 'errState' ] = 'OK';
+
+			header( 'Content-Type: application/json' );
+			echo json_encode( $result );
+		}
 	}
 
 	/* ===================== Wordlist helper functions - START ===================== */

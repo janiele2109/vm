@@ -20,6 +20,7 @@ define( '0004'		, 'Add new wordlist name failed!' );
 define( '0005'		, 'Deleting selected wordlist names failed!' );
 define( '0006'		, 'Updating new wordlist name failed!' );
 define( '0007'		, 'Invalid username!' );
+define( '0008'		, 'Update score failed!' );
 
 /* =========== For wordlist errors - END =========== */
 
