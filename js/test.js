@@ -15,7 +15,7 @@ $(document).ready(function() {
         var getTotalWordNum = {
             wordlistId: $( '#testingWordlistCb' ).find( ':selected' ).val().trim(),
             username: $( '#userName' ).text(),
-            requestType: 'getTotalWordsNum'
+            requestType: 'getTotalWordMeaningsNum'
         };
 
         $.ajax( {
@@ -86,6 +86,8 @@ $(document).ready(function() {
 
             if ( $( '#testingWordlistCb' ).find( ':selected' ).val().trim() != 'allWordlists' )
                     $( this ).updateScore( score );
+
+            isFinish = false;
         }
     }
 

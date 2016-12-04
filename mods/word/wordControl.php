@@ -438,6 +438,12 @@
 		if ( isset( $_POST[ 'wordlistName' ] ) && $_POST[ 'wordlistName' ] != '' )
 			$query = $query . 'AND wl.wordlistName = "' . $_POST[ 'wordlistName' ] . '" ';
 
+		if ( isset( $_POST[ 'wordlistId' ] ) && $_POST[ 'wordlistId' ] != '' )
+		{
+			if ( $_POST[ 'wordlistId' ] != 'allWordlists' )
+				$query = $query . 'AND wl.wordlistId = "' . $_POST[ 'wordlistId' ] . '" ';
+		}
+
 		if ( isset( $_POST[ 'nativeMeaning' ] ) && $_POST[ 'nativeMeaning' ] != '' )
 			$query = $query . 'AND wm.nativemeaning = "' . $_POST[ 'nativeMeaning' ] . '" ';
 
