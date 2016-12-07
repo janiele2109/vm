@@ -21,7 +21,7 @@
 			  ON wl.userId = u.userId
 			  WHERE u.userName = "' . $username . '" ';
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchItem' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchWordItem' )
 	{
 		if ( isset( $_POST[ 'word' ] ) && $_POST[ 'word' ] != '' )
 			$query = $query . 'AND w.word = "' . $_POST[ 'word' ] . '" ';

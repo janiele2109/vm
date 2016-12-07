@@ -47,14 +47,14 @@
 		getTotalWordMeaningsNum( $_POST[ 'username' ] );
 	}
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'switchPage' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'switchWordPage' )
 	{
-		switchPage();
+		switchWordPage();
 	}
 
-	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchItem' )
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchWordItem' )
 	{
-		searchItem();
+		searchWordItem();
 	}
 
 	function getWordlistList( $username )
@@ -308,7 +308,7 @@
 		echo json_encode( $result );
 	}
 
-	function switchPage()
+	function switchWordPage()
 	{
 		$result = array(
 			               'errState' 		=> '',
@@ -325,7 +325,7 @@
 		echo json_encode( $result );
 	}
 
-	function searchItem()
+	function searchWordItem()
 	{
 		$result = array(
 			               'errState' 		=> '',

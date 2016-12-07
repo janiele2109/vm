@@ -29,6 +29,21 @@
 		updateScore( $_POST[ 'score' ], $_POST[ 'wordlistId' ], $_POST[ 'username' ] );
 	}
 
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'getTotalWordlistsNum' )
+	{
+		getTotalWordlistsNum( $_POST[ 'username' ] );
+	}
+
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'switchWordlistPage' )
+	{
+		switchWordlistPage();
+	}
+
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchWordlistItem' )
+	{
+		searchWordlistItem();
+	}
+
 	function addWordListName( $wordlistName, $username )
 	{
 		$result = checkUserNameExists( $username );
@@ -234,6 +249,79 @@
 			header( 'Content-Type: application/json' );
 			echo json_encode( $result );
 		}
+	}
+
+	function getTotalWordlistsNum( $username )
+	{
+		global $mysqli;
+
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$query = 'SELECT *
+				  FROM wordlist wl
+				  INNER JOIN users u
+				  ON wl.userId = u.userId
+				  WHERE u.userName = "' . $username . '" ';
+
+		if ( isset( $_POST[ 'wordlistName' ] ) && $_POST[ 'wordlistName' ] != '' )
+			$query = $query . 'AND wl.wordlistName = "' . $_POST[ 'wordlistName' ] . '" ';
+
+		if ( isset( $_POST[ 'wordlistId' ] ) && $_POST[ 'wordlistId' ] != '' )
+		{
+			if ( $_POST[ 'wordlistId' ] != 'allWordlists' )
+				$query = $query . 'AND wl.wordlistId = "' . $_POST[ 'wordlistId' ] . '" ';
+		}
+
+		$ret = $mysqli->query( $query );
+
+		if ( $ret != null )
+		{
+			$result[ 'dataContent' ] = $ret->num_rows;
+			$result[ 'msg' ] = '';
+			$result[ 'errState' ] = 'OK';
+		}
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function switchWordlistPage()
+	{
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$result[ 'dataContent' ] = reloadWordlistViewContent();
+		$result[ 'msg' ] = '';
+		$result[ 'errState' ] = 'OK';
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
+	}
+
+	function searchWordlistItem()
+	{
+		$result = array(
+			               'errState' 		=> '',
+					       'errCode' 		=> '',
+				  	       'msg' 			=> '',
+					       'dataContent' 	=> ''
+					   );
+
+		$result[ 'dataContent' ] = reloadWordlistViewContent();
+		$result[ 'msg' ] = '';
+		$result[ 'errState' ] = 'OK';
+
+		header( 'Content-Type: application/json' );
+		echo json_encode( $result );
 	}
 
 	/* ===================== Wordlist helper functions - START ===================== */

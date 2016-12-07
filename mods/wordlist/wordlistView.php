@@ -8,8 +8,22 @@
 			  FROM wordlist wl
 			  INNER JOIN users u
 			  ON wl.userId = u.userId
-			  WHERE u.userName = "' . $username .
-			  '" ORDER BY wl.DateCreated DESC';
+			  WHERE u.userName = "' . $username . '" ';
+
+	if ( isset( $_POST[ 'requestType' ] ) && $_POST[ 'requestType' ] == 'searchWordlistItem' )
+	{
+		if ( isset( $_POST[ 'wordlistName' ] ) && $_POST[ 'wordlistName' ] != '' )
+			$query = $query . 'AND wl.wordlistName = "' . $_POST[ 'wordlistName' ] . '" ';
+	}
+
+	$query = $query . 'ORDER BY wl.DateCreated DESC LIMIT 10 OFFSET ';
+
+	$pageIndex = 0;
+
+	if ( isset( $_POST[ 'pageIndex' ] ) )
+		$pageIndex = ( $_POST[ 'pageIndex' ] - 1 ) * 10;
+
+	$query = $query . $pageIndex;
 
 	if ( $result = $mysqli->query( $query ) )
 	{
@@ -70,6 +84,14 @@
 				echo '<td><button class="updateWordlistNameBtn">Update</button></td>' .
 				'</tr>';
 		}
+
+		echo '<tr class = "hiddenFields dynRowWordList">' .
+			      '<td colspan = "6">' .
+			          '<span id = "totalRowsInTable">' .
+			          $result->num_rows .
+			          '</span>' .
+			      '</td>' .
+			 '</tr>';
 
 		mysqli_free_result( $result );
 	}

@@ -381,4 +381,47 @@ $(document).ready(function() {
         } );
     }
 
+    $.fn.bindTestEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'click' );
+        $( this ).checkAndBindEventForEle( '#testBtn',
+                                           eventArr,
+                                           $.fn.testBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#menuItemTest',
+                                           eventArr,
+                                           $.fn.menuItemTestOnClick );
+
+        $( this ).checkAndBindEventForEle( '#checkWordBtn',
+                                           eventArr,
+                                           $.fn.checkWordBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#showWordBtn',
+                                           eventArr,
+                                           $.fn.showWordBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#nextWordBtn',
+                                           eventArr,
+                                           $.fn.nextWordBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#retestBtn',
+                                           eventArr,
+                                           $.fn.retestBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#displayPron',
+                                           eventArr,
+                                           $.fn.displayPronOnClick );
+
+        $( this ).checkAndBindEventForEle( '#displayExample',
+                                           eventArr,
+                                           $.fn.displayExampleOnClick );
+
+        $( this ).checkAndBindEventForEle( '#displayNativeMeaning',
+                                           eventArr,
+                                           $.fn.displayNativeMeaningOnClick );
+
+        eventArr = null;
+    }
+
 });

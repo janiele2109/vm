@@ -79,6 +79,7 @@ table, th, td {
 	visibility: hidden;
 	font-weight: bold;
 	margin-top: 10px;
+	width: 200px;
 }
 
 .title{
@@ -97,7 +98,6 @@ table, th, td {
 	right: 20px;
 	padding-top: 10px;
 }
-
 
 /* ===================== Wordlist styles - START ===================== */
 
@@ -132,6 +132,33 @@ table, th, td {
 	text-align: center;
 	padding:10px;
 }
+
+.totalWordlist, .wordlistsCurrentPageSpan {
+	margin-right: 10px;
+	font-size: 16px;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.wordlistEnableEditting {
+	margin-left: 300px;
+	margin-bottom: 10px;
+	display: inline-block;
+}
+
+.wordlistEnableSearching {
+	margin-left: 10px;
+	margin-bottom: 10px;
+	display: inline-block;
+}
+
+.wordlistPageDiv {
+	margin-left: 60px;
+}
+
+.wordlistPageDiv input {
+	text-align: center;
+}
 /* wordlistForm.php - END */
 
 
@@ -142,6 +169,11 @@ table, th, td {
 	margin: auto;
 	height: 50px;
 	width: 80px;
+}
+
+tr.dynRowWordlist {
+    text-align: left;
+    height: 70px;
 }
 
 /* wordlistView.php - END */
@@ -235,7 +267,7 @@ tr.dynRowWord {
     height: 70px;
 }
 
-.enableEditting {
+.wordEnableEditting {
 	float: right;
 	margin-left: 10px;
 }
@@ -247,7 +279,7 @@ tr.dynRowWord {
 	font-style: italic;
 }
 
-.pageDiv {
+.wordPageDiv {
 	float: right;
 }
 
@@ -256,9 +288,10 @@ tr.dynRowWord {
 	margin-left: 10px;
 }
 
-.pageDiv input {
+.wordPageDiv input {
 	text-align: center;
 }
+
 /* wordForm.php - END */
 
 

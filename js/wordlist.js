@@ -1,5 +1,7 @@
 $( document ).ready( function() {
 
+/* =========================== Callback functions - START =========================== */
+
     $.fn.addNewWordlistBtnOnClick = function( event ) {
         event.preventDefault();
 
@@ -162,6 +164,83 @@ $( document ).ready( function() {
         $( this ).switchMenuItem( event, MENU_ITEM_WORDLIST );
     }
 
+    $.fn.getWordlistListOnSuccess = function( response, status ) {
+        $( '#hiddenWordlistCb' ).empty();
+
+        Object.keys( response[ 'dataContent' ] ).forEach( function ( key ) {
+                                                              var option = '<option value="' + key + '">' + response[ 'dataContent' ][ key ] + '</option>';
+                                                              $( '#hiddenWordlistCb' ).append( option );
+                                                          } );
+    }
+
+    $.fn.getTotalWordlistNumOnSuccess = function( response, status ) {
+        $( this ).updateWordlistsStatistic( response[ 'dataContent' ], true );
+    }
+
+/* =========================== Callback functions - END =========================== */
+
+
+/* =========================== Helper functions - START =========================== */
+
+    $.fn.bindWordlistEvents = function() {
+        var eventArr = new Array();
+
+        ( eventArr = [] ).push( 'click' );
+        $( this ).checkAndBindEventForEle( '#addNewWordlistBtn',
+                                           eventArr,
+                                           $.fn.addNewWordlistBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#delSelectedWordListsBtn',
+                                           eventArr,
+                                           $.fn.delSelectedWordListsBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#updateSelectedWordListsBtn',
+                                           eventArr,
+                                           $.fn.updateSelectedWordListsBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#menuItemWordlist',
+                                           eventArr,
+                                           $.fn.menuItemWordlistOnClick );
+
+        $( this ).checkAndbindEventsForSelectors( '.updateWordlistNameBtn',
+                                                  eventArr,
+                                                  $.fn.updateWordlistNameBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#wordlistFirstPage',
+                                           eventArr,
+                                           $.fn.wordlistFirstPageBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#wordlistPrevPage',
+                                           eventArr,
+                                           $.fn.wordlistPrevPageBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#wordlistNextPage',
+                                           eventArr,
+                                           $.fn.wordlistNextPageBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#wordlistLastPage',
+                                           eventArr,
+                                           $.fn.wordlistLastPageBtnOnClick );
+
+        $( this ).checkAndBindEventForEle( '#enableWordlistSearch',
+                                           eventArr,
+                                           $.fn.enableWordlistSearchOnClick );
+
+        ( eventArr = [] ).push( 'keydown' );
+        $( this ).checkAndBindEventForEle( '#wordlistCurPage',
+                                           eventArr,
+                                           $.fn.wordlistCurPageBtnOnKeydown );
+
+        eventArr = null;
+    }
+
+    $.fn.validateWordlistName = function( wordlistName ) {
+        if ( wordlistName == EMPTY_STRING )
+            return ERR_0001;
+        else
+            return EMPTY_STRING;
+    }
+
     $.fn.updateWordlistName = function( oldWordlistName, newWordlistName ) {
         if ( oldWordlistName != EMPTY_STRING &&
             newWordlistName != EMPTY_STRING &&
@@ -206,6 +285,30 @@ $( document ).ready( function() {
             $( this ).displayErrMsg( ERR_0003 );
     };
 
+    $.fn.wordlistFirstPageBtnOnClick = function( event ) {
+        $( this ).firstPageBtnClicked( event, 'wordlist' );
+    }
+
+    $.fn.wordlistPrevPageBtnOnClick = function( event ) {
+        $( this ).prevPageBtnClicked( event, 'wordlist' );
+    }
+
+    $.fn.wordlistNextPageBtnOnClick = function( event ) {
+        $( this ).nextPageBtnClicked( event, 'wordlist' );
+    }
+
+    $.fn.wordlistLastPageBtnOnClick = function( event ) {
+        $( this ).lastPageBtnClicked( event, 'wordlist' );
+    }
+
+    $.fn.wordlistCurPageBtnOnKeydown = function( event ) {
+        $( this ).curPageKeydowned( event, 'wordlist' );
+    }
+
+    $.fn.enableWordlistSearchOnClick = function( event ) {
+        $( this ).enableSearchOnClick( 'wordlist' );
+    }
+
     $.fn.reloadWordlistViewTbl = function( dataContent, isRemoveSelectedItems = false ) {
         /* Remove old rows in wordlist table and update new content */
         if ( isRemoveSelectedItems )
@@ -237,18 +340,68 @@ $( document ).ready( function() {
         } );
     }
 
-    $.fn.resetCheckboxOfRow = function( rowObj ) {
-        var chkBoxObj = rowObj.find( 'input[type="checkbox"]' );
+    $.fn.updateWordlistNumsOnCurPage = function( resetCurPage ) {
+        $( this ).updateRecordNumOnCurPage( 'wordlist', resetCurPage );
+    }
 
-        $.each( chkBoxObj, function() {
-            $( this ).prop( 'checked', false );
+    $.fn.updateWordlistsStatistic = function( totalWordlistNum, resetCurPage ) {
+        var numWordlistPerPage = 10;
+
+        $( this ).updateStatisticValue( 'totalWordlistsSpan', totalWordlistNum );
+
+        $( this ).updateStatisticValue( 'wordlistsCurrentPageSpan', $( '#totalRowsInTable' ).text() );
+
+        if ( $( '#totalRowsInTable' ).text() == '0' )
+            $( '#wordlistCurPage' ).val( 0 );
+
+        if ( resetCurPage )
+            $( '#wordlistCurPage' ).val( 1 );
+
+        $( this ).updateStatisticValue( 'wordlistTotalPage', Math.ceil( totalWordlistNum / numWordlistPerPage ) );
+
+        if( $( '#wordlistTotalPage' ).text() == '0' )
+        {
+            $( '#wordlistCurPage' ).val( 0 );
+            $( this ).updateStatisticValue( 'wordlistsCurrentPageSpan', 0 );
+        }
+    }
+
+    $.fn.loadWordlistViewOnSearch = function( isNewSearch ) {
+        var sendingData = {
+            wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+            pageIndex: $( '#wordlistCurPage' ).val().trim(),
+            username: $( '#userName' ).text(),
+            requestType: 'searchWordlistItem'
+        }
+
+        $.ajax( {
+            url: '/mods/wordlist/wordlistControl.php',
+            type: 'post',
+            dataType: 'json',
+            cache: false,
+            error:
+                function( xhr, status, error ) {
+                    $( this ).displayErrMsg( xhr.responseText );
+                },
+            success:
+                function( response, status ) {
+                    /* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                        $( this ).resetControlInfo( response[ 'msg' ] );
+
+                        $( this ).reloadWordlistViewTbl( response[ 'dataContent' ] );
+
+                        $( this ).updateRecordNumOnCurPage( 'wordlist', isNewSearch );
+
+                        $( this ).addNewWordTextBoxFocus();
+
+                        $( this ).bindEventsToControls();
+                    }
+                },
+            data: sendingData
         } );
     }
 
-    $.fn.validateWordlistName = function( wordlistName ) {
-        if ( wordlistName == EMPTY_STRING )
-            return ERR_0001;
-        else
-            return EMPTY_STRING;
-    }
+/* =========================== Helper functions - END =========================== */
 } );

@@ -16,14 +16,69 @@ $( document ).ready( function() {
 
 /* =========================== Ajax functions - START =========================== */
 
-	$.fn.fillHiddenWordlistCb = function( event ) {
-		var sendingData = {
-			username: $( '#userName' ).text(),
-			requestType: 'getWordlistList'
-		};
+	$.fn.getTotalValueInStatistic = function( pageType, inSearch ) {
+		var sendingData = {};
+		var requestTypeData = '';
+		var urlData = '';
+		var pageIndexData = '';
+
+		if ( inSearch == true )
+		{
+			if ( pageType == 'word' )
+			{
+				urlData = '/mods/word/wordControl.php';
+				requestTypeData = 'getTotalWordsNum';
+				pageIndexData = $( '#wordCurPage' ).val().trim();
+
+		        sendingData = {
+			        word: $( '#searchWordTextBox' ).val().trim(),
+			        wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
+			        wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+			        nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
+			        pageIndex: pageIndexData,
+			        username: $( '#userName' ).text(),
+			        requestType: requestTypeData
+			    };
+			}
+			else if ( pageType == 'wordlist' )
+			{
+				urlData = '/mods/wordlist/wordlistControl.php';
+				requestTypeData = 'getTotalWordlistsNum';
+				pageIndexData = $( '#wordlistCurPage' ).val().trim();
+
+				sendingData = {
+			        wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+			        pageIndex: pageIndexData,
+			        username: $( '#userName' ).text(),
+			        requestType: requestTypeData
+			    };
+			}
+		}
+		else
+		{
+			if ( pageType == 'word' )
+			{
+				urlData = '/mods/word/wordControl.php';
+				requestTypeData = 'getTotalWordsNum';
+				pageIndexData = $( '#wordCurPage' ).val().trim();
+			}
+
+			else if ( pageType == 'wordlist' )
+			{
+				urlData = '/mods/wordlist/wordlistControl.php';
+				requestTypeData = 'getTotalWordlistsNum';
+				pageIndexData = $( '#wordlistCurPage' ).val().trim();
+			}
+
+			sendingData = {
+				username: $( '#userName' ).text(),
+				pageIndex: pageIndexData,
+				requestType: requestTypeData
+			};
+		}
 
 		$.ajax( {
-			url: '/mods/word/wordControl.php',
+			url: urlData,
 			type: 'post',
 			dataType: 'json',
 			cache: false,
@@ -33,20 +88,82 @@ $( document ).ready( function() {
 				},
 			success:
 				function( response, status ) {
-					$( this ).getWordlistListOnSuccess( response, status );
+					/* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+                    	if ( pageType == 'word' )
+							$( this ).getTotalWordNumOnSuccess( response, status );
+						else
+							$( this ).getTotalWordlistNumOnSuccess( response, status );
+					}
 				},
 			data: sendingData
 		} );
 	}
 
-	$.fn.updateTotalWordPage = function() {
-		var sendingData = {
-			username: $( '#userName' ).text(),
-			requestType: 'getTotalWordsNum'
-		};
+	$.fn.switchPageRequest = function( pageType, inSearch ) {
+		var requestTypeData;
+		var sendingData = {};
+		var urlData = '';
+		var pageIndexData = '';
+
+		if ( inSearch == true )
+		{
+			if ( pageType == 'word' )
+			{
+				requestTypeData = 'switchWordPage';
+				urlData = '/mods/word/wordControl.php';
+				pageIndexData = $( '#wordCurPage' ).val().trim();
+
+		        sendingData = {
+			        word: $( '#searchWordTextBox' ).val().trim(),
+			        wordClass: $( '#searchPartOfSpeechTextBox' ).val().trim(),
+			        wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+			        nativeMeaning: $( '#searchNativeMeaningTextBox' ).val().trim(),
+			        pageIndex: pageIndexData,
+			        username: $( '#userName' ).text(),
+			        requestType: requestTypeData
+			    };
+			}
+			else if ( pageType == 'wordlist' )
+			{
+				requestTypeData = 'switchWordlistPage';
+				urlData = '/mods/wordlist/wordlistControl.php';
+				pageIndexData = $( '#wordlistCurPage' ).val().trim();
+
+				sendingData = {
+			        wordlistName: $( '#searchWordlistTextBox' ).val().trim(),
+			        pageIndex: pageIndexData,
+			        username: $( '#userName' ).text(),
+			        requestType: requestTypeData
+			    };
+			}
+		}
+		else
+		{
+			if ( pageType == 'word' )
+			{
+				requestTypeData = 'switchWordPage';
+				urlData = '/mods/word/wordControl.php';
+				pageIndexData = $( '#wordCurPage' ).val().trim();
+			}
+
+			else if ( pageType == 'wordlist' )
+			{
+				requestTypeData = 'switchWordlistPage';
+				urlData = '/mods/wordlist/wordlistControl.php';
+				pageIndexData = $( '#wordlistCurPage' ).val().trim();
+			}
+
+			sendingData = {
+				username: $( '#userName' ).text(),
+				pageIndex: pageIndexData,
+				requestType: requestTypeData
+			};
+		}
 
 		$.ajax( {
-			url: '/mods/word/wordControl.php',
+			url: urlData,
 			type: 'post',
 			dataType: 'json',
 			cache: false,
@@ -56,30 +173,26 @@ $( document ).ready( function() {
 				},
 			success:
 				function( response, status ) {
-					$( this ).getTotalWordNumOnSuccess( response, status );
-				},
-			data: sendingData
-		} );
-	}
+					/* In case response from server is successful */
+                    if ( $( this ).isServerResponseOk( response, status ) )
+                    {
+						$( this ).resetControlInfo( response[ 'msg' ] );
 
-	$.fn.updateTotalWordMeanings = function( event ) {
-		var sendingData = {
-			username: $( '#userName' ).text(),
-			requestType: 'getTotalWordMeaningsNum'
-		};
+						if ( pageType == 'word' )
+						{
+                        	$( this ).reloadWordViewTbl( response[ 'dataContent' ] );
 
-		$.ajax( {
-			url: '/mods/word/wordControl.php',
-			type: 'post',
-			dataType: 'json',
-			cache: false,
-			error:
-				function( xhr, status, error ) {
-					$( this ).displayErrMsg( xhr.responseText );
-				},
-			success:
-				function( response, status ) {
-					$( this ).getTotalWordMeaningsNumOnSuccess( response, status );
+                        	$( this ).updateWordsOnCurrentPage( false );
+						}
+                        else if ( pageType == 'wordlist' )
+                        {
+                        	$( this ).reloadWordlistViewTbl( response[ 'dataContent' ] );
+
+                        	$( this ).updateWordlistsStatistic( $( '#totalWordlistsSpan' ).text(), false );
+                        }
+
+                        $( this ).bindEventsToControls();
+					}
 				},
 			data: sendingData
 		} );
@@ -117,8 +230,12 @@ $( document ).ready( function() {
 					if ( requestMenuItem == MENU_ITEM_WORD )
 					{
 						$( this ).fillHiddenWordlistCb();
-						$( this ).updateTotalWordPage();
-						$( this ).updateTotalWordMeanings();
+						$( this ).getTotalValueInStatistic( 'word', false );
+						$( this ).updateTotalWordMeaningsValueInStatistic( false );
+					}
+					else if ( requestMenuItem == MENU_ITEM_WORDLIST )
+					{
+						$( this ).getTotalValueInStatistic( 'wordlist', false );
 					}
 				},
 			data: sendingData
@@ -131,99 +248,13 @@ $( document ).ready( function() {
 
 /* =========================== Helper functions - START =========================== */
 
-    $.fn.updateWordsOnCurrentPage = function( resetCurPage ) {
-	    $( '#wordsCurrentPageSpan' ).html( $( '#totalRowsInTable' ).text() );
+    $.fn.resetCheckboxOfRow = function( rowObj ) {
+        var chkBoxObj = rowObj.find( 'input[type="checkbox"]' );
 
-	    if ( $( '#totalRowsInTable' ).text() == '0' )
-	    	$( '#curPage' ).val( 0 );
-	    
-	    if ( resetCurPage )
-	    	$( '#curPage' ).val( 1 );
+        $.each( chkBoxObj, function() {
+            $( this ).prop( 'checked', false );
+        } );
     }
-
-	$.fn.createSearchTextBoxes = function( spanId, textboxId ) {
-		var inputTag = document.createElement( 'INPUT' );
-		var parentPadding = $( '#' + spanId ).parent().css( 'padding-right' ).replace( 'px', '' );
-		var parentWidth = $( '#' + spanId ).parent().width();
-		var parentHeight = $( '#' + spanId ).parent().height();
-
-		$.each( $( '#' + spanId )[ 0 ].attributes, function( i, attrib ) {
-																			 if ( attrib.name != 'id' )
-																				 $( inputTag ).attr( attrib.name, attrib.value );
-																		 } );
-
-		inputTag.type = 'text';
-
-		inputTag.id = textboxId;
-		inputTag.style.width = '100%';
-		inputTag.style.height = '100%';
-		$( inputTag ).css( 'font-style', 'italic' );
-		$( inputTag ).css( 'font-size', '12px' );
-		$( inputTag ).css( 'box-sizing', 'border-box' );
-		$( inputTag ).css( 'padding-top', '0px' );
-		$( inputTag ).css( 'padding-bottom', '0px' );
-
-		switch( spanId )
-		{
-			case 'searchWordSpan':
-				$( inputTag ).attr( 'placeholder', 'Search word' );
-				break;
-
-			case 'searchPartOfSpeechSpan':
-				$( inputTag ).attr( 'placeholder', 'Search word class' );
-				break;
-
-			case 'searchWordlistSpan':
-				$( inputTag ).attr( 'placeholder', 'Search wordlist' );
-				break;
-
-			case 'searchNativeMeaningSpan':
-				$( inputTag ).attr( 'placeholder', 'Search native meaning' );
-				break;
-		}
-
-		$( '#' + spanId ).replaceWith( inputTag );
-
-		var eventArr = new Array();
-
-		( eventArr = [] ).push( 'keydown' );
-		$( this ).checkAndBindEventForEle( '#' + inputTag.id,
-										   eventArr,
-										   $.fn.searchItemOnKeydown );
-
-		eventArr = null;
-	}
-
-	$.fn.removeSearchTextBoxes = function( textboxId, spanId ) {
-		var spanTag = document.createElement( 'SPAN' );
-		var displayVal = '';
-
-		$( spanTag ).attr( 'class', 'searchItem' );
-		spanTag.id = spanId;
-
-		switch( textboxId )
-		{
-			case 'searchWordTextBox':
-				displayVal = 'Word Title';
-				break;
-
-			case 'searchPartOfSpeechTextBox':
-				displayVal = 'Word class';
-				break;
-
-			case 'searchWordlistTextBox':
-				displayVal = 'Wordlist';
-				break;
-
-			case 'searchNativeMeaningTextBox':
-				displayVal = 'Native meaning';
-				break;
-		}
-
-		spanTag.innerHTML = displayVal;
-
-		$( '#' + textboxId ).replaceWith( spanTag );
-	}
 
 	$.fn.displayErrMsg = function( errMsg ) {
 		if ( $( '#msgDiv' ).length > 0 )
@@ -410,40 +441,6 @@ $( document ).ready( function() {
 		eventArr = null;
 	}
 
-	$.fn.bindExampleEvents = function() {
-		var eventArr = new Array();
-
-		( eventArr = [] ).push( 'mouseenter', 'mouseleave' );
-		$( this ).checkAndbindEventsForSelectors( '.exampleTd',
-												  eventArr,
-												  $.fn.exampleTdOnMouseEvents );
-
-		( eventArr = [] ).push( 'mouseenter' );
-		$( this ).checkAndbindEventsForSelectors( '.exampleEntry',
-												  eventArr,
-												  $.fn.exampleEntryOnMouseEnter );
-
-		( eventArr = [] ).push( 'mouseleave' );
-		$( this ).checkAndbindEventsForSelectors( 'div.exampleBtnlDiv',
-												  eventArr,
-												  $.fn.exampleBtnlDivMouseOut );
-
-		( eventArr = [] ).push( 'click' );
-		$( this ).checkAndBindEventForEle( '#addExampleBtn',
-										   eventArr,
-										   $.fn.addExampleBtnClick );
-
-		$( this ).checkAndBindEventForEle( '#updateExampleBtn',
-										   eventArr,
-										   $.fn.updateExampleBtnClick );
-
-		$( this ).checkAndBindEventForEle( '#deleteExampleBtn',
-										   eventArr,
-										   $.fn.deleteExampleBtnClick );
-
-		eventArr = null;
-	}
-
 	$.fn.bindGeneralEvents = function() {
 		var eventArr = new Array();
 
@@ -460,130 +457,6 @@ $( document ).ready( function() {
 		eventArr = null;
 	}
 
-	$.fn.bindTestEvents = function() {
-		var eventArr = new Array();
-
-		( eventArr = [] ).push( 'click' );
-		$( this ).checkAndBindEventForEle( '#testBtn',
-										   eventArr,
-										   $.fn.testBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#menuItemTest',
-										   eventArr,
-										   $.fn.menuItemTestOnClick );
-
-		$( this ).checkAndBindEventForEle( '#checkWordBtn',
-										   eventArr,
-										   $.fn.checkWordBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#showWordBtn',
-										   eventArr,
-										   $.fn.showWordBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#nextWordBtn',
-										   eventArr,
-										   $.fn.nextWordBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#retestBtn',
-										   eventArr,
-										   $.fn.retestBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#displayPron',
-										   eventArr,
-										   $.fn.displayPronOnClick );
-
-		$( this ).checkAndBindEventForEle( '#displayExample',
-										   eventArr,
-										   $.fn.displayExampleOnClick );
-
-		$( this ).checkAndBindEventForEle( '#displayNativeMeaning',
-										   eventArr,
-										   $.fn.displayNativeMeaningOnClick );
-
-		eventArr = null;
-	}
-
-	$.fn.bindWordlistEvents = function() {
-		var eventArr = new Array();
-
-		( eventArr = [] ).push( 'click' );
-		$( this ).checkAndBindEventForEle( '#addNewWordlistBtn',
-										   eventArr,
-										   $.fn.addNewWordlistBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#delSelectedWordListsBtn',
-										   eventArr,
-										   $.fn.delSelectedWordListsBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#updateSelectedWordListsBtn',
-										   eventArr,
-										   $.fn.updateSelectedWordListsBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#menuItemWordlist',
-										   eventArr,
-										   $.fn.menuItemWordlistOnClick );
-
-		$( this ).checkAndbindEventsForSelectors( '.updateWordlistNameBtn',
-												  eventArr,
-												  $.fn.updateWordlistNameBtnOnClick );
-
-		eventArr = null;
-	}
-
-	$.fn.bindWordEvents = function() {
-		var eventArr = new Array();
-
-		( eventArr = [] ).push( 'click' );
-		$( this ).checkAndBindEventForEle( '#addNewWordBtn',
-										   eventArr,
-										   $.fn.addNewWordBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#delSelectedWordsBtn',
-										   eventArr,
-										   $.fn.delSelectedWordsBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#updateSelectedWordsBtn',
-										   eventArr,
-										   $.fn.updateSelectedWordsBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#menuItemWord',
-										   eventArr,
-										   $.fn.menuItemWordOnClick );
-
-		$( this ).checkAndbindEventsForSelectors( '.updateWordBtn',
-												  eventArr,
-												  $.fn.updateWordBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#firstPage',
-										   eventArr,
-										   $.fn.firstPageBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#prevPage',
-										   eventArr,
-										   $.fn.prevPageBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#nextPage',
-										   eventArr,
-										   $.fn.nextPageBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#lastPage',
-										   eventArr,
-										   $.fn.lastPageBtnOnClick );
-
-		$( this ).checkAndBindEventForEle( '#enableSearch',
-										   eventArr,
-										   $.fn.enableSearchOnClick );
-
-		( eventArr = [] ).push( 'keydown' );
-		$( this ).checkAndBindEventForEle( '#curPage',
-										   eventArr,
-										   $.fn.curPageBtnOnKeydown );
-
-		$( this ).bindExampleEvents();
-
-		eventArr = null;
-	}
-
 	$.fn.bindEventsToControls = function() {
 		/* Bind events to controls of new wordlist rows */
 		$( this ).bindGeneralEvents();
@@ -593,85 +466,6 @@ $( document ).ready( function() {
 		$( this ).bindWordlistEvents();
 
 		$( this ).bindWordEvents();
-	}
-
-	$.fn.createExampleControlsDiv = function() {
-		var divTag = document.createElement( 'DIV' );
-
-		/* Create add, update, delete buttons to add into div */
-		var addButton = $( this ).toButtonControl( 'addExampleBtn', 'Add' );
-		var updateButton = $( this ).toButtonControl( 'updateExampleBtn', 'Update' );
-		var deleteButton = $( this ).toButtonControl( 'deleteExampleBtn', 'Delete' );
-
-		/* Get position of element which div will be overlapped */
-		var thisPos = $( this ).position();
-		var topPosBtn, leftPosBtn;
-
-		/* Add buttons into div */
-		divTag.append( addButton );
-
-		/* Word already has examples */
-		if ( $( this ).prop( 'tagName' ) != 'TD' )
-		{
-			divTag.append( updateButton );
-			divTag.append( deleteButton );
-		}
-
-		$( divTag ).addClass( 'exampleBtnlDiv' );
-
-		$( divTag ).css( 'display', 'none' );
-
-		/* Update location of div */
-		$( divTag ).css( 'top', thisPos.top + 'px' );
-		$( divTag ).css( 'left', thisPos.left + 'px' );
-
-		/* Update size of div */
-		if ( $( this ).prop( 'tagName' ) == 'TD' )
-		{
-			$( divTag ).css( 'width', $( this ).width() + $( this ).css( 'padding-right' ).replace( 'px', '' ) * 2 + 'px' );
-			$( divTag ).css( 'height', $( this ).height() + $( this ).css( 'padding-bottom' ).replace( 'px', '' ) * 2 + 'px' );
-		}
-		else
-		{
-			$( divTag ).css( 'width', $( this ).parent().width() );
-			$( divTag ).css( 'height', $( this ).height() );
-		}
-
-		/* Update location for buttons */
-		if ( $( this ).prop( 'tagName' ) == 'TD' )
-		{
-			$( addButton ).css( 'width', $( this ).width() * 0.7 + 'px' );
-			$( addButton ).css( 'height', $( this ).height() * 0.7 + 'px' );
-
-			topPosBtn = $( divTag ).css( 'height' ).replace( 'px', '' ) / 2 - $( addButton ).css( 'height' ).replace( 'px', '' ) / 2;
-			leftPosBtn = ( $( divTag ).css( 'width' ).replace( 'px', '' ) - ( $( addButton ).css( 'width' ).replace( 'px', '' ) ) ) / 2;
-
-			$( addButton ).css( 'top', topPosBtn + 'px' );
-			$( addButton ).css( 'left', leftPosBtn + 'px' );
-		}
-		else
-		{
-			topPosBtn = $( divTag ).css( 'height' ).replace( 'px', '' ) / 3 - $( updateButton ).css( 'height' ).replace( 'px', '' ) / 2;
-
-			$( addButton ).css( 'top', topPosBtn + 'px' );
-			$( updateButton ).css( 'top', topPosBtn + 'px' );
-			$( deleteButton ).css( 'top', topPosBtn + 'px' );
-
-			leftPosBtn = ( $( divTag ).css( 'width' ).replace( 'px', '' ) - ( $( addButton ).css( 'width' ).replace( 'px', '' ) * 3 + 15 * 2 ) ) / 2;
-
-			$( addButton ).css( 'left', leftPosBtn + 'px' );
-
-			leftPosBtn += 15;
-			$( updateButton ).css( 'left', leftPosBtn + 'px' );
-
-			leftPosBtn += 15;
-			$( deleteButton ).css( 'left', leftPosBtn + 'px' );
-		}
-
-		if ( $( this ).prop( 'tagName') == 'TD' )
-			$( this ).append( divTag );
-		else
-			$( this ).parent().append( divTag );
 	}
 
 	$.fn.getTagDisplayVal = function() {
@@ -1001,35 +795,6 @@ $( document ).ready( function() {
 			$( this ).toEditableControls();
 	}
 
-	$.fn.getWordlistListOnSuccess = function( response, status ) {
-		$( '#hiddenWordlistCb' ).empty();
-
-		Object.keys( response[ 'dataContent' ] ).forEach( function ( key ) {
-															  var option = '<option value="' + key + '">' + response[ 'dataContent' ][ key ] + '</option>';
-															  $( '#hiddenWordlistCb' ).append( option );
-														  } );
-	}
-
-	$.fn.getTotalWordNumOnSuccess = function( response, status ) {
-		$( '#totalWordsSpan' ).html( response[ 'dataContent' ] );
-
-		$( this ).updateWordsOnCurrentPage( true );
-	}
-
-	$.fn.getTotalWordMeaningsNumOnSuccess = function( response, status ) {
-		var numWordPerPage = 10;
-
-		$( '#totalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
-
-		if( $( '#totalPage' ).text() == '0' )
-		{
-			$( '#curPage' ).val( 0 );
-			$( '#wordsCurrentPageSpan' ).html( '0' );
-		}
-
-		$( '#totalWordMeaningsSpan' ).html( response[ 'dataContent' ] );
-	}
-
 	$.fn.getPageContentOnSuccess = function( response, status, currentUri, requestMenuItem ) {
 		var pageType = '';
 		var focusControl = '';
@@ -1072,6 +837,327 @@ $( document ).ready( function() {
 		if ( event.which == 13 )
 			$( this ).toSpanControl( { data: { spanControlTranstype: 'input-text' } } );
 	}
+
+
+	/* -------- Paging helper functions - START -------- */
+
+    $.fn.validatePageIndex = function( pageType, pageIndex )
+    {
+    	var totalPageEleId;
+
+    	if ( pageType == 'word' )
+    		totalPageEleId = '#wordTotalPage';
+    	else if ( pageType == 'wordlist' )
+    		totalPageEleId = '#wordlistTotalPage';
+
+        if ( pageIndex == EMPTY_STRING ||
+             pageIndex < 0 ||
+             pageIndex > $( totalPageEleId ).text() )
+            return ERR_1005;
+        else
+            return EMPTY_STRING;
+    }
+
+	$.fn.updateStatisticValue = function( id, value ) {
+		$( '#' + id ).html( value );
+	}
+
+    $.fn.updateRecordNumOnCurPage = function( pageType, resetCurPage ) {
+    	var curPageTextboxEleId, curPageSpanEleId;
+
+        if ( pageType == 'word' )
+        {
+        	curPageTextboxEleId = '#wordCurPage';
+        	curPageSpanEleId = '#wordsCurrentPageSpan';
+        }
+        else
+        {
+        	curPageTextboxEleId = '#wordlistCurPage';
+        	curPageSpanEleId = '#wordlistsCurrentPageSpan';
+        }
+
+        $( curPageSpanEleId ).html( $( '#totalRowsInTable' ).text() );
+
+        if ( $( '#totalRowsInTable' ).text() == '0' )
+            $( curPageTextboxEleId ).val( 0 );
+        
+        if ( resetCurPage )
+            $( curPageTextboxEleId ).val( 1 );
+    }
+
+    $.fn.firstPageBtnClicked = function( event, pageType ) {
+        event.preventDefault();
+
+        var totalPageEleId, curPageEleId, enableSearchEleId;
+
+        if ( pageType == 'word' )
+        {
+        	totalPageEleId = '#wordTotalPage';
+        	curPageEleId = '#wordCurPage';
+        	enableSearchEleId = '#enableWordSearch';
+        }
+        else if ( pageType == 'wordlist' )
+        {
+        	totalPageEleId = '#wordlistTotalPage';
+        	curPageEleId = '#wordlistCurPage';
+        	enableSearchEleId = '#enableWordlistSearch';
+        }
+
+        if( $( totalPageEleId ).text() == '0' )
+            $( curPageEleId ).val( 0 );
+        else
+            $( curPageEleId ).val( 1 );
+
+        $( this ).switchPageRequest( pageType, $( enableSearchEleId ).prop( 'checked' ) );
+    }
+
+    $.fn.prevPageBtnClicked = function( event, pageType ) {
+        event.preventDefault();
+
+        var totalPageEleId, curPageEleId, enableSearchEleId;
+
+        if ( pageType == 'word' )
+        {
+        	totalPageEleId = '#wordTotalPage';
+        	curPageEleId = '#wordCurPage';
+        	enableSearchEleId = '#enableWordSearch';
+        }
+        else if ( pageType == 'wordlist' )
+        {
+        	totalPageEleId = '#wordlistTotalPage';
+        	curPageEleId = '#wordlistCurPage';
+        	enableSearchEleId = '#enableWordlistSearch';
+        }
+
+        if( $( totalPageEleId ).text() == '0' )
+            $( curPageEleId ).val( 0 );
+        else if ( $( curPageEleId ).val() > 1 )
+            $( curPageEleId ).val( $( curPageEleId ).val() - 1 );
+
+        $( this ).switchPageRequest( pageType, $( enableSearchEleId ).prop( 'checked' ) );
+    }
+
+    $.fn.nextPageBtnClicked = function( event, pageType ) {
+        event.preventDefault();
+
+        var totalPageEleId, curPageEleId, enableSearchEleId;
+
+        if ( pageType == 'word' )
+        {
+        	totalPageEleId = '#wordTotalPage';
+        	curPageEleId = '#wordCurPage';
+        	enableSearchEleId = '#enableWordSearch';
+        }
+        else if ( pageType == 'wordlist' )
+        {
+        	totalPageEleId = '#wordlistTotalPage';
+        	curPageEleId = '#wordlistCurPage';
+        	enableSearchEleId = '#enableWordlistSearch';
+        }
+
+        if( $( totalPageEleId ).text() == '0' )
+            $( curPageEleId ).val( 0 );
+        else if ( $( curPageEleId ).val() < parseInt( $( totalPageEleId ).text() ) )
+            $( curPageEleId ).val( parseInt( $( curPageEleId ).val() ) + 1 );
+
+        $( this ).switchPageRequest( pageType, $( enableSearchEleId ).prop( 'checked' ) );
+    }
+
+    $.fn.lastPageBtnClicked = function( event, pageType ) {
+        event.preventDefault();
+
+        var totalPageEleId, curPageEleId, enableSearchEleId;
+
+        if ( pageType == 'word' )
+        {
+        	totalPageEleId = '#wordTotalPage';
+        	curPageEleId = '#wordCurPage';
+        	enableSearchEleId = '#enableWordSearch';
+        }
+        else if ( pageType == 'wordlist' )
+        {
+        	totalPageEleId = '#wordlistTotalPage';
+        	curPageEleId = '#wordlistCurPage';
+        	enableSearchEleId = '#enableWordlistSearch';
+        }
+
+        if( $( totalPageEleId ).text() == '0' )
+            $( curPageEleId ).val( 0 );
+        else
+            $( curPageEleId ).val( parseInt( $( totalPageEleId ).text().trim() ) );
+
+        $( this ).switchPageRequest( pageType, $( enableSearchEleId ).prop( 'checked' ) );
+    }
+
+    $.fn.curPageKeydowned = function( event, pageType ) {
+    	var enableSearchEleId;
+
+        if ( pageType == 'word' )
+        	enableSearchEleId = '#enableWordSearch';
+        else if ( pageType == 'wordlist' )
+        	enableSearchEleId = '#enableWordlistSearch';
+
+    	if ( event.which == 13 )
+            $( this ).switchPageRequest( pageType, $( enableSearchEleId ).prop( 'checked' ) );
+    }
+
+	/* -------- Paging helper functions - END -------- */
+
+
+	/* -------- Search helper functions - START -------- */
+
+    $.fn.enableSearchOnClick = function( pageType ) {
+    	var enableSearchEleId;
+
+    	if ( pageType == 'word' )
+    		enableSearchEleId = '#enableWordSearch';
+    	else if ( pageType == 'wordlist' )
+    		enableSearchEleId = '#enableWordlistSearch';
+
+        if ( $( enableSearchEleId ).prop( 'checked' ) )
+        {
+        	if ( pageType == 'word' )
+        	{
+	            $( this ).createSearchTextBoxes( 'searchWordSpan', 'searchWordTextBox' );
+	            $( this ).createSearchTextBoxes( 'searchPartOfSpeechSpan', 'searchPartOfSpeechTextBox' );
+	            $( this ).createSearchTextBoxes( 'searchWordlistSpan', 'searchWordlistTextBox' );
+	            $( this ).createSearchTextBoxes( 'searchNativeMeaningSpan', 'searchNativeMeaningTextBox' );
+	        }
+	        else
+	        	$( this ).createSearchTextBoxes( 'searchWordlistNameSpan', 'searchWordlistTextBox' );
+        }
+        else
+        {
+        	if ( pageType == 'word' )
+        	{
+	            $( this ).removeSearchTextBoxes( 'searchWordTextBox', 'searchWordSpan' );
+	            $( this ).removeSearchTextBoxes( 'searchPartOfSpeechTextBox', 'searchPartOfSpeechSpan' );
+	            $( this ).removeSearchTextBoxes( 'searchWordlistTextBox', 'searchWordlistSpan' );
+	            $( this ).removeSearchTextBoxes( 'searchNativeMeaningTextBox', 'searchNativeMeaningSpan' );
+
+	            $( '#wordCurPage' ).val( 1 );
+
+	            $( this ).updateTotalWordMeaningsValueInStatistic( false );
+	        }
+	        else
+	        {
+	        	$( this ).removeSearchTextBoxes( 'searchWordlistTextBox', 'searchWordlistNameSpan' );
+
+	        	$( '#wordlistCurPage' ).val( 1 );
+	        }
+
+            $( this ).getTotalValueInStatistic( pageType, false );
+            $( this ).switchPageRequest( pageType, false );
+        }
+    }
+
+    $.fn.searchItemOnKeydown = function( event ) {
+        if ( event.which == 13 )
+        {
+        	var pageType = window.location.pathname.split( '/' )[ 1 ];
+
+        	$( this ).getTotalValueInStatistic( pageType, true );
+
+        	if ( pageType == 'word' )
+        	{
+        		$( this ).loadWordViewOnSearch( true );
+        		$( this ).updateTotalWordMeaningsValueInStatistic( true );
+        	}
+        	else if ( pageType == 'wordlist' )
+        		$( this ).loadWordlistViewOnSearch( true );
+        }
+    }
+
+	$.fn.createSearchTextBoxes = function( spanId, textboxId ) {
+		var inputTag = document.createElement( 'INPUT' );
+		var parentPadding = $( '#' + spanId ).parent().css( 'padding-right' ).replace( 'px', '' );
+		var parentWidth = $( '#' + spanId ).parent().width();
+		var parentHeight = $( '#' + spanId ).parent().height();
+
+		$.each( $( '#' + spanId )[ 0 ].attributes, function( i, attrib ) {
+																			 if ( attrib.name != 'id' )
+																				 $( inputTag ).attr( attrib.name, attrib.value );
+																		 } );
+
+		inputTag.type = 'text';
+
+		inputTag.id = textboxId;
+		inputTag.style.width = '100%';
+		inputTag.style.height = '100%';
+		$( inputTag ).css( 'font-style', 'italic' );
+		$( inputTag ).css( 'font-size', '12px' );
+		$( inputTag ).css( 'box-sizing', 'border-box' );
+		$( inputTag ).css( 'padding-top', '0px' );
+		$( inputTag ).css( 'padding-bottom', '0px' );
+
+		switch( spanId )
+		{
+			case 'searchWordSpan':
+				$( inputTag ).attr( 'placeholder', 'Search word' );
+				break;
+
+			case 'searchWordlistNameSpan':
+				$( inputTag ).attr( 'placeholder', 'Search wordlist name' );
+				break;
+
+			case 'searchPartOfSpeechSpan':
+				$( inputTag ).attr( 'placeholder', 'Search word class' );
+				break;
+
+			case 'searchWordlistSpan':
+				$( inputTag ).attr( 'placeholder', 'Search wordlist' );
+				break;
+
+			case 'searchNativeMeaningSpan':
+				$( inputTag ).attr( 'placeholder', 'Search native meaning' );
+				break;
+		}
+
+		$( '#' + spanId ).replaceWith( inputTag );
+
+		var eventArr = new Array();
+
+		( eventArr = [] ).push( 'keydown' );
+		$( this ).checkAndBindEventForEle( '#' + inputTag.id,
+										   eventArr,
+										   $.fn.searchItemOnKeydown );
+
+		eventArr = null;
+	}
+
+	$.fn.removeSearchTextBoxes = function( textboxId, spanId ) {
+		var spanTag = document.createElement( 'SPAN' );
+		var displayVal = '';
+
+		$( spanTag ).attr( 'class', 'searchItem' );
+		spanTag.id = spanId;
+
+		switch( textboxId )
+		{
+			case 'searchWordTextBox':
+				displayVal = 'Word Title';
+				break;
+
+			case 'searchPartOfSpeechTextBox':
+				displayVal = 'Word class';
+				break;
+
+			case 'searchWordlistTextBox':
+				displayVal = 'Wordlist';
+				break;
+
+			case 'searchNativeMeaningTextBox':
+				displayVal = 'Native meaning';
+				break;
+		}
+
+		spanTag.innerHTML = displayVal;
+
+		$( '#' + textboxId ).replaceWith( spanTag );
+	}
+
+	/* -------- Search helper functions - END -------- */
+
 } );
 
 /* =========================== Helper functions - END =========================== */
