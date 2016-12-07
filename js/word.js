@@ -922,10 +922,10 @@ $( document ).ready( function() {
         $( '#totalWordMeaningsSpan' ).html( response[ 'dataContent' ] );
     }
 
-    $.fn.getTotalWordNumOnSuccess = function( response, status ) {
+    $.fn.getTotalWordNumOnSuccess = function( response, isInSearch ) {
         $( this ).updateStatisticValue( 'totalWordsSpan', response[ 'dataContent' ] );
 
-        $( this ).updateWordsOnCurrentPage( true );
+        $( this ).updateTotalWordMeaningsValueInStatistic( isInSearch );
     }
 
     $.fn.reloadCounterInfo = function( isInSearch ) {
@@ -978,7 +978,7 @@ $( document ).ready( function() {
                     /* In case response from server is successful */
                     if ( $( this ).isServerResponseOk( response, status ) )
                     {
-                        $( this ).getTotalWordNumOnSuccess( response, status );
+                        $( this ).getTotalWordNumOnSuccess( response, isInSearch );
                     }
                 },
             data: getTotalWordsNumSendingData

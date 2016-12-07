@@ -92,7 +92,7 @@ $( document ).ready( function() {
                     if ( $( this ).isServerResponseOk( response, status ) )
                     {
                     	if ( pageType == 'word' )
-							$( this ).getTotalWordNumOnSuccess( response, status );
+							$( this ).getTotalWordNumOnSuccess( response, inSearch );
 						else
 							$( this ).getTotalWordlistNumOnSuccess( response, status );
 					}
@@ -182,7 +182,7 @@ $( document ).ready( function() {
 						{
                         	$( this ).reloadWordViewTbl( response[ 'dataContent' ] );
 
-                        	$( this ).updateWordsOnCurrentPage( false );
+                        	$( this ).updateTotalWordMeaningsValueInStatistic( false );
 						}
                         else if ( pageType == 'wordlist' )
                         {
