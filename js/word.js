@@ -902,24 +902,32 @@ $( document ).ready( function() {
                 function( response, status ) {
                     /* In case response from server is successful */
                     if ( $( this ).isServerResponseOk( response, status ) )
-                        $( this ).getTotalWordMeaningsNumOnSuccess( response, status );
+                        $( this ).getTotalWordMeaningsNumOnSuccess( response, status, false );
                 },
             data: sendingData
         } );
     }
 
-    $.fn.getTotalWordMeaningsNumOnSuccess = function( response, status ) {
-        var numWordPerPage = 10;
+    $.fn.getTotalWordMeaningsNumOnSuccess = function( response, status, resetCurPage ) {
+        var numWordsPerPage = 10;
 
-        $( '#wordTotalPage' ).html( Math.ceil( response[ 'dataContent' ] / numWordPerPage ) );
+        $( '#totalWordMeaningsSpan' ).html( response[ 'dataContent' ] );
+
+        $( this ).updateStatisticValue( 'wordsCurrentPageSpan', $( '#totalRowsInTable' ).text() );
+
+        if ( $( '#totalRowsInTable' ).text() == '0' )
+            $( '#wordCurPage' ).val( 0 );
+
+        if ( resetCurPage )
+            $( '#wordCurPage' ).val( 1 );
+
+        $( this ).updateStatisticValue( 'wordTotalPage', Math.ceil( response[ 'dataContent' ] / numWordsPerPage ) );
 
         if( $( '#wordTotalPage' ).text() == '0' )
         {
             $( '#wordCurPage' ).val( 0 );
-            $( '#wordsCurrentPageSpan' ).html( '0' );
+            $( this ).updateStatisticValue( 'wordsCurrentPageSpan', 0 );
         }
-
-        $( '#totalWordMeaningsSpan' ).html( response[ 'dataContent' ] );
     }
 
     $.fn.getTotalWordNumOnSuccess = function( response, isInSearch ) {
